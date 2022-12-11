@@ -2,6 +2,7 @@ package biz
 
 import (
 	"app/config"
+	"context"
 
 	"github.com/rs/zerolog"
 )
@@ -9,9 +10,9 @@ import (
 // HealthzRepo is the repository interface for healthz.
 type HealthzRepo interface {
 	// Readyness checks the readyness of the service.
-	Readiness() error
+	Readiness(ctx context.Context) error
 	// Liveness checks the liveness of the service.
-	Liveness() error
+	Liveness(ctx context.Context) error
 }
 
 // HealthzUsecase is usecase
@@ -29,11 +30,11 @@ func NewHealthzUsecase(repo HealthzRepo, conf *config.Config, logger zerolog.Log
 }
 
 // Readyness checks the readyness of the service.
-func (u *HealthzUsecase) Readiness() error {
-	return u.repo.Readiness()
+func (u *HealthzUsecase) Readiness(ctx context.Context) error {
+	return u.repo.Readiness(ctx)
 }
 
 // Liveness checks the liveness of the service.
-func (u *HealthzUsecase) Liveness() error {
-	return u.repo.Liveness()
+func (u *HealthzUsecase) Liveness(ctx context.Context) error {
+	return u.repo.Liveness(ctx)
 }

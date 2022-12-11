@@ -26,7 +26,7 @@ func NewHealthzService(uc *biz.HealthzUsecase) *HealthzService {
 // readyness is the readyness handler.
 func (s *HealthzService) readiness() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := s.uc.Readiness()
+		err := s.uc.Readiness(c)
 		resp := Response{
 			Code:   200,
 			Status: "OK",
@@ -53,7 +53,7 @@ func (s *HealthzService) readiness() gin.HandlerFunc {
 // liveness is the liveness handler.
 func (s *HealthzService) liveness() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := s.uc.Liveness()
+		err := s.uc.Liveness(c)
 		resp := Response{
 			Code:   200,
 			Status: "OK",

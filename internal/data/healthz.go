@@ -20,7 +20,7 @@ func NewHealthzRepo(data *Data) biz.HealthzRepo {
 }
 
 // Readyness checks the readyness of the service.
-func (r *HealthzRepo) Readiness() error {
+func (r *HealthzRepo) Readiness(ctx context.Context) error {
 	// ping the redis server
 	_, err := r.data.redis.Ping().Result()
 	if err != nil {
@@ -36,6 +36,6 @@ func (r *HealthzRepo) Readiness() error {
 }
 
 // Liveness checks the liveness of the service.
-func (r *HealthzRepo) Liveness() error {
+func (r *HealthzRepo) Liveness(ctx context.Context) error {
 	return nil
 }
