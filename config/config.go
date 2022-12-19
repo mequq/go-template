@@ -8,6 +8,13 @@ import (
 
 // Config is the config.
 type Config struct {
+	Tracing struct {
+		Endpoint      string  `mapstructure:"endpoint"`
+		ServiceName   string  `mapstructure:"servicename"`
+		Environment   string  `mapstructure:"environment"`
+		SamplingRatio float64 `mapstructure:"samplingratio"`
+		TUrl          string  `mapstructure:"turl"`
+	} `mapstructure:"tracing"`
 	Server struct {
 		// port is the port the server will listen on.
 		Port string `mapstructure:"port"`

@@ -6,7 +6,7 @@ import (
 )
 
 // service provider set
-var ServiceProviderSet = wire.NewSet(NewService, NewHealthzService)
+var ServiceProviderSet = wire.NewSet(NewService, NewHealthzService, NewUserService)
 
 // Response struct
 type Response struct {
@@ -18,7 +18,7 @@ type Response struct {
 
 // service interface
 type ServiceInterface interface {
-	RegisterRoutes(router *gin.RouterGroup)
+	RegisterRoutes(*gin.RouterGroup)
 }
 
 // service provider struct
@@ -27,9 +27,10 @@ type Service struct {
 }
 
 // NewService creates a new service.
-func NewService(healthzSvc *HealthzService) *Service {
+func NewService(healthzSvc *HealthzService, userSVC *UserService) *Service {
 	svc := &Service{}
 	svc.append(healthzSvc)
+	svc.append(userSVC)
 	return svc
 }
 

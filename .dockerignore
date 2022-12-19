@@ -1,0 +1,19 @@
+# golang gitignore
+.vscode
+/bin/*
+!bin/.gitkeep
+/vendor/*
+!vendor/.gitkeep
+*.log
+*.swp
+*.swo
+*.swx
+*.swm
+*.swn
+*.swa
+.gitignore
+.dockerignore
+.gitattributes
+.editorconfig
+Readme.md
+LICENSE

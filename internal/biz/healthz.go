@@ -4,7 +4,9 @@ import (
 	"app/config"
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"go.opentelemetry.io/otel"
 )
 
 // HealthzRepo is the repository interface for healthz.
@@ -30,7 +32,9 @@ func NewHealthzUsecase(repo HealthzRepo, conf *config.Config, logger zerolog.Log
 }
 
 // Readyness checks the readyness of the service.
-func (u *HealthzUsecase) Readiness(ctx context.Context) error {
+func (u *HealthzUsecase) Readiness(c *gin.Context) error {
+	ctx, span := otel.Tracer("healthz").Start(c.Request.Context(), "readiness-check")
+	defer span.End()
 	return u.repo.Readiness(ctx)
 }
 

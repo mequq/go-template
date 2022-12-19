@@ -1,0 +1,19 @@
+# istio virtual service
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tracer-test
+spec:
+  hosts:
+  - tracer-test.istio.izad.io
+  gateways:
+  - tracer-test-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: tracer-test
+        port:
+          number: 80

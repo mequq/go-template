@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.opentelemetry.io/otel"
 )
 
 // healthz repo struct
@@ -21,6 +22,8 @@ func NewHealthzRepo(data *Data) biz.HealthzRepo {
 
 // Readyness checks the readyness of the service.
 func (r *HealthzRepo) Readiness(ctx context.Context) error {
+	_, span := otel.Tracer("healthz").Start(ctx, "readiness-db-check")
+	defer span.End()
 	// ping the redis server
 	_, err := r.data.redis.Ping().Result()
 	if err != nil {

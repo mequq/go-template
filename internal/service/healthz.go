@@ -18,6 +18,7 @@ type HealthzResponse struct {
 
 // NewHealthzService creates a new healthz service.
 func NewHealthzService(uc *biz.HealthzUsecase) *HealthzService {
+
 	return &HealthzService{
 		uc: uc,
 	}
@@ -26,6 +27,9 @@ func NewHealthzService(uc *biz.HealthzUsecase) *HealthzService {
 // readyness is the readyness handler.
 func (s *HealthzService) readiness() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// ctx, span := otel.GetTracerProvider().Tracer("healthz2").Start(c, "readiness")
+		// defer span.End()
+
 		err := s.uc.Readiness(c)
 		resp := Response{
 			Code:   200,

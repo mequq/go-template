@@ -6,6 +6,7 @@ import (
 
 	ginzerolog "github.com/easonlin404/gin-zerolog"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 // App is the application
@@ -17,19 +18,25 @@ type App struct {
 }
 
 // NewApp creates a new application.
-func NewApp(config *config.Config, service *service.Service) *App {
-	// create a new gin engine
-	gin.SetMode(gin.ReleaseMode)
+func NewApp(config *config.Config, svc *service.Service) *App {
+	// defer tracingShoutdon(context.Background())
+	// gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 	engine.Use(ginzerolog.Logger())
+	engine.Use(otelgin.Middleware("app"))
+
+	// tmplName := "user"
+	// tmplStr := "user {{ .name }} (id {{ .id }})\n"
+	// tmpl := template.Must(template.New(tmplName).Parse(tmplStr))
+	// engine.SetHTMLTemplate(tmpl)
 
 	// create a new router
 	router := engine.Group("/")
 	// create a new app
 	app := &App{
 		config:  config,
-		Service: service,
+		Service: svc,
 		Engine:  engine,
 		Router:  router,
 	}

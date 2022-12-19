@@ -25,7 +25,10 @@ func wireApp(config2 *config.Config, logger zerolog.Logger) (*app.App, func(), e
 	healthzRepo := data.NewHealthzRepo(dataData)
 	healthzUsecase := biz.NewHealthzUsecase(healthzRepo, config2, logger)
 	healthzService := service.NewHealthzService(healthzUsecase)
-	serviceService := service.NewService(healthzService)
+	userRepo := data.NewUserRepo(dataData)
+	userUsecase := biz.NewUserUsecase(userRepo, config2)
+	userService := service.NewUserService(userUsecase, logger)
+	serviceService := service.NewService(healthzService, userService)
 	appApp := app.NewApp(config2, serviceService)
 	return appApp, func() {
 		cleanup()

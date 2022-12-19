@@ -1,6 +1,14 @@
 ---
+Tracing:
+  Endpoint: "http://localhost:9411/api/v2/spans"
+  ServiceName: "go-micro"
+  SamplingRatio: 5
+  Debug: true
+  Enviorment: "dev"
+  TURL: "https://www.google.com"
+
 Server: 
-  Port: "9090"
+  Port: "8080"
   Host: "0.0.0.0"
 Redis: 
   Host: "127.0.0.1"

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracer-test
+spec:
+  selector:
+    matchLabels:
+      app: tracer-test
+  template:
+    metadata:
+      labels:
+        app: tracer-test
+    spec:
+      containers:
+      - name: tracer-test
+        env:
+        - name: TRACING_ENDPOINT
+          value: "http://zipkin.istio-system:9411/api/v2/spans"
+        - name: TRACING_SERVICE_NAME
+          value: "test"
+        - name: TRACING_SAMPLING_RATIO
+          value: "50"
+        - name: TRACING_TURL
+          value: "http://booking.pharmuni.com/productpage"
+
+        image: registry.digitalocean.com/digitla-repo/test:v20 
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080

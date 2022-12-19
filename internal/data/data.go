@@ -12,7 +12,7 @@ import (
 )
 
 // provide set
-var DataProviderSet = wire.NewSet(NewData, NewHealthzRepo)
+var DataProviderSet = wire.NewSet(NewData, NewHealthzRepo, NewUserRepo)
 
 // Data provider struct
 type Data struct {
