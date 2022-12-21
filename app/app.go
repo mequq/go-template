@@ -3,9 +3,12 @@ package app
 import (
 	"app/config"
 	"app/internal/service"
+	"context"
+	"net/http"
 
 	ginzerolog "github.com/easonlin404/gin-zerolog"
 	"github.com/gin-gonic/gin"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -15,6 +18,7 @@ type App struct {
 	Service *service.Service
 	Engine  *gin.Engine
 	Router  *gin.RouterGroup
+	srv     *http.Server
 }
 
 // NewApp creates a new application.
@@ -25,6 +29,8 @@ func NewApp(config *config.Config, svc *service.Service) *App {
 	engine.Use(gin.Recovery())
 	engine.Use(ginzerolog.Logger())
 	engine.Use(otelgin.Middleware("app"))
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(engine)
 
 	// tmplName := "user"
 	// tmplStr := "user {{ .name }} (id {{ .id }})\n"
@@ -39,6 +45,9 @@ func NewApp(config *config.Config, svc *service.Service) *App {
 		Service: svc,
 		Engine:  engine,
 		Router:  router,
+		srv: &http.Server{
+			Addr: config.Server.Host + ":" + config.Server.Port,
+		},
 	}
 	return app
 
@@ -49,7 +58,13 @@ func (a *App) RegisterRoutes() {
 	a.Service.RegisterRoutes(a.Router)
 }
 
+// shutdown server
+func (a *App) Shutdown(ctx context.Context) error {
+	return a.srv.Shutdown(ctx)
+}
+
 // Run runs the application.
 func (a *App) Run() error {
-	return a.Engine.Run(a.config.Server.Host + ":" + a.config.Server.Port)
+	a.srv.Handler = a.Engine
+	return a.srv.ListenAndServe()
 }

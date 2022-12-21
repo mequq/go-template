@@ -10,6 +10,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/instrument"
 )
 
 // user is the user entity.
@@ -29,13 +31,15 @@ type UserRepo interface {
 type UserUsecase struct {
 	repo   UserRepo
 	config *config.Config
+	mt     metric.Meter
 }
 
 // NewUserUsecase creates a new user usecase.
-func NewUserUsecase(repo UserRepo, c *config.Config) *UserUsecase {
+func NewUserUsecase(repo UserRepo, c *config.Config, metricProvider metric.MeterProvider) *UserUsecase {
 	return &UserUsecase{
 		repo:   repo,
 		config: c,
+		mt:     metricProvider.Meter("user"),
 	}
 }
 
@@ -68,6 +72,11 @@ func (u *UserUsecase) Get(c *gin.Context, id int64) (*User, error) {
 }
 
 func (u *UserUsecase) List(c *gin.Context) ([]*User, error) {
+	counetr, err := u.mt.SyncFloat64().Counter("foo", instrument.WithDescription("user list counter"))
+	if err != nil {
+		return nil, err
+	}
+	counetr.Add(c.Request.Context(), 1.0)
 	ctx, span := otel.Tracer("healthz").Start(c.Request.Context(), "readiness-usecase")
 	defer span.End()
 	url := u.config.Tracing.TUrl

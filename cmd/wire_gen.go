@@ -13,11 +13,12 @@ import (
 	"app/internal/data"
 	"app/internal/service"
 	"github.com/rs/zerolog"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Injectors from wire.go:
 
-func wireApp(config2 *config.Config, logger zerolog.Logger) (*app.App, func(), error) {
+func wireApp(config2 *config.Config, logger zerolog.Logger, metricProvider metric.MeterProvider) (*app.App, func(), error) {
 	dataData, cleanup, err := data.NewData(config2)
 	if err != nil {
 		return nil, nil, err
@@ -26,7 +27,7 @@ func wireApp(config2 *config.Config, logger zerolog.Logger) (*app.App, func(), e
 	healthzUsecase := biz.NewHealthzUsecase(healthzRepo, config2, logger)
 	healthzService := service.NewHealthzService(healthzUsecase)
 	userRepo := data.NewUserRepo(dataData)
-	userUsecase := biz.NewUserUsecase(userRepo, config2)
+	userUsecase := biz.NewUserUsecase(userRepo, config2, metricProvider)
 	userService := service.NewUserService(userUsecase, logger)
 	serviceService := service.NewService(healthzService, userService)
 	appApp := app.NewApp(config2, serviceService)
