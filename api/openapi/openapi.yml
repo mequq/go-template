@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /healthz/liveness:
+    get:
+      operationId: healthz.liveness
+      description: |
+        k8s liveness probe endpoint.
+      tags:
+        - healthz
+      responses:
+        '200':
+          description: OK
+  /healthz/readiness:
+    get:
+      operationId: healthz.readiness
+      description: |
+        k8s readiness probe endpoint.
+      tags:
+        - healthz
+      responses:
+        '200':
+          description: OK
