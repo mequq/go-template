@@ -26,10 +26,7 @@ func wireApp(config2 *config.Config, logger zerolog.Logger, metricProvider metri
 	healthzRepo := data.NewHealthzRepo(dataData)
 	healthzUsecase := biz.NewHealthzUsecase(healthzRepo, config2, logger)
 	healthzService := service.NewHealthzService(healthzUsecase)
-	userRepo := data.NewUserRepo(dataData)
-	userUsecase := biz.NewUserUsecase(userRepo, config2, metricProvider)
-	userService := service.NewUserService(userUsecase, logger)
-	serviceService := service.NewService(healthzService, userService)
+	serviceService := service.NewService(healthzService)
 	appApp := app.NewApp(config2, serviceService)
 	return appApp, func() {
 		cleanup()
