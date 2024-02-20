@@ -1,0 +1,46 @@
+
+Server:
+  grpc:
+    port: 50051
+    host: "localhost"
+    production: false
+  http:
+    port: 8080
+    host: "localhost"
+    production: true
+Service:
+  scheduler:
+    enabled: false
+    interval: "3s"
+
+
+
+datasource:
+  mysql:
+    dns: "root:salam@tcp(localhost:3306)/schaduler?charset=utf8mb4&parseTime=True&loc=UTC"
+    connection_pool_enabled: true
+    connection_pool_max_idle: 10
+    connection_pool_max_open: 100
+    connection_pool_max_lifetime: "1h"
+    connection_pool_max_idle_time: "1h"
+    connection_pool_health_check_period: "1m"
+    connection_pool_health_check_timeout: "1s"
+    enabled: true
+observability:
+  tracing:
+    enabled: false
+    zipkin:
+      url: "http://localhost:9411/api/v2/spans"
+      service_name: "greeter"
+  metrics:
+    enabled: false
+    prometheus:
+      port: 9090
+      host: "localhost"
+      path: "/metrics"
+  logging:
+    level: "info"
+    logstash:
+      enabled: false
+      address: "127.0.0.1:9000"
+
