@@ -1,3 +1,3 @@
 # go-template
 
-go application template
+go application ${REPO_NAME}
