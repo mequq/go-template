@@ -20,6 +20,8 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+var _ ServiceInterface = (*GorilaMuxHealthzService)(nil)
+
 // New GorilaMuxHealthzService
 func NewGorilaMuxHealthzService(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *GorilaMuxHealthzService {
 	return &GorilaMuxHealthzService{
@@ -43,7 +45,7 @@ func (s *GorilaMuxHealthzService) HealthzLiveness(w http.ResponseWriter, r *http
 
 	w.WriteHeader(http.StatusOK)
 
-	s.logger.Debug("HealthzLiveness", "ctx", r)
+	s.logger.Debug("HealthzLiveness", "ctx", ctx)
 	json.NewEncoder(w).Encode(Response{Message: "ok"})
 }
 

@@ -133,6 +133,7 @@ func main() {
 		err := httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			logger.Error("failed to run app", "err", err)
+			panic(err)
 		}
 
 	}()
