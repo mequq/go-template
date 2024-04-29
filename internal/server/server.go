@@ -2,4 +2,4 @@ package server
 
 import "github.com/google/wire"
 
-var ServerProviderSet = wire.NewSet(NewGorillaMuxServer)
+var ServerProviderSet = wire.NewSet(NewHttpHandler)

@@ -19,15 +19,15 @@ import (
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg *config.ViperConfig, logger *slog.Logger) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	dataSource, err := data.NewDataSource(ctx, logger, cfg)
 	if err != nil {
 		return nil, err
 	}
 	healthzRepoInterface := data.NewHealthzRepo(logger, dataSource)
 	healthzUseCaseInterface := biz.NewHealthzUseCase(healthzRepoInterface, logger)
-	gorilaMuxHealthzService := service.NewGorilaMuxHealthzService(healthzUseCaseInterface, logger)
-	v := service.NewServiceList(gorilaMuxHealthzService)
-	handler := server.NewGorillaMuxServer(cfg, logger, v...)
+	healthzService := service.NewGorilaMuxHealthzService(healthzUseCaseInterface, logger)
+	v := service.NewServiceList(healthzService)
+	handler := server.NewHttpHandler(cfg, logger, v...)
 	return handler, nil
 }

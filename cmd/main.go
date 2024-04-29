@@ -5,6 +5,7 @@ import (
 	"application/internal/utils"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
@@ -36,15 +37,23 @@ func main() {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	cfg := &config.ViperConfig{}
-	conf, err := config.NewConfig("config.yaml")
+	configAddress := flag.String("config", "dev-config.yaml", "config file address")
+	flag.Parse()
+
+	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(*configAddress))
 	if err != nil {
 		panic(err)
 	}
-	// load config
-	if err := conf.Load(cfg); err != nil {
-		panic(err)
-	}
+
+	// conf, err := config.NewConfig(*configAddress)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// // load config
+	// v, err := conf.Load()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// init tracer to stdout
 
@@ -74,16 +83,15 @@ func main() {
 		semconv.ContainerName("myContainer"),
 	)
 
-	r2, err := resource.New(context.Background(),
-		// resource.WithFromEnv(),   // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
-		// resource.WithProcess(),   // This option configures a set of Detectors that discover process information
-		// resource.WithOS(),        // This option configures a set of Detectors that discover OS information
-		resource.WithContainer(), // This option configures a set of Detectors that discover container information
-		// resource.WithHost(),      // This option configures a set of Detectors that discover host information
-		// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
-		// resource.WithContainerID(),
-		// resource.WithSchemaURL(semconv.SchemaURL),
-	)
+	r2, err := resource.New(context.Background()) // resource.WithFromEnv(),   // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
+	// resource.WithProcess(),   // This option configures a set of Detectors that discover process information
+	// resource.WithOS(),        // This option configures a set of Detectors that discover OS information
+	// resource.WithContainer(), // This option configures a set of Detectors that discover container information
+	// resource.WithHost(),      // This option configures a set of Detectors that discover host information
+	// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
+	// resource.WithContainerID(),
+	// resource.WithSchemaURL(semconv.SchemaURL),
+
 	if err != nil {
 		panic(err)
 	}
@@ -108,14 +116,18 @@ func main() {
 	otel.SetTracerProvider(tp)
 
 	// init logger
-	logger := initSlogLogger(cfg)
-	logger.Debug("config", "cfg", cfg)
 
-	engine, err := wireApp(ctx, cfg, logger)
+	var cfg LogingConfig
+	config.Unmarshal(&cfg)
+	logger := initSlogLogger(cfg)
+	logger.Info("logger started", "config", cfg)
+
+	engine, err := wireApp(ctx, config, logger)
 	if err != nil {
 		logger.Error("failed to init app", "err", err)
 		panic(err)
 	}
+
 	timeoutMSG, err := json.Marshal(ErrorRequestTimeout)
 	if err != nil {
 		panic(err)
@@ -155,15 +167,38 @@ func main() {
 
 }
 
-func initSlogLogger(conf *config.ViperConfig) *slog.Logger {
+type (
+	LogingConfig struct {
+		Observability Observability `mapstructure:"observability"`
+	}
+	Observability struct {
+		Logging Logging `mapstructure:"logging"`
+	}
+	Logging struct {
+		Level    string   `mapstructure:"level" `
+		Logstash Logstash `mapstructure:"logstash"`
+	}
+	Logstash struct {
+		Enabled bool   `mapstructure:"enabled"`
+		Address string `mapstructure:"address"`
+	}
+)
+
+func initSlogLogger(cfg LogingConfig) *slog.Logger {
 
 	// create list of slog handlers
 	slogHandlerOptions := &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
 	}
+	// cfg := LogingConfig{}
+	// if err := v.Unmarshal(&cfg); err != nil {
+	// 	panic(err)
+	// }
 
-	switch conf.Observability.Logging.Level {
+	level := cfg.Observability.Logging.Level
+
+	switch level {
 	case "debug":
 		slogHandlerOptions.Level = slog.LevelDebug
 	case "info":
@@ -181,11 +216,11 @@ func initSlogLogger(conf *config.ViperConfig) *slog.Logger {
 	// add stdout
 	slogHandlers = append(slogHandlers, slog.NewJSONHandler(os.Stdout, slogHandlerOptions))
 	// add udp if logstash enabled
-	if conf.Observability.Logging.Logstash.Enabled {
+	if cfg.Observability.Logging.Logstash.Enabled {
 		// options := slogsyslog.Option{}
 		fmt.Println("logstash enabled")
 		// address := conf.Observability.Logging.Logstash.Address
-		con, err := net.Dial("udp", conf.Observability.Logging.Logstash.Address)
+		con, err := net.Dial("udp", cfg.Observability.Logging.Logstash.Address)
 		if err != nil {
 			panic(err)
 		}
@@ -193,10 +228,6 @@ func initSlogLogger(conf *config.ViperConfig) *slog.Logger {
 	}
 
 	logger := slog.New(slogmulti.Fanout(slogHandlers...))
-	tages := []string{}
-	tages = append(tages, conf.ServerConfig.Name)
-
-	logger = logger.With("service", conf.ServerConfig.Name, "tags", tages)
 	slog.SetDefault(logger)
 
 	return logger

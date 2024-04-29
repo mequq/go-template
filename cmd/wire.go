@@ -20,7 +20,7 @@ import (
 	"log/slog"
 )
 
-func wireApp(ctx context.Context, cfg *config.ViperConfig, logger *slog.Logger) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
 		server.ServerProviderSet,
 		service.ServiceProviderSet,

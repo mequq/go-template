@@ -1,8 +1,9 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/google/wire"
-	"github.com/gorilla/mux"
 )
 
 var ServiceProviderSet = wire.NewSet(
@@ -11,7 +12,7 @@ var ServiceProviderSet = wire.NewSet(
 )
 
 // New ServiceList
-func NewServiceList(healthzSvc *GorilaMuxHealthzService) []ServiceInterface {
+func NewServiceList(healthzSvc *HealthzService) []ServiceInterface {
 	return []ServiceInterface{
 		healthzSvc,
 	}
@@ -19,5 +20,6 @@ func NewServiceList(healthzSvc *GorilaMuxHealthzService) []ServiceInterface {
 
 // Service Interface
 type ServiceInterface interface {
-	RegisterRoutes(mux *mux.Router)
+	// RegisterRoutes(mux *mux.Router)
+	RegisterMuxRouter(mux *http.ServeMux)
 }

@@ -1,10 +1,9 @@
 package data
 
 import (
+	"application/config"
 	"context"
 	"errors"
-
-	"application/config"
 
 	"log/slog"
 )
@@ -17,13 +16,13 @@ var (
 // DataSouce is the struct that holds all the data sources
 type DataSource struct {
 	logger *slog.Logger
-	cfg    *config.ViperConfig
+	cfg    config.ConfigInterface
 
 	ctx context.Context
 }
 
 // NewDataSource creates a new DataSource
-func NewDataSource(ctx context.Context, logger *slog.Logger, cfg *config.ViperConfig) (*DataSource, error) {
+func NewDataSource(ctx context.Context, logger *slog.Logger, cfg config.ConfigInterface) (*DataSource, error) {
 	ds := &DataSource{
 		logger: logger.With("module", "repo"),
 		cfg:    cfg,
@@ -36,7 +35,32 @@ func NewDataSource(ctx context.Context, logger *slog.Logger, cfg *config.ViperCo
 	return ds, nil
 }
 
+type DataSourceConfig struct {
+	Datasource struct {
+		Mysql struct {
+			Enabled               bool
+			DSN                   string
+			ConnectionPoolEnabled bool `koanf:"connection_pool_enabled"`
+			ConnectionPoolMaxIdle int  `koanf:"connection_pool_max_idle"`
+			ConnectionPoolMaxOpen int  `koanf:"connection_pool_max_open"`
+		}
+		Redis struct {
+			Enabled  bool
+			Address  string
+			DB       int
+			PassWord string
+		}
+	}
+}
+
 func (ds *DataSource) Init() error {
+
+	cfg := &DataSourceConfig{}
+
+	if err := ds.cfg.Unmarshal(cfg); err != nil {
+		panic(err)
+	}
+	ds.logger.Info("config", "config", cfg)
 	// err := ds.InitSQL()
 	// if err != nil {
 	// 	return err

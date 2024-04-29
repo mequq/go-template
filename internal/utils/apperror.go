@@ -3,8 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-
-	"go.uber.org/zap/zapcore"
 )
 
 type AppError interface {
@@ -14,7 +12,6 @@ type AppError interface {
 	ErrorCode() int
 	StatusCode() int
 	Message() string
-	MarshalLogObject(s zapcore.ObjectEncoder) error
 	MarshalJSON() ([]byte, error)
 	CleanDetail() AppError
 }
@@ -80,18 +77,18 @@ func (e appError) As(target interface{}) bool {
 	return false
 }
 
-func (e *appError) MarshalLogObject(s zapcore.ObjectEncoder) error {
-	s.AddInt("errorCode", e.errorCode)
-	s.AddInt("statusCode", e.statusCode)
-	s.AddString("message", e.message)
-	s.AddArray("errors", zapcore.ArrayMarshalerFunc(func(a zapcore.ArrayEncoder) error {
-		for _, err := range e.errors {
-			a.AppendString(fmt.Sprintf("%v", err))
-		}
-		return nil
-	}))
-	return nil
-}
+// func (e *appError) MarshalLogObject(s zapcore.ObjectEncoder) error {
+// 	s.AddInt("errorCode", e.errorCode)
+// 	s.AddInt("statusCode", e.statusCode)
+// 	s.AddString("message", e.message)
+// 	s.AddArray("errors", zapcore.ArrayMarshalerFunc(func(a zapcore.ArrayEncoder) error {
+// 		for _, err := range e.errors {
+// 			a.AppendString(fmt.Sprintf("%v", err))
+// 		}
+// 		return nil
+// 	}))
+// 	return nil
+// }
 
 func (e *appError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
