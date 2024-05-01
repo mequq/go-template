@@ -2,7 +2,9 @@ package service
 
 import (
 	"application/internal/biz"
-	"application/internal/utils"
+	"application/pkg/middlewares"
+	"application/pkg/middlewares/httplogger"
+	"application/pkg/middlewares/httprecovery"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -37,9 +39,7 @@ func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 
 	err := s.uc.Liveness(ctx)
 	if err != nil {
-		apperr := utils.ConvertError(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(apperr.CleanDetail())
 		return
 	}
 
@@ -54,7 +54,7 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 	// context
 	ctx := r.Context()
 	// logger
-	logger := s.logger.With("method", "HealthzReadiness", "ctx", utils.LogContext(ctx))
+	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
 	//  application json
 	w.Header().Set("Content-Type", "application/json")
 
@@ -63,9 +63,8 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 	err := s.uc.Readiness(ctx)
 	if err != nil {
 		logger.Error("HealthzReadiness", "err", err)
-		apperr := utils.ConvertError(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(apperr.CleanDetail())
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -84,16 +83,15 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 	// sleep 30 second
 	timeString := r.PathValue("time")
 	ctx := r.Context()
-	logger := s.logger.With("method", "LongRun", "ctx", utils.LogContext(ctx))
+	logger := s.logger.With("method", "LongRun", "ctx", ctx)
 	logger.Debug("LongRun", "time", timeString)
 
 	// sleep to int
 	duration, err := time.ParseDuration(timeString)
 	if err != nil {
 		logger.Error("LongRun", "err", err)
-		apperr := utils.ConvertError(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(apperr.CleanDetail())
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 	time.Sleep(duration)
@@ -109,8 +107,26 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 // }
 
 func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {
-	mux.HandleFunc("GET /healthz/liveness", s.HealthzLiveness)
-	mux.HandleFunc("GET /healthz/readiness", s.HealthzReadiness)
-	mux.HandleFunc("GET /healthz/panic", s.Panic)
-	mux.HandleFunc("GET /healthz/sleep/{time}", s.LongRun)
+
+	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
+	if err != nil {
+		panic(err)
+	}
+
+	loggerMiddleware, err := httplogger.NewLoggerMiddleware()
+	if err != nil {
+		panic(err)
+	}
+	healthzMiddleware := []middlewares.Middleware{
+		recoverMiddleware.RecoverMiddleware,
+	}
+
+	otherMiddleware := []middlewares.Middleware{
+		loggerMiddleware.LoggerMiddleware,
+		recoverMiddleware.RecoverMiddleware,
+	}
+	mux.HandleFunc("GET /healthz/liveness", middlewares.MultipleMiddleware(s.HealthzLiveness, healthzMiddleware...))
+	mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))
+	mux.HandleFunc("GET /healthz/panic", middlewares.MultipleMiddleware(s.Panic, otherMiddleware...))
+	mux.HandleFunc("GET /healthz/sleep/{time}", middlewares.MultipleMiddleware(s.LongRun, otherMiddleware...))
 }

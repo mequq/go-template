@@ -2,9 +2,8 @@ package main
 
 import (
 	"application/config"
-	"application/internal/utils"
 	"context"
-	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"net"
@@ -27,7 +26,7 @@ import (
 )
 
 var (
-	ErrorRequestTimeout = utils.NewAppError(1000, 503, "request timeout")
+	ErrorRequestTimeout = errors.New("request take to longs to response")
 )
 
 func main() {
@@ -128,16 +127,16 @@ func main() {
 		panic(err)
 	}
 
-	timeoutMSG, err := json.Marshal(ErrorRequestTimeout)
-	if err != nil {
-		panic(err)
-	}
+	// timeoutMSG, err := json.Marshal(utils.NewHttpError(1000, "message", ErrorRequestTimeout))
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	timeoutHandler := http.TimeoutHandler(engine, 5*time.Second, string(timeoutMSG))
+	// timeoutHandler := http.TimeoutHandler(engine, 5*time.Second, string(timeoutMSG))
 
 	httpServer := &http.Server{
 		Addr:        ":8080",
-		Handler:     timeoutHandler,
+		Handler:     engine,
 		ReadTimeout: 3 * time.Second,
 	}
 

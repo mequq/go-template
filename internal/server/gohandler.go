@@ -3,8 +3,6 @@ package server
 import (
 	"application/config"
 	"application/internal/service"
-	"application/pkg/middlewares/httplogger"
-	"application/pkg/middlewares/httprecovery"
 	"log/slog"
 	"net/http"
 )
@@ -15,15 +13,15 @@ func NewHttpHandler(
 	svcs ...service.ServiceInterface,
 
 ) http.Handler {
-	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
-	if err != nil {
-		panic(err)
-	}
+	// recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	loggerMiddleware, err := httplogger.NewLoggerMiddleware()
-	if err != nil {
-		panic(err)
-	}
+	// loggerMiddleware, err := httplogger.NewLoggerMiddleware()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// context middleware
 
@@ -35,9 +33,9 @@ func NewHttpHandler(
 		svc.RegisterMuxRouter(mux)
 	}
 
-	m := loggerMiddleware.LoggerMiddleware(mux)
-	m = recoverMiddleware.RecoverMiddleware(m)
+	// m := loggerMiddleware.LoggerMiddleware(mux)
+	// m = recoverMiddleware.RecoverMiddleware(m)
 
-	return m
+	return mux
 
 }
