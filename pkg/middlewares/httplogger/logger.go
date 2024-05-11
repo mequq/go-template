@@ -1,8 +1,10 @@
 package httplogger
 
 import (
+	"application/pkg/utils"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -60,11 +62,6 @@ func (lm *LoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			ctx := req.Context()
 
-			remoteAddr := req.Header.Get("X-Forwarded-For")
-			if remoteAddr == "" {
-				remoteAddr = req.RemoteAddr
-			}
-
 			lm.logger.Log(ctx, lm.level, "request fulfilled",
 				slog.Group(
 					"request-info",
@@ -72,13 +69,30 @@ func (lm *LoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler {
 					slog.String("url", req.URL.String()),
 					slog.Int("status", recorder.Status),
 					slog.String("duration", time.Since(startTime).String()),
-					slog.String("remote", remoteAddr),
-					slog.String("request-id", req.Header.Get("x-request-id")),
 				),
+				"ctx", utils.GetLoggerContext(ctx),
 			)
 
 		}()
 		next.ServeHTTP(recorder, req)
 
 	})
+}
+
+func SetRequestContextLogger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+
+		reqID := req.Header.Get("x-request-id")
+		if reqID != "" {
+			ctx = utils.SetLoggerContext(ctx, slog.String("request-id", req.Header.Get("x-request-id")))
+		}
+		reqIP := req.Header.Get("x-forwarded-for")
+		if reqIP == "" {
+			reqIP = strings.Split(req.RemoteAddr, ":")[0]
+		}
+		ctx = utils.SetLoggerContext(ctx, slog.String("request-ip", reqIP))
+		next.ServeHTTP(w, req.WithContext(ctx))
+	})
+
 }

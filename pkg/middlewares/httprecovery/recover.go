@@ -1,7 +1,7 @@
 package httprecovery
 
 import (
-	"application/internal/utils"
+	"application/pkg/utils"
 	"encoding/json"
 	"errors"
 	"fmt"

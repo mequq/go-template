@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"context"
+	"log/slog"
+)
+
 // import (
 // 	"context"
 // 	"net/http"
@@ -57,3 +62,27 @@ package utils
 // 	nCtx = context.WithValue(nCtx, reqClientIP, requestIP)
 // 	return nCtx
 // }
+
+type keyType int
+
+const LoggerContext keyType = 1
+
+func SetLoggerContext(ctx context.Context, attr slog.Attr) context.Context {
+	attrs := []slog.Attr{attr}
+	if ctxattrs, ok := ctx.Value(LoggerContext).([]slog.Attr); ok {
+		attrs = append(attrs, ctxattrs...)
+	}
+	return context.WithValue(ctx, LoggerContext, attrs)
+}
+
+func GetLoggerContext(ctx context.Context) slog.Value {
+	if ctx == nil {
+		return slog.GroupValue()
+	}
+
+	if ctx.Value(LoggerContext) != nil {
+		attrs := ctx.Value(LoggerContext).([]slog.Attr)
+		return slog.GroupValue(attrs...)
+	}
+	return slog.GroupValue()
+}

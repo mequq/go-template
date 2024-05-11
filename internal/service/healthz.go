@@ -5,6 +5,7 @@ import (
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
+	"application/pkg/utils"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -34,9 +35,10 @@ func NewGorilaMuxHealthzService(uc biz.HealthzUseCaseInterface, logger *slog.Log
 
 // Healthz Liveness
 func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	ctx := r.Context()
-
+	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(ctx))
+	logger.Debug("Liveness")
+	w.Header().Set("Content-Type", "application/json")
 	err := s.uc.Liveness(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -44,8 +46,6 @@ func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusOK)
-
-	s.logger.Debug("HealthzLiveness", "ctx", ctx)
 	json.NewEncoder(w).Encode(Response{Message: "ok"})
 }
 
@@ -117,13 +117,21 @@ func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {
 	if err != nil {
 		panic(err)
 	}
+	loggerMiddlewareDebug, err := httplogger.NewLoggerMiddleware(httplogger.WithLevel(slog.LevelDebug))
+	if err != nil {
+		panic(err)
+	}
+
 	healthzMiddleware := []middlewares.Middleware{
 		recoverMiddleware.RecoverMiddleware,
+		httplogger.SetRequestContextLogger,
+		loggerMiddlewareDebug.LoggerMiddleware,
 	}
 
 	otherMiddleware := []middlewares.Middleware{
 		loggerMiddleware.LoggerMiddleware,
 		recoverMiddleware.RecoverMiddleware,
+		httplogger.SetRequestContextLogger,
 	}
 	mux.HandleFunc("GET /healthz/liveness", middlewares.MultipleMiddleware(s.HealthzLiveness, healthzMiddleware...))
 	mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))
