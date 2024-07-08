@@ -5,11 +5,9 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GO111MODULE=on
 # ENV GOPROXY=https://goproxy.cn,direct 
-COPY go.mod .
-COPY go.sum .
+COPY . .
 RUN go mod download -x
 RUN go mod verify
-COPY . .
 RUN ls -laR
 RUN go generate ./...
 RUN go build -v  -o ./bin/ ./...
