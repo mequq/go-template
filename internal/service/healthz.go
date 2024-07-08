@@ -1,7 +1,6 @@
 package service
 
 import (
-	"application/internal/biz"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
@@ -15,7 +14,6 @@ import (
 )
 
 type HealthzService struct {
-	uc     biz.HealthzUseCaseInterface
 	logger *slog.Logger
 }
 
@@ -26,9 +24,8 @@ type Response struct {
 var _ ServiceInterface = (*HealthzService)(nil)
 
 // New GorilaMuxHealthzService
-func NewGorilaMuxHealthzService(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *HealthzService {
+func NewGorilaMuxHealthzService(logger *slog.Logger) *HealthzService {
 	return &HealthzService{
-		uc:     uc,
 		logger: logger.With("layer", "GorilaMuxHealthzService"),
 	}
 }
@@ -39,11 +36,6 @@ func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(ctx))
 	logger.Debug("Liveness")
 	w.Header().Set("Content-Type", "application/json")
-	err := s.uc.Liveness(ctx)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Response{Message: "ok"})
@@ -60,13 +52,7 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 
 	ctx, span := otel.Tracer("service").Start(ctx, "rediness")
 	defer span.End()
-	err := s.uc.Readiness(ctx)
-	if err != nil {
-		logger.Error("HealthzReadiness", "err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err)
-		return
-	}
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Response{Message: "ok"})
 	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)
@@ -76,8 +62,6 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 func (s *HealthzService) Panic(w http.ResponseWriter, r *http.Request) {
 	panic("Panic for test")
 }
-
-//  long running request
 
 func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 	// sleep 30 second
@@ -98,13 +82,6 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Response{Message: "ok"})
 	w.WriteHeader(http.StatusOK)
 }
-
-// Healthz Route
-// func (s *GorilaMuxHealthzService) RegisterRoutes(r *mux.Router) {
-// 	sr := r.PathPrefix("/healthz").Subrouter()
-// 	sr.HandleFunc("/liveness", s.HealthzLiveness).Methods(http.MethodGet)
-// 	sr.HandleFunc("/readiness", s.HealthzReadiness).Methods(http.MethodGet)
-// }
 
 func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {
 
