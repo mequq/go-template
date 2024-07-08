@@ -59,7 +59,5 @@ check:
 
 
 build:
-	docker build -t nexus.infra.io:8443/xfolio/basicinfo:release .
+	docker build -t buildf .
 
-push:
-	docker push nexus.infra.io:8443/xfolio/basicinfo:release
