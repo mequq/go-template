@@ -13,6 +13,8 @@ require (
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.24.0
 	go.opentelemetry.io/otel/sdk v1.24.0
+	go.uber.org/mock v0.4.0
+	gorm.io/gorm v1.25.10
 )
 
 require (
@@ -36,5 +38,4 @@ require (
 	golang.org/x/sys v0.18.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/gorm v1.25.10 // indirect
 )
