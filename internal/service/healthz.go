@@ -23,10 +23,9 @@ type Response struct {
 
 var _ ServiceInterface = (*HealthzService)(nil)
 
-// New GorilaMuxHealthzService
-func NewGorilaMuxHealthzService(logger *slog.Logger) *HealthzService {
+func NewMuxHealthzService(logger *slog.Logger) *HealthzService {
 	return &HealthzService{
-		logger: logger.With("layer", "GorilaMuxHealthzService"),
+		logger: logger.With("layer", "MuxHealthzService"),
 	}
 }
 

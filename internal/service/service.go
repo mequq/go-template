@@ -7,7 +7,7 @@ import (
 )
 
 var ServiceProviderSet = wire.NewSet(
-	NewGorilaMuxHealthzService,
+	NewMuxHealthzService,
 	NewServiceList,
 )
 
