@@ -11,6 +11,7 @@ package mock_sample_entitiy
 
 import (
 	entity "application/internal/entity"
+	context "context"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -40,58 +41,58 @@ func (m *MockDataSource) EXPECT() *MockDataSourceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockDataSource) Create() (uint64, error) {
+func (m *MockDataSource) Create(ctx context.Context, sampleEntity *entity.SampleEntity) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create")
+	ret := m.ctrl.Call(m, "Create", ctx, sampleEntity)
 	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockDataSourceMockRecorder) Create() *gomock.Call {
+func (mr *MockDataSourceMockRecorder) Create(ctx, sampleEntity any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockDataSource)(nil).Create))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockDataSource)(nil).Create), ctx, sampleEntity)
 }
 
 // Delete mocks base method.
-func (m *MockDataSource) Delete() error {
+func (m *MockDataSource) Delete(ctx context.Context, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete")
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockDataSourceMockRecorder) Delete() *gomock.Call {
+func (mr *MockDataSourceMockRecorder) Delete(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDataSource)(nil).Delete))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDataSource)(nil).Delete), ctx, id)
 }
 
 // List mocks base method.
-func (m *MockDataSource) List() []*entity.SampleEntity {
+func (m *MockDataSource) List(ctx context.Context) []*entity.SampleEntity {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List")
+	ret := m.ctrl.Call(m, "List", ctx)
 	ret0, _ := ret[0].([]*entity.SampleEntity)
 	return ret0
 }
 
 // List indicates an expected call of List.
-func (mr *MockDataSourceMockRecorder) List() *gomock.Call {
+func (mr *MockDataSourceMockRecorder) List(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDataSource)(nil).List))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDataSource)(nil).List), ctx)
 }
 
 // Update mocks base method.
-func (m *MockDataSource) Update() error {
+func (m *MockDataSource) Update(ctx context.Context, sampleEntity *entity.SampleEntity) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update")
+	ret := m.ctrl.Call(m, "Update", ctx, sampleEntity)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockDataSourceMockRecorder) Update() *gomock.Call {
+func (mr *MockDataSourceMockRecorder) Update(ctx, sampleEntity any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockDataSource)(nil).Update))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockDataSource)(nil).Update), ctx, sampleEntity)
 }

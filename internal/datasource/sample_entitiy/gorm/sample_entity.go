@@ -1,20 +1,21 @@
 package gorm
 
 import (
+	"application/internal/datasource/sample_entitiy"
 	"application/internal/entity"
 	"context"
 	"gorm.io/gorm"
 )
 
-type SampleEntity struct {
+type sampleEntity struct {
 	conn *gorm.DB
 }
 
-func NewSampleEntityRepository(db *gorm.DB) *SampleEntity {
-	return &SampleEntity{conn: db}
+func NewSampleEntity(db *gorm.DB) sample_entitiy.DataSource {
+	return &sampleEntity{conn: db}
 }
 
-func (s SampleEntity) Create(ctx context.Context, sampleEntity *entity.SampleEntity) (id uint64, err error) {
+func (s sampleEntity) Create(ctx context.Context, sampleEntity *entity.SampleEntity) (id uint64, err error) {
 	result := s.conn.WithContext(ctx).Create(sampleEntity)
 	if result.Error != nil {
 		return 0, result.Error
@@ -22,7 +23,7 @@ func (s SampleEntity) Create(ctx context.Context, sampleEntity *entity.SampleEnt
 	return sampleEntity.ID, nil
 }
 
-func (s SampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEntity) error {
+func (s sampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEntity) error {
 	result := s.conn.WithContext(ctx).Save(sampleEntity)
 	if result.Error != nil {
 		return result.Error
@@ -30,7 +31,7 @@ func (s SampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEnt
 	return nil
 }
 
-func (s SampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
+func (s sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
 	var samples []*entity.SampleEntity
 	result := s.conn.WithContext(ctx).Find(&samples)
 	if result.Error != nil {
@@ -39,7 +40,7 @@ func (s SampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) 
 	return samples, nil
 }
 
-func (s SampleEntity) Delete(ctx context.Context, id uint64) error {
+func (s sampleEntity) Delete(ctx context.Context, id uint64) error {
 	result := s.conn.WithContext(ctx).Delete(&entity.SampleEntity{}, id)
 	if result.Error != nil {
 		return result.Error
