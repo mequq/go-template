@@ -10,8 +10,8 @@ import (
 	"application/config"
 	"application/internal/biz"
 	"application/internal/data"
+	"application/internal/handler"
 	"application/internal/server"
-	"application/internal/service"
 	"context"
 	"log/slog"
 	"net/http"
@@ -26,8 +26,8 @@ func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logge
 	}
 	healthzRepoInterface := data.NewHealthzRepo(logger, dataSource)
 	healthzUseCaseInterface := biz.NewHealthzUseCase(healthzRepoInterface, logger)
-	healthzService := service.NewMuxHealthzService(healthzUseCaseInterface, logger)
-	v := service.NewServiceList(healthzService)
+	healthzService := handler.NewMuxHealthzService(healthzUseCaseInterface, logger)
+	v := handler.NewServiceList(healthzService)
 	handler := server.NewHttpHandler(cfg, logger, v...)
 	return handler, nil
 }

@@ -13,8 +13,8 @@ import (
 	"application/config"
 	"application/internal/biz"
 	"application/internal/data"
+	"application/internal/handler"
 	"application/internal/server"
-	"application/internal/service"
 
 	"context"
 	"log/slog"
@@ -23,7 +23,7 @@ import (
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
 		server.ServerProviderSet,
-		service.ServiceProviderSet,
+		handler.ServiceProviderSet,
 		biz.BizProviderSet,
 		data.DataProviderSet,
 	))

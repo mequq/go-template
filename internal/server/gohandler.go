@@ -2,7 +2,7 @@ package server
 
 import (
 	"application/config"
-	"application/internal/service"
+	"application/internal/handler"
 	"log/slog"
 	"net/http"
 )
@@ -10,7 +10,7 @@ import (
 func NewHttpHandler(
 	cfg config.ConfigInterface,
 	logger *slog.Logger,
-	svcs ...service.ServiceInterface,
+	svcs ...handler.ServiceInterface,
 
 ) http.Handler {
 	// recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()

@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"application/pkg/middlewares"
@@ -49,7 +49,7 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 	//  application json
 	w.Header().Set("Content-Type", "application/json")
 
-	ctx, span := otel.Tracer("service").Start(ctx, "rediness")
+	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
 
 	w.WriteHeader(http.StatusOK)

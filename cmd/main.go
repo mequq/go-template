@@ -185,7 +185,7 @@ type (
 
 func initSlogLogger(cfg LogingConfig) *slog.Logger {
 
-	// create list of slog handlers
+	// create list of slog handler
 	slogHandlerOptions := &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,

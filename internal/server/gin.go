@@ -2,7 +2,7 @@ package server
 
 // import (
 // 	"application/config"
-// 	"application/internal/service"
+// 	"application/internal/handler"
 // 	"net/http"
 
 // 	"log/slog"
@@ -14,7 +14,7 @@ package server
 // func NewGinServer(
 // 	cfg *config.ViperConfig,
 // 	logger *slog.Logger,
-// 	healthzSvc *service.HealthzService,
+// 	healthzSvc *handler.HealthzService,
 
 // ) http.Handler {
 

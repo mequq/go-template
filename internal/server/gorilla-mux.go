@@ -1,7 +1,7 @@
 package server
 
 // import (
-// 	"application/internal/service"
+// 	"application/internal/handler"
 // 	"encoding/json"
 // 	"fmt"
 // 	"log/slog"
@@ -18,7 +18,7 @@ package server
 // func NewGorillaMuxServer(
 // 	cfg *viper.Viper,
 // 	logger *slog.Logger,
-// 	svcs ...service.ServiceInterface,
+// 	svcs ...handler.ServiceInterface,
 
 // ) http.Handler {
 
@@ -35,7 +35,7 @@ package server
 // 	muxRouter.Use(middleware.LoggerMiddleware)
 
 // 	for _, s := range svcs {
-// 		logger.Debug("Registering routes", "service", s)
+// 		logger.Debug("Registering routes", "handler", s)
 // 		s.RegisterRoutes(muxRouter)
 // 	}
 

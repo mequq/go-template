@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"net/http"
@@ -20,6 +20,5 @@ func NewServiceList(healthzSvc *HealthzService) []ServiceInterface {
 
 // Service Interface
 type ServiceInterface interface {
-	// RegisterRoutes(mux *mux.Router)
 	RegisterMuxRouter(mux *http.ServeMux)
 }
