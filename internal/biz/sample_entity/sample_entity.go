@@ -14,7 +14,7 @@ type SampleEntity interface {
 	Create(ctx context.Context, sampEnt *ent.SampleEntity) (*ent.SampleEntity, error)
 	Update(ctx context.Context, sampEnt *ent.SampleEntity) error
 	List(ctx context.Context) ([]*ent.SampleEntity, error)
-	Delete(ctx context.Context, sampEnt *ent.SampleEntity) error
+	Delete(ctx context.Context, id uint64) error
 }
 
 type sampleEntity struct {
@@ -76,12 +76,12 @@ func (s *sampleEntity) List(ctx context.Context) ([]*ent.SampleEntity, error) {
 	return es, err
 }
 
-func (s *sampleEntity) Delete(ctx context.Context, sampEnt *ent.SampleEntity) error {
+func (s *sampleEntity) Delete(ctx context.Context, id uint64) error {
 	s.logger.With("method", "Delete", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.Delete")
 	defer span.End()
-	if err := s.seDataSource.Update(ctx, sampEnt); err != nil {
+	if err := s.seDataSource.Delete(ctx, id); err != nil {
 		if errors.Is(err, sample_entitiy.ErrNotFound) {
 			return err
 		}

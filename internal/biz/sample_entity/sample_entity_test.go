@@ -298,3 +298,75 @@ func BenchmarkSampleEntity_Update(b *testing.B) {
 		service.Update(context.Background(), se)
 	}
 }
+
+func TestSampleEntity_Delete(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	dbErr := errors.New("database error")
+	var tests = []struct {
+		name               string
+		sampleEntityDSMock func() *mse.MockDataSource
+		id                 uint64
+		ctx                context.Context
+		error              error
+	}{
+		{
+			name: "success",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil)
+				return dsMock
+			},
+			id:    1,
+			ctx:   context.Background(),
+			error: nil,
+		},
+		{
+			name: "not-found",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				return dsMock
+			},
+			id:    1,
+			ctx:   context.Background(),
+			error: sample_entitiy.ErrNotFound,
+		},
+		{
+			name: "error",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(dbErr)
+				return dsMock
+			},
+			id:    1,
+			ctx:   context.Background(),
+			error: dbErr,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			seDSMock := test.sampleEntityDSMock()
+			biz := NewSampleEntity(seDSMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+			err := biz.Delete(test.ctx, test.id)
+			if !errors.Is(err, test.error) {
+				t.Errorf("error:%s is not equal to %s", err, test.error)
+			}
+		})
+	}
+}
+
+func BenchmarkSampleEntity_Delete(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	dsMock := mse.NewMockDataSource(ctrl)
+	dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Times(b.N).Return(nil).AnyTimes()
+	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		service.Delete(context.Background(), 1)
+	}
+}
