@@ -2,14 +2,12 @@ package handler
 
 import (
 	"application/internal/biz/sample_entity"
-	"application/internal/datasource/sample_entitiy"
 	"application/internal/rest-api/dto"
 	"application/internal/rest-api/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-	"errors"
 	"log/slog"
 	"net/http"
 )
@@ -56,35 +54,18 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
-func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	logger := s.logger.With("method", "Create", "ctx", utils.GetLoggerContext(ctx))
-	logger.Debug("Update called with ctx")
+	logger := s.logger.With("method", "List", "ctx", utils.GetLoggerContext(ctx))
+	logger.Debug("list called with ctx")
 
-	var request dto.SampleEntityRequest
-	if err := request.FromRequest(r); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
-		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
-		return
-	}
-
-	if err := request.Validate(); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
-		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
-		return
-	}
-
-	_, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
+	es, err := s.sampleEntityBiz.List(ctx)
 	if err != nil {
-		if errors.Is(err, sample_entitiy.ErrNotFound) {
-			response.ResponseNotFound(w)
-		}
 		response.ResponseInternalError(w)
-		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
 		return
 	}
 
-	response.ResponseCreated(w)
+	response.ResponseOk(w, es, "")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -105,5 +86,6 @@ func (s *SampleEntityHandler) RegisterMuxRouter(mux *http.ServeMux) {
 		loggerMiddlewareDebug.LoggerMiddleware,
 	}
 
-	mux.HandleFunc("POST /sample-entities/", middlewares.MultipleMiddleware(s.Create, middles...))
+	mux.HandleFunc("POST /api/sample-entities/", middlewares.MultipleMiddleware(s.Create, middles...))
+	mux.HandleFunc("GET /api/sample-entities/", middlewares.MultipleMiddleware(s.List, middles...))
 }

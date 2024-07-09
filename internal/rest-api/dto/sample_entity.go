@@ -8,7 +8,6 @@ import (
 )
 
 type SampleEntityRequest struct {
-	ID   uint64 `json:"id"`
 	Name string `json:"name" validate:"required"`
 	Text string `json:"text" validate:"required"`
 }
@@ -28,8 +27,21 @@ func (r *SampleEntityRequest) Validate() error {
 
 func (req *SampleEntityRequest) ToEntity() *entity.SampleEntity {
 	return &entity.SampleEntity{
-		ID:   req.ID,
 		Name: req.Name,
 		Text: req.Text,
+	}
+}
+
+type SampleEntityResponse struct {
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
+	Text string `json:"text"`
+}
+
+func FromEntity(e *entity.SampleEntity) *SampleEntityResponse {
+	return &SampleEntityResponse{
+		ID:   e.ID,
+		Name: e.Name,
+		Text: e.Text,
 	}
 }

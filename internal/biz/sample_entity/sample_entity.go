@@ -13,7 +13,7 @@ import (
 type SampleEntity interface {
 	Create(ctx context.Context, entity *entity.SampleEntity) (*entity.SampleEntity, error)
 	Update(ctx context.Context, entity *entity.SampleEntity) error
-	List(ctx context.Context, entity *entity.SampleEntity) ([]*entity.SampleEntity, error)
+	List(ctx context.Context) ([]*entity.SampleEntity, error)
 	Delete(ctx context.Context, entity *entity.SampleEntity) error
 }
 
@@ -62,19 +62,18 @@ func (s *sampleEntity) Update(ctx context.Context, entity *entity.SampleEntity) 
 	return nil
 }
 
-func (s *sampleEntity) List(ctx context.Context, entity *entity.SampleEntity) ([]*entity.SampleEntity, error) {
+func (s *sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
 	s.logger.With("method", "List", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.List")
 	defer span.End()
-	id, err := s.seDataSource.Create(ctx, entity)
+	es, err := s.seDataSource.List(ctx)
 	if err != nil {
 		s.logger.Error("error creating sample entity", "error", err.Error())
 		return nil, err
 	}
-	entity.ID = id
 
-	return nil, err
+	return es, err
 }
 
 func (s *sampleEntity) Delete(ctx context.Context, entity *entity.SampleEntity) error {
