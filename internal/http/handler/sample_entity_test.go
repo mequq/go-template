@@ -266,3 +266,137 @@ func BenchmarkSampleEntity_List(b *testing.B) {
 		handler.List(httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/sample-entities", r))
 	}
 }
+
+func TestSampleEntityHandler_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	var tests = []struct {
+		name                string
+		sampleEntityBizMock func() *mockBiz.MockSampleEntity
+		request             func() *http.Request
+		expectedStatusCode  int
+		expectedResponse    apiResponse.Response[any] // Assuming the response is a string message
+	}{
+		{
+			name: "success",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+				return dsMock
+			},
+			request: func() *http.Request {
+				sampleReq := dto.SampleEntityRequest{
+					Name: "updatedName",
+					Text: "updatedText",
+				}
+				b, _ := json.Marshal(sampleReq)
+				r := httptest.NewRequest(http.MethodPut, "/entities/1/", bytes.NewReader(b))
+				r.SetPathValue("id", "1")
+				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedResponse: apiResponse.Response[any]{
+				Message: "Updated successfully",
+				Status:  http.StatusOK,
+				Data:    nil,
+			},
+		},
+		{
+			name: "invalid request",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				return mockBiz.NewMockSampleEntity(ctrl)
+			},
+			request: func() *http.Request {
+				r := httptest.NewRequest(http.MethodPut, "/entities/abc", nil)
+				return r
+			},
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   "invalid-id",
+		},
+		{
+			name: "not found",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				return dsMock
+			},
+			request: func() *http.Request {
+				sampleReq := dto.SampleEntityRequest{
+					Name: "updatedName",
+					Text: "updatedText",
+				}
+				b, _ := json.Marshal(sampleReq)
+				r := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
+				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+			},
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   "Entity not found",
+		},
+		{
+			name: "internal server error",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(errors.New("database error"))
+				return dsMock
+			},
+			request: func() *http.Request {
+				sampleReq := dto.SampleEntityRequest{
+					Name: "updatedName",
+					Text: "updatedText",
+				}
+				b, _ := json.Marshal(sampleReq)
+				r := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
+				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse:   "Internal Server Error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			bizMock := test.sampleEntityBizMock()
+			handler := NewSampleEntityHandler(slog.New(slog.NewTextHandler(os.Stdout, nil)), bizMock)
+			recorder := httptest.NewRecorder()
+			handler.Update(recorder, test.request())
+
+			if recorder.Code != test.expectedStatusCode {
+				t.Errorf("status code:%d did not match expected value:%d", recorder.Code, test.expectedStatusCode)
+			}
+
+			var r apiResponse.Response[any]
+			if err := json.NewDecoder(recorder.Body).Decode(&r); err != nil {
+				t.Errorf("error decoding response body: %v", err)
+			}
+
+			if !gomock.Eq(r).Matches(test.expectedResponse) {
+				fmt.Println(r, test.expectedResponse)
+				t.Errorf("response body not match have:%v want:%v", r, test.expectedResponse)
+			}
+		})
+	}
+}
+
+func BenchmarkSampleEntityHandler_Update(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	seBiz := mockBiz.NewMockSampleEntity(ctrl)
+	seBiz.EXPECT().Update(gomock.Any(), gomock.Any()).Times(b.N).Return(nil).AnyTimes()
+
+	handler := NewSampleEntityHandler(slog.New(slog.NewTextHandler(os.Stdout, nil)), seBiz)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		recorder := httptest.NewRecorder()
+		sampleReq := dto.SampleEntityRequest{
+			Name: "updatedName",
+			Text: "updatedText",
+		}
+		b, _ := json.Marshal(sampleReq)
+		req := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
+		req = req.WithContext(context.WithValue(req.Context(), "path_value", "1"))
+		handler.Update(recorder, req)
+	}
+}

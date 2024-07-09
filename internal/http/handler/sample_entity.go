@@ -71,7 +71,7 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	logger := s.logger.With("method", "Create", "ctx", utils.GetLoggerContext(ctx))
-	logger.Debug("Create called with ctx")
+	logger.Debug("Update called with ctx")
 
 	var request dto.SampleEntityRequest
 	if err := request.FromRequest(r); err != nil {
@@ -109,7 +109,36 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.ResponseCreated(w)
+	response.ResponseOk(w, nil, "Updated successfully")
+	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
+}
+
+func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Delete")
+	defer span.End()
+
+	logger := s.logger.With("method", "Delete", "ctx", utils.GetLoggerContext(ctx))
+	logger.Debug("Delete called with ctx")
+
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.ResponseBadRequest(w, "invalid-id")
+		return
+	}
+
+	if err := s.sampleEntityBiz.Delete(ctx, uint64(id)); err != nil {
+		if errors.Is(err, sample_entitiy.ErrNotFound) {
+			response.ResponseNotFound(w)
+			return
+		}
+		response.ResponseInternalError(w)
+		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
+		return
+	}
+
+	response.ResponseOk(w, nil, "sample entity deleted")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -119,7 +148,7 @@ func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	logger := s.logger.With("method", "List", "ctx", utils.GetLoggerContext(ctx))
-	logger.Debug("list called with ctx")
+	logger.Debug("List called with ctx")
 
 	es, err := s.sampleEntityBiz.List(ctx)
 	if err != nil {
@@ -151,4 +180,5 @@ func (s *SampleEntityHandler) RegisterMuxRouter(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/sample-entities/", middlewares.MultipleMiddleware(s.Create, middles...))
 	mux.HandleFunc("GET /api/sample-entities/", middlewares.MultipleMiddleware(s.List, middles...))
 	mux.HandleFunc("PUT /api/sample-entities/{id}/", middlewares.MultipleMiddleware(s.Update, middles...))
+	mux.HandleFunc("DELETE /api/sample-entities/{id}/", middlewares.MultipleMiddleware(s.Delete, middles...))
 }
