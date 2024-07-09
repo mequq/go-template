@@ -18,7 +18,7 @@ type HealthzHandler struct {
 	logger *slog.Logger
 }
 
-var _ ServiceInterface = (*HealthzHandler)(nil)
+var _ HandlerInterface = (*HealthzHandler)(nil)
 
 func NewMuxHealthzHandler(logger *slog.Logger) *HealthzHandler {
 	return &HealthzHandler{

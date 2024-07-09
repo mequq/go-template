@@ -12,6 +12,8 @@ import (
 	"net/http"
 )
 
+var _ HandlerInterface = (*SampleEntityHandler)(nil)
+
 type SampleEntityHandler struct {
 	biz    sample_entity.SampleEntity
 	logger *slog.Logger
@@ -34,6 +36,7 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
+
 	if err := request.Validate(); err != nil {
 		response.ResponseBadRequest(w, "invalid request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)

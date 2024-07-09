@@ -6,7 +6,7 @@ import (
 )
 
 func NewHttpHandler(
-	svcs ...handler.ServiceInterface,
+	svcs ...handler.HandlerInterface,
 
 ) http.Handler {
 	mux := http.NewServeMux()
