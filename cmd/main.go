@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 
@@ -36,10 +37,19 @@ func main() {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	configAddress := flag.String("config", "dev-config.yaml", "config file address")
+	configAddress := flag.String("config", "", "config file address")
 	flag.Parse()
+	confAddress := *configAddress
 
-	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(*configAddress))
+	if confAddress == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		confAddress = path.Join(wd, "config.yaml")
+	}
+
+	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(confAddress))
 	if err != nil {
 		panic(err)
 	}

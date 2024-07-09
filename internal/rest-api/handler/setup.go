@@ -13,9 +13,10 @@ var HandlerProviderSet = wire.NewSet(
 )
 
 // New ServiceList
-func NewServiceList(healthzSvc *HealthzHandler.sampleEntityHandler) []HandlerInterface {
+func NewServiceList(healthzSvc *HealthzHandler, sampleEntityHandler *SampleEntityHandler) []HandlerInterface {
 	return []HandlerInterface{
 		healthzSvc,
+		sampleEntityHandler,
 	}
 }
 

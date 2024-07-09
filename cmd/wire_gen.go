@@ -8,23 +8,23 @@ package main
 
 import (
 	"application/config"
-	seGorm "application/internal/datasource/sample_entitiy/memory"
+	"application/internal/biz/sample_entity"
+	"application/internal/datasource/sample_entitiy/memory"
 	"application/internal/rest-api"
-	restHandlers "application/internal/rest-api/handler"
-	mock_sample_entitiy "application/mocks/datasource"
+	"application/internal/rest-api/handler"
 	"context"
-	"gorm.io/gorm"
 	"log/slog"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) http.Handler {
-	dataSource := seGorm.NewSampleEntity()
-
-	healthzHandler := restHandlers.NewMuxHealthzHandler(logger)
-	v := restHandlers.NewServiceList(healthzHandler)
-	handler := rest_api.NewHttpHandler(cfg, logger, v...)
-	return handler, nil
+func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
+	healthzHandler := handler.NewMuxHealthzHandler(logger)
+	dataSource := memory.NewSampleEntity()
+	sampleEntity := sample_entity.NewSampleEntity(dataSource, logger)
+	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
+	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
+	httpHandler := rest_api.NewHttpHandler(v...)
+	return httpHandler, nil
 }
