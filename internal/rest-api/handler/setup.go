@@ -6,8 +6,9 @@ import (
 	"github.com/google/wire"
 )
 
-var ServiceProviderSet = wire.NewSet(
-	NewMuxHealthzService,
+var HandlerProviderSet = wire.NewSet(
+	NewMuxHealthzHandler,
+	NewSampleEntityHandler,
 	NewServiceList,
 )
 

@@ -20,7 +20,7 @@ type HealthzService struct {
 
 var _ ServiceInterface = (*HealthzService)(nil)
 
-func NewMuxHealthzService(logger *slog.Logger) *HealthzService {
+func NewMuxHealthzHandler(logger *slog.Logger) *HealthzService {
 	return &HealthzService{
 		logger: logger.With("layer", "MuxHealthzService"),
 	}

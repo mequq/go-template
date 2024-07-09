@@ -26,7 +26,7 @@ func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logge
 	}
 	healthzRepoInterface := data.NewHealthzRepo(logger, dataSource)
 	healthzUseCaseInterface := biz.NewHealthzUseCase(healthzRepoInterface, logger)
-	healthzService := handler2.NewMuxHealthzService(healthzUseCaseInterface, logger)
+	healthzService := handler2.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
 	v := handler2.NewServiceList(healthzService)
 	handler := rest_api.NewHttpHandler(cfg, logger, v...)
 	return handler, nil

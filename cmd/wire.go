@@ -23,7 +23,7 @@ import (
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
 		rest_api.ServerProviderSet,
-		handler.ServiceProviderSet,
+		handler.HandlerProviderSet,
 		biz.BizProviderSet,
 		data.DataProviderSet,
 	))
