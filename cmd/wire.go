@@ -14,7 +14,7 @@ import (
 	"application/internal/biz"
 	"application/internal/data"
 	"application/internal/handler"
-	"application/internal/server"
+	"application/internal/rest-api"
 
 	"context"
 	"log/slog"
@@ -22,7 +22,7 @@ import (
 
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
-		server.ServerProviderSet,
+		rest_api.ServerProviderSet,
 		handler.ServiceProviderSet,
 		biz.BizProviderSet,
 		data.DataProviderSet,

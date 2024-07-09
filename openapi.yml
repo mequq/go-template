@@ -6,9 +6,9 @@ servers:
 - url: http://localhost:8080
   description: localhost
 - url: https://api-v3.lenz.ir
-  description: Production server
+  description: Production rest-api
 - url: https://preproduction.lenz.ir
-  description: Staging server
+  description: Staging rest-api
 paths:
   /api/v3/epg/epgsbyday:
     get:
