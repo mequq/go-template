@@ -70,11 +70,12 @@ func (mr *MockDataSourceMockRecorder) Delete(ctx, id any) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockDataSource) List(ctx context.Context) []*entity.SampleEntity {
+func (m *MockDataSource) List(ctx context.Context) ([]*entity.SampleEntity, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx)
 	ret0, _ := ret[0].([]*entity.SampleEntity)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // List indicates an expected call of List.

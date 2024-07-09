@@ -3,10 +3,12 @@ package sample_entity
 import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/entity"
-	mock_sample_entitiy "application/mocks/datasource"
+	mse "application/mocks/datasource"
 	"context"
 	"errors"
 	"go.uber.org/mock/gomock"
+	"log/slog"
+	"os"
 	"testing"
 )
 
@@ -15,11 +17,10 @@ func TestUserService_Create(t *testing.T) {
 	t.Cleanup(func() {
 		ctrl.Finish()
 	})
-	err := errors.New("error")
 
 	var tests = []struct {
 		name               string
-		sampleEntityDSMock func() *mock_sample_entitiy.MockDataSource
+		sampleEntityDSMock func() *mse.MockDataSource
 		seInput            *entity.SampleEntity
 		seOutput           *entity.SampleEntity
 		ctx                context.Context
@@ -27,10 +28,10 @@ func TestUserService_Create(t *testing.T) {
 	}{
 		{
 			name: "success",
-			sampleEntityDSMock: func() *mock_sample_entitiy.MockDataSource {
-				userRepoMock := mock_sample_entitiy.NewMockDataSource(ctrl)
-				userRepoMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
-				return userRepoMock
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
+				return dsMock
 			},
 			seInput: &entity.SampleEntity{
 				ID:   0,
@@ -46,27 +47,11 @@ func TestUserService_Create(t *testing.T) {
 			error: nil,
 		},
 		{
-			name: "not-found",
-			sampleEntityDSMock: func() *mock_sample_entitiy.MockDataSource {
-				userRepoMock := mock_sample_entitiy.NewMockDataSource(ctrl)
-				userRepoMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
-				return userRepoMock
-			},
-			seInput: &entity.SampleEntity{
-				ID:   0,
-				Name: "name",
-				Text: "text",
-			},
-			seOutput: nil,
-			ctx:      context.Background(),
-			error:    sample_entitiy.ErrNotFound,
-		},
-		{
 			name: "already-exist",
-			sampleEntityDSMock: func() *mock_sample_entitiy.MockDataSource {
-				userRepoMock := mock_sample_entitiy.NewMockDataSource(ctrl)
-				userRepoMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
-				return userRepoMock
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uint64(1), sample_entitiy.ErrAlreadyExist)
+				return dsMock
 			},
 			seInput: &entity.SampleEntity{
 				ID:   0,
@@ -81,16 +66,18 @@ func TestUserService_Create(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			userRepoMock := test.userRepoMock()
-			loggerMock := test.loggerMock()
-			service := NewUserService(userRepoMock, loggerMock)
-			err := service.CreateUser(test.user)
-
+			seDSMock := test.sampleEntityDSMock()
+			biz := NewSampleEntity(seDSMock, slog.New(slog.NewTextHandler(os.Stdout,
+				nil)))
+			se, err := biz.Create(test.ctx, test.seInput)
 			if !errors.Is(err, test.error) {
 				t.Errorf("error:%s is not equal to %s", err, test.error)
 			}
-			loggerMock.EXPECT()
-			userRepoMock.EXPECT()
+			if !gomock.Eq(se).Matches(test.seOutput) {
+				t.Errorf("output:%v is not equal to %v", se, test.seOutput)
+			}
+
+			seDSMock.EXPECT()
 		})
 	}
 }
