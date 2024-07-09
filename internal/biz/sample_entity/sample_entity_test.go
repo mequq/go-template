@@ -3,7 +3,7 @@ package sample_entity
 import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/entity"
-	mse "application/mocks/datasource"
+	mse "application/mock/datasource"
 	"context"
 	"errors"
 	"go.uber.org/mock/gomock"
