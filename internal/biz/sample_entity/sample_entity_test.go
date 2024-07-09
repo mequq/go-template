@@ -194,3 +194,107 @@ func BenchmarkSampleEntity_List(b *testing.B) {
 		service.List(context.Background())
 	}
 }
+
+func TestSampleEntity_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	dbErr := errors.New("database error")
+	var tests = []struct {
+		name               string
+		sampleEntityDSMock func() *mse.MockDataSource
+		seInput            *entity.SampleEntity
+		ctx                context.Context
+		error              error
+	}{
+		{
+			name: "success",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+				return dsMock
+			},
+			seInput: &entity.SampleEntity{
+				ID:   1,
+				Name: "name",
+				Text: "text",
+			},
+			ctx:   context.Background(),
+			error: nil,
+		},
+		{
+			name: "not-found",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				return dsMock
+			},
+			seInput: &entity.SampleEntity{
+				ID:   1,
+				Name: "name",
+				Text: "text",
+			},
+			ctx:   context.Background(),
+			error: sample_entitiy.ErrNotFound,
+		},
+		{
+			name: "already-exist",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrAlreadyExist)
+				return dsMock
+			},
+			seInput: &entity.SampleEntity{
+				ID:   1,
+				Name: "name",
+				Text: "text",
+			},
+			ctx:   context.Background(),
+			error: sample_entitiy.ErrAlreadyExist,
+		},
+		{
+			name: "error",
+			sampleEntityDSMock: func() *mse.MockDataSource {
+				dsMock := mse.NewMockDataSource(ctrl)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(dbErr)
+				return dsMock
+			},
+			seInput: &entity.SampleEntity{
+				ID:   1,
+				Name: "name",
+				Text: "text",
+			},
+			ctx:   context.Background(),
+			error: dbErr,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			seDSMock := test.sampleEntityDSMock()
+			biz := NewSampleEntity(seDSMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+			err := biz.Update(test.ctx, test.seInput)
+			if !errors.Is(err, test.error) {
+				t.Errorf("error:%s is not equal to %s", err, test.error)
+			}
+		})
+	}
+}
+
+func BenchmarkSampleEntity_Update(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	dsMock := mse.NewMockDataSource(ctrl)
+	dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Times(b.N).Return(nil).AnyTimes()
+	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	se := &entity.SampleEntity{
+		ID:   1,
+		Name: "name",
+		Text: "text",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		service.Update(context.Background(), se)
+	}
+}
