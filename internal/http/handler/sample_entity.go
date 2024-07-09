@@ -3,8 +3,8 @@ package handler
 import (
 	"application/internal/biz/sample_entity"
 	"application/internal/datasource/sample_entitiy"
-	"application/internal/rest-api/dto"
-	"application/internal/rest-api/response"
+	"application/internal/http/dto"
+	"application/internal/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"

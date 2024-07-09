@@ -1,4 +1,4 @@
-package rest_api
+package http
 
 import "github.com/google/wire"
 

@@ -8,8 +8,8 @@ package main
 import (
 	"application/internal/biz"
 	"application/internal/datasource"
-	rest_api "application/internal/rest-api"
-	"application/internal/rest-api/handler"
+	rest_api "application/internal/http"
+	"application/internal/http/handler"
 	"net/http"
 
 	"github.com/google/wire"

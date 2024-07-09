@@ -1,7 +1,7 @@
-package rest_api
+package http
 
 import (
-	"application/internal/rest-api/handler"
+	"application/internal/http/handler"
 	"net/http"
 )
 

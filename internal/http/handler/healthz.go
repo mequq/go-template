@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"application/internal/rest-api/response"
+	"application/internal/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"

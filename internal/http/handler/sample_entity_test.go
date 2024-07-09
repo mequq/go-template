@@ -3,8 +3,8 @@ package handler
 import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/entity"
-	"application/internal/rest-api/dto"
-	apiResponse "application/internal/rest-api/response"
+	"application/internal/http/dto"
+	apiResponse "application/internal/http/response"
 	mockBiz "application/mock/biz"
 	"bytes"
 	"context"

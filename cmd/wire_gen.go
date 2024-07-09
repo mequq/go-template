@@ -10,8 +10,8 @@ import (
 	"application/config"
 	"application/internal/biz/sample_entity"
 	"application/internal/datasource/sample_entitiy/memory"
-	"application/internal/rest-api"
-	"application/internal/rest-api/handler"
+	"application/internal/http"
+	"application/internal/http/handler"
 	"context"
 	"log/slog"
 	"net/http"
@@ -25,6 +25,6 @@ func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logge
 	sampleEntity := sample_entity.NewSampleEntity(dataSource, logger)
 	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
 	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
-	httpHandler := rest_api.NewHttpHandler(v...)
+	httpHandler := http.NewHttpHandler(v...)
 	return httpHandler, nil
 }
