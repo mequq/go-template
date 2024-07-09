@@ -81,3 +81,35 @@ func TestUserService_Create(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkUserService_CreateUser(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	dsMock := mse.NewMockDataSource(ctrl)
+	dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Times(b.N).Return(uint64(1), nil).AnyTimes()
+	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	se := &entity.SampleEntity{
+		ID:   0,
+		Name: "name",
+		Text: "text",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		service.Create(context.Background(), se)
+	}
+}
+
+func BenchmarkUserService_AlreadyExist(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	dsMock := mse.NewMockDataSource(ctrl)
+	dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Times(b.N).Return(uint64(0), sample_entitiy.ErrAlreadyExist).AnyTimes()
+	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	se := &entity.SampleEntity{
+		ID:   0,
+		Name: "name",
+		Text: "text",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		service.Create(context.Background(), se)
+	}
+}
