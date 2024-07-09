@@ -4,7 +4,6 @@ import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/entity"
 	"context"
-	"errors"
 	"sync"
 )
 
@@ -41,7 +40,7 @@ func (s *sampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEn
 			return nil
 		}
 	}
-	return errors.New("entity not found")
+	return sample_entitiy.ErrNotFound
 }
 
 func (s *sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
@@ -61,5 +60,5 @@ func (s *sampleEntity) Delete(ctx context.Context, id uint64) error {
 			return nil
 		}
 	}
-	return errors.New("entity not found")
+	return sample_entitiy.ErrNotFound
 }

@@ -56,17 +56,17 @@ func (mr *MockSampleEntityMockRecorder) Create(ctx, sampEnt any) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockSampleEntity) Delete(ctx context.Context, sampEnt *entity.SampleEntity) error {
+func (m *MockSampleEntity) Delete(ctx context.Context, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, sampEnt)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockSampleEntityMockRecorder) Delete(ctx, sampEnt any) *gomock.Call {
+func (mr *MockSampleEntityMockRecorder) Delete(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSampleEntity)(nil).Delete), ctx, sampEnt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSampleEntity)(nil).Delete), ctx, id)
 }
 
 // List mocks base method.

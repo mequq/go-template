@@ -38,10 +38,18 @@ type SampleEntityResponse struct {
 	Text string `json:"text"`
 }
 
-func FromEntity(e *entity.SampleEntity) *SampleEntityResponse {
-	return &SampleEntityResponse{
+func FromEntity(e *entity.SampleEntity) SampleEntityResponse {
+	return SampleEntityResponse{
 		ID:   e.ID,
 		Name: e.Name,
 		Text: e.Text,
 	}
+}
+
+func SampleEntityListResponses(entities []*entity.SampleEntity) []SampleEntityResponse {
+	responses := make([]SampleEntityResponse, len(entities))
+	for i, e := range entities {
+		responses[i] = FromEntity(e)
+	}
+	return responses
 }

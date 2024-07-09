@@ -10,8 +10,10 @@ import (
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
 	"errors"
+	"go.opentelemetry.io/otel"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 var _ HandlerInterface = (*SampleEntityHandler)(nil)
@@ -29,6 +31,9 @@ func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sample_entity.S
 
 func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Create")
+	defer span.End()
+
 	logger := s.logger.With("method", "Create", "ctx", utils.GetLoggerContext(ctx))
 	logger.Debug("Create called with ctx")
 
@@ -60,8 +65,59 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
+func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Update")
+	defer span.End()
+
+	logger := s.logger.With("method", "Create", "ctx", utils.GetLoggerContext(ctx))
+	logger.Debug("Create called with ctx")
+
+	var request dto.SampleEntityRequest
+	if err := request.FromRequest(r); err != nil {
+		response.ResponseBadRequest(w, "invalid request")
+		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		response.ResponseBadRequest(w, "invalid request")
+		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
+		return
+	}
+
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.ResponseBadRequest(w, "invalid-id")
+		return
+	}
+	ent := request.ToEntity()
+	ent.ID = uint64(id)
+
+	if err := s.sampleEntityBiz.Update(ctx, ent); err != nil {
+		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
+			response.ResponseBadRequest(w, "already-exist")
+			return
+		}
+		if errors.Is(err, sample_entitiy.ErrNotFound) {
+			response.ResponseNotFound(w)
+			return
+		}
+		response.ResponseInternalError(w)
+		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
+		return
+	}
+
+	response.ResponseCreated(w)
+	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
+}
+
 func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.List")
+	defer span.End()
+
 	logger := s.logger.With("method", "List", "ctx", utils.GetLoggerContext(ctx))
 	logger.Debug("list called with ctx")
 
@@ -71,7 +127,7 @@ func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.ResponseOk(w, es, "")
+	response.ResponseOk(w, dto.SampleEntityListResponses(es), "")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -94,4 +150,5 @@ func (s *SampleEntityHandler) RegisterMuxRouter(mux *http.ServeMux) {
 
 	mux.HandleFunc("POST /api/sample-entities/", middlewares.MultipleMiddleware(s.Create, middles...))
 	mux.HandleFunc("GET /api/sample-entities/", middlewares.MultipleMiddleware(s.List, middles...))
+	mux.HandleFunc("PUT /api/sample-entities/{id}/", middlewares.MultipleMiddleware(s.Update, middles...))
 }
