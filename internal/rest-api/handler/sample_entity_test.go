@@ -132,3 +132,27 @@ func TestUserService_Create(t *testing.T) {
 		})
 	}
 }
+func BenchmarkSampleEntity_Create(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	seBiz := mockBiz.NewMockSampleEntity(ctrl)
+	seBiz.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&entity.SampleEntity{
+		ID:   1,
+		Name: "name",
+		Text: "text",
+	}, nil).AnyTimes()
+
+	sampleReq := dto.SampleEntityRequest{
+		Name: "name",
+		Text: "text",
+	}
+	bs, _ := json.Marshal(sampleReq)
+	r := bytes.NewReader(bs)
+
+	handler := NewSampleEntityHandler(slog.New(slog.NewTextHandler(os.Stdout, nil)), seBiz)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		handler.Create(httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/users", r))
+	}
+
+}
