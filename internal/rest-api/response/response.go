@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-type Response struct {
+type Response[T any] struct {
 	Message string `json:"message"`
 	Status  int    `json:"status"`
-	Data    any    `json:"data"`
+	Data    T      `json:"data"`
 }
 
 func ResponseOk(w http.ResponseWriter, data any, message string) {
@@ -34,7 +34,7 @@ func ResponseBadRequest(w http.ResponseWriter, message string) {
 func ResponseCustom(w http.ResponseWriter, statusCode int, data any, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(Response{
+	if err := json.NewEncoder(w).Encode(Response[any]{
 		Message: message,
 		Status:  statusCode,
 		Data:    data,

@@ -29,7 +29,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
-		expectedResponse    apiResponse.Response
+		expectedResponse    apiResponse.Response[[]dto.SampleEntityResponse]
 		expectedStatusCode  int
 		ctx                 context.Context
 	}{
@@ -53,7 +53,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 				r := bytes.NewReader(b)
 				return httptest.NewRequest(http.MethodPost, "/sample-entities", r)
 			},
-			expectedResponse: apiResponse.Response{
+			expectedResponse: apiResponse.Response[[]dto.SampleEntityResponse]{
 				Message: "Created Successfully",
 				Status:  http.StatusCreated,
 				Data:    nil,
@@ -77,7 +77,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 				r := bytes.NewReader(b)
 				return httptest.NewRequest(http.MethodPost, "/sample-entities", r)
 			},
-			expectedResponse: apiResponse.Response{
+			expectedResponse: apiResponse.Response[[]dto.SampleEntityResponse]{
 				Message: "already-exist",
 				Status:  http.StatusBadRequest,
 				Data:    nil,
@@ -101,7 +101,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 				r := bytes.NewReader(b)
 				return httptest.NewRequest(http.MethodPost, "/sample-entities", r)
 			},
-			expectedResponse: apiResponse.Response{
+			expectedResponse: apiResponse.Response[[]dto.SampleEntityResponse]{
 				Message: "internal-error",
 				Status:  http.StatusInternalServerError,
 				Data:    nil,
@@ -122,7 +122,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 				t.Errorf("status code:%d did not match expected value:%d", recorder.Code, test.expectedStatusCode)
 			}
 			decoder := json.NewDecoder(recorder.Body)
-			r := apiResponse.Response{}
+			r := apiResponse.Response[[]dto.SampleEntityResponse]{}
 			if err := decoder.Decode(&r); err != nil {
 				t.Error(err)
 			}
@@ -168,7 +168,7 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
-		expectedResponse    apiResponse.Response
+		expectedResponse    apiResponse.Response[[]dto.SampleEntityResponse]
 		expectedStatusCode  int
 		ctx                 context.Context
 	}{
@@ -190,7 +190,7 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 				r := bytes.NewReader(b)
 				return httptest.NewRequest(http.MethodPost, "/sample-entities", r)
 			},
-			expectedResponse: apiResponse.Response{
+			expectedResponse: apiResponse.Response[[]dto.SampleEntityResponse]{
 				Message: "",
 				Status:  http.StatusOK,
 				Data: dto.SampleEntityListResponses([]*entity.SampleEntity{
@@ -211,7 +211,7 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 				r := bytes.NewReader([]byte{})
 				return httptest.NewRequest(http.MethodGet, "/sample-entities", r)
 			},
-			expectedResponse: apiResponse.Response{
+			expectedResponse: apiResponse.Response[[]dto.SampleEntityResponse]{
 				Message: "internal-error",
 				Status:  http.StatusInternalServerError,
 				Data:    nil,
@@ -232,9 +232,7 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 				t.Errorf("status code:%d did not match expected value:%d", recorder.Code, test.expectedStatusCode)
 			}
 			decoder := json.NewDecoder(recorder.Body)
-			r := apiResponse.Response{
-				Data: []dto.SampleEntityResponse{},
-			}
+			r := apiResponse.Response[[]dto.SampleEntityResponse]{}
 			if err := decoder.Decode(&r); err != nil {
 				t.Error(err)
 			}
