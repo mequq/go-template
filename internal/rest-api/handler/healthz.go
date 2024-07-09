@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"application/internal/rest-api/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
@@ -17,10 +18,6 @@ type HealthzService struct {
 	logger *slog.Logger
 }
 
-type Response struct {
-	Message string `json:"message"`
-}
-
 var _ ServiceInterface = (*HealthzService)(nil)
 
 func NewMuxHealthzService(logger *slog.Logger) *HealthzService {
@@ -32,28 +29,22 @@ func NewMuxHealthzService(logger *slog.Logger) *HealthzService {
 // Healthz Liveness
 func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(ctx))
+	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
+	defer span.End()
+	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
 	logger.Debug("Liveness")
-	w.Header().Set("Content-Type", "application/json")
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
+	response.ResponseOk(w, nil, "ok")
 }
 
 // Healthz Readiness
 func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
-	// context
 	ctx := r.Context()
-	// logger
-	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
-	//  application json
-	w.Header().Set("Content-Type", "application/json")
-
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
+	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
+	w.Header().Set("Content-Type", "application/json")
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
+	response.ResponseOk(w, nil, "ok")
 	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -78,8 +69,7 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	time.Sleep(duration)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
-	w.WriteHeader(http.StatusOK)
+	response.ResponseOk(w, nil, "ok")
 }
 
 func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {

@@ -6,6 +6,7 @@
 package main
 
 import (
+	"application/internal/rest-api/handler"
 	"net/http"
 
 	"github.com/google/wire"
@@ -13,7 +14,6 @@ import (
 	"application/config"
 	"application/internal/biz"
 	"application/internal/data"
-	"application/internal/handler"
 	"application/internal/rest-api"
 
 	"context"

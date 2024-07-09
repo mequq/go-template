@@ -28,6 +28,7 @@ func ResponseBadRequest(w http.ResponseWriter, validationErrors any) {
 }
 
 func ResponseCustom(w http.ResponseWriter, statusCode int, data any, message string) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(Response{
 		Message: message,

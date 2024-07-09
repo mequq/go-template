@@ -10,8 +10,8 @@ import (
 	"application/config"
 	"application/internal/biz"
 	"application/internal/data"
-	"application/internal/handler"
 	"application/internal/rest-api"
+	handler2 "application/internal/rest-api/handler"
 	"context"
 	"log/slog"
 	"net/http"
@@ -26,8 +26,8 @@ func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logge
 	}
 	healthzRepoInterface := data.NewHealthzRepo(logger, dataSource)
 	healthzUseCaseInterface := biz.NewHealthzUseCase(healthzRepoInterface, logger)
-	healthzService := handler.NewMuxHealthzService(healthzUseCaseInterface, logger)
-	v := handler.NewServiceList(healthzService)
+	healthzService := handler2.NewMuxHealthzService(healthzUseCaseInterface, logger)
+	v := handler2.NewServiceList(healthzService)
 	handler := rest_api.NewHttpHandler(cfg, logger, v...)
 	return handler, nil
 }
