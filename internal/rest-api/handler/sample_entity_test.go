@@ -244,3 +244,25 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkSampleEntity_List(b *testing.B) {
+	ctrl := gomock.NewController(b)
+	seBiz := mockBiz.NewMockSampleEntity(ctrl)
+	seBiz.EXPECT().List(gomock.Any()).Return([]*entity.SampleEntity{
+		{ID: 1, Name: "name1", Text: "text1"}, {ID: 2, Name: "name2", Text: "text2"},
+	}, nil).AnyTimes()
+
+	sampleReq := dto.SampleEntityRequest{
+		Name: "name",
+		Text: "text",
+	}
+	bs, _ := json.Marshal(sampleReq)
+	r := bytes.NewReader(bs)
+
+	handler := NewSampleEntityHandler(slog.New(slog.NewTextHandler(os.Stdout, nil)), seBiz)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		handler.List(httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/sample-entities", r))
+	}
+}
