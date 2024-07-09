@@ -86,7 +86,7 @@ func BenchmarkUserService_CreateUser(b *testing.B) {
 	ctrl := gomock.NewController(b)
 	dsMock := mse.NewMockDataSource(ctrl)
 	dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Times(b.N).Return(uint64(1), nil).AnyTimes()
-	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	biz := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	se := &entity.SampleEntity{
 		ID:   0,
 		Name: "name",
@@ -94,7 +94,7 @@ func BenchmarkUserService_CreateUser(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		service.Create(context.Background(), se)
+		biz.Create(context.Background(), se)
 	}
 }
 
@@ -188,10 +188,10 @@ func BenchmarkSampleEntity_List(b *testing.B) {
 			Text: "text2",
 		},
 	}, nil).AnyTimes()
-	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	biz := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		service.List(context.Background())
+		biz.List(context.Background())
 	}
 }
 
@@ -287,7 +287,7 @@ func BenchmarkSampleEntity_Update(b *testing.B) {
 	ctrl := gomock.NewController(b)
 	dsMock := mse.NewMockDataSource(ctrl)
 	dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Times(b.N).Return(nil).AnyTimes()
-	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	biz := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	se := &entity.SampleEntity{
 		ID:   1,
 		Name: "name",
@@ -295,7 +295,7 @@ func BenchmarkSampleEntity_Update(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		service.Update(context.Background(), se)
+		biz.Update(context.Background(), se)
 	}
 }
 
@@ -364,9 +364,9 @@ func BenchmarkSampleEntity_Delete(b *testing.B) {
 	ctrl := gomock.NewController(b)
 	dsMock := mse.NewMockDataSource(ctrl)
 	dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Times(b.N).Return(nil).AnyTimes()
-	service := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	biz := NewSampleEntity(dsMock, slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		service.Delete(context.Background(), 1)
+		biz.Delete(context.Background(), 1)
 	}
 }
