@@ -16,7 +16,7 @@ func ResponseOk(w http.ResponseWriter, data any, message string) {
 }
 
 func ResponseCreated(w http.ResponseWriter) {
-	ResponseCustom(w, http.StatusOK, nil, "Created Successfully")
+	ResponseCustom(w, http.StatusCreated, nil, "Created Successfully")
 }
 
 func ResponseNotFound(w http.ResponseWriter) {
@@ -27,8 +27,8 @@ func ResponseInternalError(w http.ResponseWriter) {
 	ResponseCustom(w, http.StatusInternalServerError, nil, "internal-error")
 }
 
-func ResponseBadRequest(w http.ResponseWriter, validationErrors any) {
-	ResponseCustom(w, http.StatusBadRequest, validationErrors, "bad-request")
+func ResponseBadRequest(w http.ResponseWriter, message string) {
+	ResponseCustom(w, http.StatusBadRequest, nil, message)
 }
 
 func ResponseCustom(w http.ResponseWriter, statusCode int, data any, message string) {

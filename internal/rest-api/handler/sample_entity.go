@@ -2,12 +2,14 @@ package handler
 
 import (
 	"application/internal/biz/sample_entity"
+	"application/internal/datasource/sample_entitiy"
 	"application/internal/rest-api/dto"
 	"application/internal/rest-api/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
+	"errors"
 	"log/slog"
 	"net/http"
 )
@@ -45,6 +47,10 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	_, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
 	if err != nil {
+		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
+			response.ResponseBadRequest(w, "already-exist")
+			return
+		}
 		response.ResponseInternalError(w)
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
 		return

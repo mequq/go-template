@@ -2,7 +2,7 @@ package sample_entity
 
 import (
 	"application/internal/datasource/sample_entitiy"
-	"application/internal/entity"
+	ent "application/internal/entity"
 	"application/pkg/utils"
 	"context"
 	"errors"
@@ -11,10 +11,10 @@ import (
 )
 
 type SampleEntity interface {
-	Create(ctx context.Context, entity *entity.SampleEntity) (*entity.SampleEntity, error)
-	Update(ctx context.Context, entity *entity.SampleEntity) error
-	List(ctx context.Context) ([]*entity.SampleEntity, error)
-	Delete(ctx context.Context, entity *entity.SampleEntity) error
+	Create(ctx context.Context, sampEnt *ent.SampleEntity) (*ent.SampleEntity, error)
+	Update(ctx context.Context, sampEnt *ent.SampleEntity) error
+	List(ctx context.Context) ([]*ent.SampleEntity, error)
+	Delete(ctx context.Context, sampEnt *ent.SampleEntity) error
 }
 
 type sampleEntity struct {
@@ -29,12 +29,12 @@ func NewSampleEntity(seDataSource sample_entitiy.DataSource, logger *slog.Logger
 	}
 }
 
-func (s *sampleEntity) Create(ctx context.Context, entity *entity.SampleEntity) (*entity.SampleEntity, error) {
+func (s *sampleEntity) Create(ctx context.Context, sampEnt *ent.SampleEntity) (*ent.SampleEntity, error) {
 	s.logger.With("method", "Create", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.Create")
 	defer span.End()
-	id, err := s.seDataSource.Create(ctx, entity)
+	id, err := s.seDataSource.Create(ctx, sampEnt)
 	if err != nil {
 		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
 			return nil, err
@@ -43,16 +43,16 @@ func (s *sampleEntity) Create(ctx context.Context, entity *entity.SampleEntity) 
 		return nil, err
 	}
 
-	entity.ID = id
-	return entity, nil
+	sampEnt.ID = id
+	return sampEnt, nil
 }
 
-func (s *sampleEntity) Update(ctx context.Context, entity *entity.SampleEntity) error {
+func (s *sampleEntity) Update(ctx context.Context, sampEnt *ent.SampleEntity) error {
 	s.logger.With("method", "Update", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.Update")
 	defer span.End()
-	if err := s.seDataSource.Update(ctx, entity); err != nil {
+	if err := s.seDataSource.Update(ctx, sampEnt); err != nil {
 		if errors.Is(err, sample_entitiy.ErrNotFound) || errors.Is(err, sample_entitiy.ErrAlreadyExist) {
 			return err
 		}
@@ -62,7 +62,7 @@ func (s *sampleEntity) Update(ctx context.Context, entity *entity.SampleEntity) 
 	return nil
 }
 
-func (s *sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
+func (s *sampleEntity) List(ctx context.Context) ([]*ent.SampleEntity, error) {
 	s.logger.With("method", "List", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.List")
@@ -76,12 +76,12 @@ func (s *sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error)
 	return es, err
 }
 
-func (s *sampleEntity) Delete(ctx context.Context, entity *entity.SampleEntity) error {
+func (s *sampleEntity) Delete(ctx context.Context, sampEnt *ent.SampleEntity) error {
 	s.logger.With("method", "Delete", "ctx", utils.GetLoggerContext(ctx))
 
 	ctx, span := otel.Tracer("biz").Start(ctx, "SampleEntity.Delete")
 	defer span.End()
-	if err := s.seDataSource.Update(ctx, entity); err != nil {
+	if err := s.seDataSource.Update(ctx, sampEnt); err != nil {
 		if errors.Is(err, sample_entitiy.ErrNotFound) {
 			return err
 		}
