@@ -14,20 +14,20 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-type HealthzService struct {
+type HealthzHandler struct {
 	logger *slog.Logger
 }
 
-var _ ServiceInterface = (*HealthzService)(nil)
+var _ ServiceInterface = (*HealthzHandler)(nil)
 
-func NewMuxHealthzHandler(logger *slog.Logger) *HealthzService {
-	return &HealthzService{
+func NewMuxHealthzHandler(logger *slog.Logger) *HealthzHandler {
+	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
 	}
 }
 
 // Healthz Liveness
-func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
@@ -37,7 +37,7 @@ func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 }
 
 // Healthz Readiness
-func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
@@ -49,11 +49,11 @@ func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request
 }
 
 // panic
-func (s *HealthzService) Panic(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	panic("Panic for test")
 }
 
-func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 	// sleep 30 second
 	timeString := r.PathValue("time")
 	ctx := r.Context()
@@ -72,7 +72,7 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 	response.ResponseOk(w, nil, "ok")
 }
 
-func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {
+func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
 
 	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
 	if err != nil {
