@@ -14,7 +14,8 @@ all:
 .DEFAULT_GOAL := generate
 
 unit_test:
-	go test ./... -v
+	go test -v ./... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=50ms
+
 
 fmt:
 	gofumpt -l -w .
