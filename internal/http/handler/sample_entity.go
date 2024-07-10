@@ -39,13 +39,13 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	var request dto.SampleEntityRequest
 	if err := request.FromRequest(r); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
+		response.ResponseBadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
 
 	if err := request.Validate(); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
+		response.ResponseBadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
@@ -75,13 +75,13 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	var request dto.SampleEntityRequest
 	if err := request.FromRequest(r); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
+		response.ResponseBadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
 
 	if err := request.Validate(); err != nil {
-		response.ResponseBadRequest(w, "invalid request")
+		response.ResponseBadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}

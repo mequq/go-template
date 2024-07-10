@@ -295,7 +295,7 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				b, _ := json.Marshal(sampleReq)
 				r := httptest.NewRequest(http.MethodPut, "/entities/1/", bytes.NewReader(b))
 				r.SetPathValue("id", "1")
-				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+				return r
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse: apiResponse.Response[any]{
@@ -314,8 +314,11 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				return r
 			},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   "invalid-id",
-		},
+			expectedResponse: apiResponse.Response[any]{
+				Message: "invalid-request",
+				Status:  http.StatusBadRequest,
+				Data:    nil,
+			}},
 		{
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -329,12 +332,16 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 					Text: "updatedText",
 				}
 				b, _ := json.Marshal(sampleReq)
-				r := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
-				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+				r := httptest.NewRequest(http.MethodPut, "/entities/1/", bytes.NewReader(b))
+				r.SetPathValue("id", "1")
+				return r
 			},
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   "Entity not found",
-		},
+			expectedResponse: apiResponse.Response[any]{
+				Message: "not-found",
+				Status:  http.StatusNotFound,
+				Data:    nil,
+			}},
 		{
 			name: "internal server error",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -349,11 +356,15 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				}
 				b, _ := json.Marshal(sampleReq)
 				r := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
-				return r.WithContext(context.WithValue(r.Context(), "path_value", "1"))
+				r.SetPathValue("id", "1")
+				return r
 			},
 			expectedStatusCode: http.StatusInternalServerError,
-			expectedResponse:   "Internal Server Error",
-		},
+			expectedResponse: apiResponse.Response[any]{
+				Message: "internal-error",
+				Status:  http.StatusInternalServerError,
+				Data:    nil,
+			}},
 	}
 
 	for _, test := range tests {
