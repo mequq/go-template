@@ -1,11 +1,12 @@
 package main
 
 import (
-	"application/config"
+	configPKG "application/config"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os/signal"
@@ -46,7 +47,7 @@ func main() {
 		confAddress = path.Join(wd, "config.yaml")
 	}
 
-	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(confAddress))
+	config, err := configPKG.NewKoanfConfig(configPKG.WithYamlConfigPath(confAddress))
 	if err != nil {
 		panic(err)
 	}
@@ -97,8 +98,15 @@ func main() {
 
 	// init logger
 
-	var cfg LogingConfig
-	config.Unmarshal(&cfg)
+	var httpConfig configPKG.HTTPServer
+	if err := config.Unmarshal("http_server", &httpConfig); err != nil {
+		log.Fatal(err)
+	}
+
+	var cfg configPKG.LogingConfig
+	if err := config.Unmarshal("", &cfg); err != nil {
+		log.Fatal(err)
+	}
 	logger := initSlogLogger(cfg)
 	logger.Info("logger started", "config", cfg)
 
@@ -109,7 +117,7 @@ func main() {
 	}
 
 	httpServer := &http.Server{
-		Addr:        ":8080",
+		Addr:        fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port),
 		Handler:     engine,
 		ReadTimeout: 3 * time.Second,
 	}
@@ -138,24 +146,7 @@ func main() {
 
 }
 
-type (
-	LogingConfig struct {
-		Observability Observability `mapstructure:"observability"`
-	}
-	Observability struct {
-		Logging Logging `mapstructure:"logging"`
-	}
-	Logging struct {
-		Level    string   `mapstructure:"level" `
-		Logstash Logstash `mapstructure:"logstash"`
-	}
-	Logstash struct {
-		Enabled bool   `mapstructure:"enabled"`
-		Address string `mapstructure:"address"`
-	}
-)
-
-func initSlogLogger(cfg LogingConfig) *slog.Logger {
+func initSlogLogger(cfg configPKG.LogingConfig) *slog.Logger {
 	slogHandlerOptions := &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,

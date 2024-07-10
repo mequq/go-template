@@ -2,7 +2,7 @@
 server:
   http:
     port: 8080
-    host: "localhost"
+    host: ""
     production: true
 service:
   scheduler:

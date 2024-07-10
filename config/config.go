@@ -10,7 +10,7 @@ import (
 )
 
 type ConfigInterface interface {
-	Unmarshal(cfg any) error
+	Unmarshal(path string, cfg any) error
 }
 
 // config is the config.
@@ -60,6 +60,6 @@ func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
 	return config, nil
 }
 
-func (c *Config) Unmarshal(cfg any) error {
-	return c.k.Unmarshal("", cfg)
+func (c *Config) Unmarshal(path string, cfg any) error {
+	return c.k.Unmarshal(path, cfg)
 }
