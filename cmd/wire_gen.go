@@ -8,7 +8,9 @@ package main
 
 import (
 	"application/config"
+	biz "application/internal/biz/healthz"
 	"application/internal/biz/sample_entity"
+	memory2 "application/internal/datasource/healthz/memory"
 	"application/internal/datasource/sample_entitiy/memory"
 	http2 "application/internal/http"
 	"application/internal/http/handler"
@@ -20,9 +22,11 @@ import (
 // Injectors from wire.go:
 
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
-	healthzHandler := handler.NewMuxHealthzHandler(logger)
-	dataSource := memory.NewSampleEntity()
-	sampleEntity := sample_entity.NewSampleEntity(dataSource, logger)
+	hDS := memory2.NewHealthzDS(logger)
+	hzBiz := biz.NewHealthzBiz(hDS, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(hzBiz, logger)
+	seDs := memory.NewSampleEntity()
+	sampleEntity := sample_entity.NewSampleEntity(seDs, logger)
 	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
 	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
 	httpHandler := http2.NewHttpHandler(v...)

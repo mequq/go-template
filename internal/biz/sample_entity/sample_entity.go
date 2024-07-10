@@ -17,6 +17,8 @@ type SampleEntity interface {
 	Delete(ctx context.Context, id uint64) error
 }
 
+var _ SampleEntity = (*sampleEntity)(nil)
+
 type sampleEntity struct {
 	logger       *slog.Logger
 	seDataSource sample_entitiy.DataSource

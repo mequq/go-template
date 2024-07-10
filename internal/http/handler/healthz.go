@@ -1,6 +1,7 @@
 package handler
 
 import (
+	biz "application/internal/biz/healthz"
 	"application/internal/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
@@ -16,13 +17,15 @@ import (
 
 type HealthzHandler struct {
 	logger *slog.Logger
+	uc     biz.HealthzUseCaseInterface
 }
 
 var _ HandlerInterface = (*HealthzHandler)(nil)
 
-func NewMuxHealthzHandler(logger *slog.Logger) *HealthzHandler {
+func NewMuxHealthzHandler(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *HealthzHandler {
 	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
+		uc:     uc,
 	}
 }
 
@@ -33,6 +36,12 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	defer span.End()
 	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
 	logger.Debug("Liveness")
+	err := s.uc.Liveness(ctx)
+	if err != nil {
+		response.ResponseInternalError(w)
+		return
+	}
+
 	response.ResponseOk(w, nil, "ok")
 }
 
@@ -43,6 +52,12 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 	defer span.End()
 	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
 	w.Header().Set("Content-Type", "application/json")
+
+	err := s.uc.Readiness(ctx)
+	if err != nil {
+		response.ResponseInternalError(w)
+		return
+	}
 
 	response.ResponseOk(w, nil, "ok")
 	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)

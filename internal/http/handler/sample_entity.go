@@ -177,8 +177,8 @@ func (s *SampleEntityHandler) RegisterMuxRouter(mux *http.ServeMux) {
 		loggerMiddlewareDebug.LoggerMiddleware,
 	}
 
-	mux.HandleFunc("POST /api/sample-entities/", middlewares.MultipleMiddleware(s.Create, middles...))
-	mux.HandleFunc("GET /api/sample-entities/", middlewares.MultipleMiddleware(s.List, middles...))
-	mux.HandleFunc("PUT /api/sample-entities/{id}/", middlewares.MultipleMiddleware(s.Update, middles...))
-	mux.HandleFunc("DELETE /api/sample-entities/{id}/", middlewares.MultipleMiddleware(s.Delete, middles...))
+	mux.HandleFunc("POST /api/sample-entities", middlewares.MultipleMiddleware(s.Create, middles...))
+	mux.HandleFunc("GET /api/sample-entities", middlewares.MultipleMiddleware(s.List, middles...))
+	mux.HandleFunc("PUT /api/sample-entities/{id}", middlewares.MultipleMiddleware(s.Update, middles...))
+	mux.HandleFunc("DELETE /api/sample-entities/{id}", middlewares.MultipleMiddleware(s.Delete, middles...))
 }
