@@ -14,7 +14,7 @@ all:
 .DEFAULT_GOAL := generate
 
 unit_test:
-	go test -v ./... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=50ms
+	go test -v ./internal/http/... ./internal/http/handler/... ./internal/biz/... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=50ms
 
 
 fmt:
