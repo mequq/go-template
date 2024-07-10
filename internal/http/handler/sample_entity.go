@@ -89,7 +89,7 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.ResponseBadRequest(w, "invalid-id")
+		response.ResponseBadRequest(w, "invalid-request")
 		return
 	}
 	ent := request.ToEntity()
@@ -124,7 +124,7 @@ func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.ResponseBadRequest(w, "invalid-id")
+		response.ResponseBadRequest(w, "invalid-request")
 		return
 	}
 

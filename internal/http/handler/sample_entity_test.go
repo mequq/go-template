@@ -278,7 +278,7 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
 		expectedStatusCode  int
-		expectedResponse    apiResponse.Response[any] // Assuming the response is a string message
+		expectedResponse    apiResponse.Response[any]
 	}{
 		{
 			name: "success",
@@ -409,5 +409,114 @@ func BenchmarkSampleEntityHandler_Update(b *testing.B) {
 		req := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
 		req = req.WithContext(context.WithValue(req.Context(), "path_value", "1"))
 		handler.Update(recorder, req)
+	}
+}
+
+func TestSampleEntityHandler_Delete(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	var tests = []struct {
+		name                string
+		sampleEntityBizMock func() *mockBiz.MockSampleEntity
+		request             func() *http.Request
+		expectedStatusCode  int
+		expectedResponse    apiResponse.Response[any]
+	}{
+		{
+			name: "success",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil)
+				return dsMock
+			},
+			request: func() *http.Request {
+				r := httptest.NewRequest(http.MethodDelete, "/entities/1/", bytes.NewReader([]byte{}))
+				r.SetPathValue("id", "1")
+				return r
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedResponse: apiResponse.Response[any]{
+				Message: "sample entity deleted",
+				Status:  http.StatusOK,
+				Data:    nil,
+			},
+		},
+		{
+			name: "invalid id",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				return mockBiz.NewMockSampleEntity(ctrl)
+			},
+			request: func() *http.Request {
+				r := httptest.NewRequest(http.MethodDelete, "/entities/abc", nil)
+				return r
+			},
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse: apiResponse.Response[any]{
+				Message: "invalid-request",
+				Status:  http.StatusBadRequest,
+				Data:    nil,
+			}},
+		{
+			name: "not found",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				return dsMock
+			},
+			request: func() *http.Request {
+				r := httptest.NewRequest(http.MethodDelete, "/entities/1/", bytes.NewReader([]byte{}))
+				r.SetPathValue("id", "1")
+				return r
+			},
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse: apiResponse.Response[any]{
+				Message: "not-found",
+				Status:  http.StatusNotFound,
+				Data:    nil,
+			}},
+		{
+			name: "internal server error",
+			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
+				dsMock := mockBiz.NewMockSampleEntity(ctrl)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(errors.New("database error"))
+				return dsMock
+			},
+			request: func() *http.Request {
+				r := httptest.NewRequest(http.MethodDelete, "/entities/1/", bytes.NewReader([]byte{}))
+				r.SetPathValue("id", "1")
+				return r
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse: apiResponse.Response[any]{
+				Message: "internal-error",
+				Status:  http.StatusInternalServerError,
+				Data:    nil,
+			}},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			bizMock := test.sampleEntityBizMock()
+			handler := NewSampleEntityHandler(slog.New(slog.NewTextHandler(os.Stdout, nil)), bizMock)
+			recorder := httptest.NewRecorder()
+			handler.Delete(recorder, test.request())
+
+			if recorder.Code != test.expectedStatusCode {
+				t.Errorf("status code:%d did not match expected value:%d", recorder.Code, test.expectedStatusCode)
+			}
+
+			var r apiResponse.Response[any]
+			if err := json.NewDecoder(recorder.Body).Decode(&r); err != nil {
+				t.Errorf("error decoding response body: %v", err)
+			}
+
+			if !gomock.Eq(r).Matches(test.expectedResponse) {
+				fmt.Println(r, test.expectedResponse)
+				t.Errorf("response body not match have:%v want:%v", r, test.expectedResponse)
+			}
+		})
 	}
 }
