@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 
@@ -30,42 +31,30 @@ var (
 )
 
 func main() {
-
-	// ...
-
 	ctx := context.Background()
 	defer ctx.Done()
 
-	configAddress := flag.String("config", "dev-config.yaml", "config file address")
+	configAddress := flag.String("config", "", "config file address")
 	flag.Parse()
+	confAddress := *configAddress
 
-	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(*configAddress))
+	if confAddress == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		confAddress = path.Join(wd, "config.yaml")
+	}
+
+	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(confAddress))
 	if err != nil {
 		panic(err)
 	}
-
-	// conf, err := config.NewConfig(*configAddress)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// // load config
-	// v, err := conf.Load()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// init tracer to stdout
 
 	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
 	if err != nil {
 		panic(err)
 	}
-
-	// exporter, err := jaeger.New(jaeger.WithCollectorEndpoint())
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	defer func() {
 		err := exporter.Shutdown(ctx)
 		if err != nil {
@@ -83,14 +72,6 @@ func main() {
 	)
 
 	r2, err := resource.New(context.Background()) // resource.WithFromEnv(),   // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
-	// resource.WithProcess(),   // This option configures a set of Detectors that discover process information
-	// resource.WithOS(),        // This option configures a set of Detectors that discover OS information
-	// resource.WithContainer(), // This option configures a set of Detectors that discover container information
-	// resource.WithHost(),      // This option configures a set of Detectors that discover host information
-	// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
-	// resource.WithContainerID(),
-	// resource.WithSchemaURL(semconv.SchemaURL),
-
 	if err != nil {
 		panic(err)
 	}
@@ -127,13 +108,6 @@ func main() {
 		panic(err)
 	}
 
-	// timeoutMSG, err := json.Marshal(utils.NewHttpError(1000, "message", ErrorRequestTimeout))
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// timeoutHandler := http.TimeoutHandler(engine, 5*time.Second, string(timeoutMSG))
-
 	httpServer := &http.Server{
 		Addr:        ":8080",
 		Handler:     engine,
@@ -154,8 +128,6 @@ func main() {
 	signal := <-quit
 
 	logger.Info("app stopping...")
-	// ctx, cancell := context.WithTimeout(ctx, 5*time.Second)
-	// defer cancell()
 
 	if err := httpServer.Shutdown(ctx); err != nil {
 		logger.Error("failed to shutdown app", err)
@@ -184,16 +156,10 @@ type (
 )
 
 func initSlogLogger(cfg LogingConfig) *slog.Logger {
-
-	// create list of slog handlers
 	slogHandlerOptions := &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
 	}
-	// cfg := LogingConfig{}
-	// if err := v.Unmarshal(&cfg); err != nil {
-	// 	panic(err)
-	// }
 
 	level := cfg.Observability.Logging.Level
 
@@ -212,13 +178,9 @@ func initSlogLogger(cfg LogingConfig) *slog.Logger {
 
 	slogHandlers := []slog.Handler{}
 
-	// add stdout
 	slogHandlers = append(slogHandlers, slog.NewJSONHandler(os.Stdout, slogHandlerOptions))
-	// add udp if logstash enabled
 	if cfg.Observability.Logging.Logstash.Enabled {
-		// options := slogsyslog.Option{}
 		fmt.Println("logstash enabled")
-		// address := conf.Observability.Logging.Logstash.Address
 		con, err := net.Dial("udp", cfg.Observability.Logging.Logstash.Address)
 		if err != nil {
 			panic(err)

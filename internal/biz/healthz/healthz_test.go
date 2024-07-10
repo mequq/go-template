@@ -50,12 +50,12 @@ func TestHealthzUseCase_Liveness(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			uc := &HealthzUseCase{
+			uc := &HealthzBiz{
 				repo:   tt.fields.repo,
 				logger: tt.fields.logger,
 			}
 			if err := uc.Liveness(tt.args.ctx); (err != nil) != tt.wantErr {
-				t.Errorf("HealthzUseCase.Liveness() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HealthzBiz.Liveness() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -88,12 +88,12 @@ func TestHealthzUseCase_Readiness(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			uc := &HealthzUseCase{
+			uc := &HealthzBiz{
 				repo:   tt.fields.repo,
 				logger: tt.fields.logger,
 			}
 			if err := uc.Readiness(tt.args.ctx); (err != nil) != tt.wantErr {
-				t.Errorf("HealthzUseCase.Readiness() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HealthzBiz.Readiness() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -102,7 +102,7 @@ func TestHealthzUseCase_Readiness(t *testing.T) {
 func TestNewHealthzUseCase(t *testing.T) {
 
 	logger := slog.Default()
-	huc := &HealthzUseCase{
+	huc := &HealthzBiz{
 		repo:   nil,
 		logger: logger,
 	}
@@ -128,8 +128,8 @@ func TestNewHealthzUseCase(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewHealthzUseCase(tt.args.repo, tt.args.logger); reflect.TypeOf(got) != reflect.TypeOf(tt.want) {
-				t.Errorf("NewHealthzUseCase() = %v, want %v", got, tt.want)
+			if got := NewHealthzBiz(tt.args.repo, tt.args.logger); reflect.TypeOf(got) != reflect.TypeOf(tt.want) {
+				t.Errorf("NewHealthzBiz() = %v, want %v", got, tt.want)
 			}
 		})
 	}

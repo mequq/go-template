@@ -1,9 +1,7 @@
 package httprecovery
 
 import (
-	"application/pkg/utils"
-	"encoding/json"
-	"errors"
+	"application/internal/http/response"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -62,8 +60,7 @@ func (rm *RecoverMiddleware) RecoverMiddleware(next http.Handler) http.Handler {
 					fmt.Println(err)
 					debug.PrintStack()
 				}
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.NewHttpError(5000, "test", errors.New("some panic happend")))
+				response.ResponseInternalError(w)
 			}
 		}()
 		next.ServeHTTP(w, req)

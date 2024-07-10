@@ -1,7 +1,8 @@
-package service
+package handler
 
 import (
-	"application/internal/biz"
+	biz "application/internal/biz/healthz"
+	"application/internal/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
@@ -14,72 +15,60 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-type HealthzService struct {
-	uc     biz.HealthzUseCaseInterface
+type HealthzHandler struct {
 	logger *slog.Logger
+	uc     biz.HealthzUseCaseInterface
 }
 
-type Response struct {
-	Message string `json:"message"`
-}
+var _ HandlerInterface = (*HealthzHandler)(nil)
 
-var _ ServiceInterface = (*HealthzService)(nil)
-
-// New GorilaMuxHealthzService
-func NewGorilaMuxHealthzService(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *HealthzService {
-	return &HealthzService{
+func NewMuxHealthzHandler(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *HealthzHandler {
+	return &HealthzHandler{
+		logger: logger.With("layer", "MuxHealthzService"),
 		uc:     uc,
-		logger: logger.With("layer", "GorilaMuxHealthzService"),
 	}
 }
 
 // Healthz Liveness
-func (s *HealthzService) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(ctx))
+	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
+	defer span.End()
+	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
 	logger.Debug("Liveness")
-	w.Header().Set("Content-Type", "application/json")
 	err := s.uc.Liveness(ctx)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		response.ResponseInternalError(w)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
+	response.ResponseOk(w, nil, "ok")
 }
 
 // Healthz Readiness
-func (s *HealthzService) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
-	// context
+func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// logger
+	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
+	defer span.End()
 	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
-	//  application json
 	w.Header().Set("Content-Type", "application/json")
 
-	ctx, span := otel.Tracer("service").Start(ctx, "rediness")
-	defer span.End()
 	err := s.uc.Readiness(ctx)
 	if err != nil {
-		logger.Error("HealthzReadiness", "err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err)
+		response.ResponseInternalError(w)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
+
+	response.ResponseOk(w, nil, "ok")
 	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)
 }
 
 // panic
-func (s *HealthzService) Panic(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	panic("Panic for test")
 }
 
-//  long running request
-
-func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 	// sleep 30 second
 	timeString := r.PathValue("time")
 	ctx := r.Context()
@@ -95,18 +84,10 @@ func (s *HealthzService) LongRun(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	time.Sleep(duration)
-	json.NewEncoder(w).Encode(Response{Message: "ok"})
-	w.WriteHeader(http.StatusOK)
+	response.ResponseOk(w, nil, "ok")
 }
 
-// Healthz Route
-// func (s *GorilaMuxHealthzService) RegisterRoutes(r *mux.Router) {
-// 	sr := r.PathPrefix("/healthz").Subrouter()
-// 	sr.HandleFunc("/liveness", s.HealthzLiveness).Methods(http.MethodGet)
-// 	sr.HandleFunc("/readiness", s.HealthzReadiness).Methods(http.MethodGet)
-// }
-
-func (s *HealthzService) RegisterMuxRouter(mux *http.ServeMux) {
+func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
 
 	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
 	if err != nil {

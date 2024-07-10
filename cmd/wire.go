@@ -6,15 +6,15 @@
 package main
 
 import (
+	"application/internal/biz"
+	"application/internal/datasource"
+	rest_api "application/internal/http"
+	"application/internal/http/handler"
 	"net/http"
 
 	"github.com/google/wire"
 
 	"application/config"
-	"application/internal/biz"
-	"application/internal/data"
-	"application/internal/server"
-	"application/internal/service"
 
 	"context"
 	"log/slog"
@@ -22,9 +22,9 @@ import (
 
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
-		server.ServerProviderSet,
-		service.ServiceProviderSet,
+		datasource.DataProviderSet,
 		biz.BizProviderSet,
-		data.DataProviderSet,
+		rest_api.ServerProviderSet,
+		handler.HandlerProviderSet,
 	))
 }

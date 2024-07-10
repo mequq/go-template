@@ -8,10 +8,12 @@ package main
 
 import (
 	"application/config"
-	"application/internal/biz"
-	"application/internal/data"
-	"application/internal/server"
-	"application/internal/service"
+	biz "application/internal/biz/healthz"
+	"application/internal/biz/sample_entity"
+	memory2 "application/internal/datasource/healthz/memory"
+	"application/internal/datasource/sample_entitiy/memory"
+	http2 "application/internal/http"
+	"application/internal/http/handler"
 	"context"
 	"log/slog"
 	"net/http"
@@ -20,14 +22,13 @@ import (
 // Injectors from wire.go:
 
 func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
-	dataSource, err := data.NewDataSource(ctx, logger, cfg)
-	if err != nil {
-		return nil, err
-	}
-	healthzRepoInterface := data.NewHealthzRepo(logger, dataSource)
-	healthzUseCaseInterface := biz.NewHealthzUseCase(healthzRepoInterface, logger)
-	healthzService := service.NewGorilaMuxHealthzService(healthzUseCaseInterface, logger)
-	v := service.NewServiceList(healthzService)
-	handler := server.NewHttpHandler(cfg, logger, v...)
-	return handler, nil
+	hDS := memory2.NewHealthzDS(logger)
+	hzBiz := biz.NewHealthzBiz(hDS, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(hzBiz, logger)
+	seDs := memory.NewSampleEntity()
+	sampleEntity := sample_entity.NewSampleEntity(seDs, logger)
+	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
+	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
+	httpHandler := http2.NewHttpHandler(v...)
+	return httpHandler, nil
 }

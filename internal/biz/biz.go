@@ -1,22 +1,9 @@
 package biz
 
 import (
-	"log/slog"
-	"runtime"
-
+	biz "application/internal/biz/healthz"
+	"application/internal/biz/sample_entity"
 	"github.com/google/wire"
 )
 
-var BizProviderSet = wire.NewSet(
-	NewHealthzUseCase,
-)
-
-func TraceInfo() slog.Value {
-	if _, file, number, ok := runtime.Caller(1); ok {
-		return slog.GroupValue(
-			slog.String("file", file),
-			slog.Int("no", number),
-		)
-	}
-	return slog.StringValue("N/A")
-}
+var BizProviderSet = wire.NewSet(sample_entity.NewSampleEntity, biz.NewHealthzBiz)
