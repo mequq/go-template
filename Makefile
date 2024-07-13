@@ -39,7 +39,7 @@ devtools:
 
 
 swagger:
-	swag init
+	swag init --parseDependency -g ./cmd/main.go -o ./docs
 
 check:
 	golangci-lint run \
