@@ -37,6 +37,17 @@ definitions:
       status:
         type: integer
     type: object
+  application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/application_internal_http_dto.SampleEntityResponse'
+        type: array
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
   application_internal_http_swagger.EmptyObject:
     type: object
 host: petstore.swagger.io
@@ -53,11 +64,29 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
-  /:
+  /sample-entities:
+    get:
+      consumes:
+      - application/json
+      description: Get all sample entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+      summary: Get all sample entities
+      tags:
+      - SampleEntity
     post:
       consumes:
       - application/json
-      description: jwt login
+      description: Create Sample Entity
       parameters:
       - description: request body
         in: body
@@ -68,15 +97,90 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
-      summary: Create
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+      summary: Create Sample Entity
       tags:
-      - auth
+      - SampleEntity
+  /sample-entities/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Sample Entity
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+      summary: Delete Sample Entity
+      tags:
+      - SampleEntity
+    put:
+      consumes:
+      - application/json
+      description: Update Sample Entity
+      parameters:
+      - description: request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/application_internal_http_dto.SampleEntityRequest'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+      summary: Update Sample Entity
+      tags:
+      - SampleEntity
 swagger: "2.0"

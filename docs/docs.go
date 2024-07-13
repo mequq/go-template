@@ -24,9 +24,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
-            "post": {
-                "description": "jwt login",
+        "/sample-entities": {
+            "get": {
+                "description": "Get all sample entities",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,9 +34,36 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "SampleEntity"
                 ],
-                "summary": "Create",
+                "summary": "Get all sample entities",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Sample Entity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SampleEntity"
+                ],
+                "summary": "Create Sample Entity",
                 "parameters": [
                     {
                         "description": "request body",
@@ -49,14 +76,127 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    }
+                }
+            }
+        },
+        "/sample-entities/{id}": {
+            "put": {
+                "description": "Update Sample Entity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SampleEntity"
+                ],
+                "summary": "Update Sample Entity",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_dto.SampleEntityRequest"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Sample Entity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SampleEntity"
+                ],
+                "summary": "Delete Sample Entity",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject"
                         }
@@ -114,6 +254,23 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/application_internal_http_swagger.EmptyObject"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/application_internal_http_dto.SampleEntityResponse"
+                    }
                 },
                 "message": {
                     "type": "string"
