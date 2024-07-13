@@ -1,7 +1,7 @@
 package http
 
 import (
-	"application/internal/http/handler"
+	"application/internal/v1/http/handler"
 	"net/http"
 )
 

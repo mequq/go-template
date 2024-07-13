@@ -1,8 +1,8 @@
 package sample_entity
 
 import (
-	"application/internal/datasource/sample_entitiy"
-	ent "application/internal/entity"
+	"application/internal/v1/datasource/sample_entitiy"
+	ent "application/internal/v1/entity"
 	"application/pkg/utils"
 	"context"
 	"errors"

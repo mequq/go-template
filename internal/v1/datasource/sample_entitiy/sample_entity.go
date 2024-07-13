@@ -1,7 +1,7 @@
 package sample_entitiy
 
 import (
-	"application/internal/entity"
+	"application/internal/v1/entity"
 	"context"
 	"errors"
 )

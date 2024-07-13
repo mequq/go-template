@@ -8,12 +8,12 @@ package main
 
 import (
 	"application/config"
-	biz "application/internal/biz/healthz"
-	"application/internal/biz/sample_entity"
-	memory2 "application/internal/datasource/healthz/memory"
-	"application/internal/datasource/sample_entitiy/memory"
-	http2 "application/internal/http"
-	"application/internal/http/handler"
+	biz "application/internal/v1/biz/healthz"
+	"application/internal/v1/biz/sample_entity"
+	memory2 "application/internal/v1/datasource/healthz/memory"
+	"application/internal/v1/datasource/sample_entitiy/memory"
+	http2 "application/internal/v1/http"
+	"application/internal/v1/http/handler"
 	"context"
 	"log/slog"
 	"net/http"

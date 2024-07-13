@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"application/internal/biz/sample_entity"
-	"application/internal/datasource/sample_entitiy"
-	"application/internal/http/dto"
-	"application/internal/http/response"
-	_ "application/internal/http/swagger"
+	"application/internal/v1/biz/sample_entity"
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/http/dto"
+	"application/internal/v1/http/response"
+	_ "application/internal/v1/http/swagger"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"

@@ -1,8 +1,8 @@
 package memory
 
 import (
-	"application/internal/datasource/sample_entitiy"
-	"application/internal/entity"
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/entity"
 	"context"
 	"sync"
 )
