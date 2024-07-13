@@ -15,8 +15,8 @@ func ResponseOk(w http.ResponseWriter, data any, message string) {
 	ResponseCustom(w, http.StatusOK, data, message)
 }
 
-func ResponseCreated(w http.ResponseWriter) {
-	ResponseCustom(w, http.StatusCreated, nil, "Created Successfully")
+func ResponseCreated(w http.ResponseWriter, data any) {
+	ResponseCustom(w, http.StatusCreated, data, "Created Successfully")
 }
 
 func ResponseNotFound(w http.ResponseWriter) {

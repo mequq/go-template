@@ -116,9 +116,9 @@ func main() {
 		logger.Error("failed to init app", "err", err)
 		panic(err)
 	}
-
+	serviceAddr := fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port)
 	httpServer := &http.Server{
-		Addr:        fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port),
+		Addr:        serviceAddr,
 		Handler:     engine,
 		ReadTimeout: 3 * time.Second,
 	}
@@ -131,7 +131,7 @@ func main() {
 		}
 
 	}()
-	logger.Info("microservice started")
+	logger.Info(fmt.Sprintf("microservice started at %s", serviceAddr))
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	signal := <-quit

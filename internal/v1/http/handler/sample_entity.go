@@ -63,7 +63,7 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
+	se, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
 	if err != nil {
 		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
 			response.ResponseBadRequest(w, "already-exist")
@@ -74,7 +74,7 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.ResponseCreated(w)
+	response.ResponseCreated(w, se)
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -224,8 +224,8 @@ func (s *SampleEntityHandler) RegisterMuxRouter(mux *http.ServeMux) {
 		loggerMiddlewareDebug.LoggerMiddleware,
 	}
 
-	mux.HandleFunc("POST /api/sample-entities", middlewares.MultipleMiddleware(s.Create, middles...))
-	mux.HandleFunc("GET /api/sample-entities", middlewares.MultipleMiddleware(s.List, middles...))
-	mux.HandleFunc("PUT /api/sample-entities/{id}", middlewares.MultipleMiddleware(s.Update, middles...))
-	mux.HandleFunc("DELETE /api/sample-entities/{id}", middlewares.MultipleMiddleware(s.Delete, middles...))
+	mux.HandleFunc("POST /api/v1/sample-entities", middlewares.MultipleMiddleware(s.Create, middles...))
+	mux.HandleFunc("GET /api/v1/sample-entities", middlewares.MultipleMiddleware(s.List, middles...))
+	mux.HandleFunc("PUT /api/v1/sample-entities/{id}", middlewares.MultipleMiddleware(s.Update, middles...))
+	mux.HandleFunc("DELETE /api/v1/sample-entities/{id}", middlewares.MultipleMiddleware(s.Delete, middles...))
 }
