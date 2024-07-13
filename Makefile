@@ -38,8 +38,8 @@ devtools:
 
 
 
-swagger:
-	swag init --parseDependency -g ./cmd/main.go -o ./docs
+swagger-v1:
+	swag init --parseDependency -g ./internal/v1/http/server.go -o ./docs/v1
 
 check:
 	golangci-lint run \

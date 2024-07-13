@@ -1,6 +1,6 @@
-basePath: /v2
+basePath: /api/v1
 definitions:
-  application_internal_http_dto.SampleEntityRequest:
+  application_internal_v1_http_dto.SampleEntityRequest:
     properties:
       name:
         type: string
@@ -10,7 +10,7 @@ definitions:
     - name
     - text
     type: object
-  application_internal_http_dto.SampleEntityResponse:
+  application_internal_v1_http_dto.SampleEntityResponse:
     properties:
       id:
         type: integer
@@ -19,49 +19,48 @@ definitions:
       text:
         type: string
     type: object
-  application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse:
+  application_internal_v1_http_response.Response-application_internal_v1_http_dto_SampleEntityResponse:
     properties:
       data:
-        $ref: '#/definitions/application_internal_http_dto.SampleEntityResponse'
+        $ref: '#/definitions/application_internal_v1_http_dto.SampleEntityResponse'
       message:
         type: string
       status:
         type: integer
     type: object
-  application_internal_http_response.Response-application_internal_http_swagger_EmptyObject:
+  application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject:
     properties:
       data:
-        $ref: '#/definitions/application_internal_http_swagger.EmptyObject'
+        $ref: '#/definitions/application_internal_v1_http_swagger.EmptyObject'
       message:
         type: string
       status:
         type: integer
     type: object
-  application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse:
+  application_internal_v1_http_response.Response-array_application_internal_v1_http_dto_SampleEntityResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/application_internal_http_dto.SampleEntityResponse'
+          $ref: '#/definitions/application_internal_v1_http_dto.SampleEntityResponse'
         type: array
       message:
         type: string
       status:
         type: integer
     type: object
-  application_internal_http_swagger.EmptyObject:
+  application_internal_v1_http_swagger.EmptyObject:
     type: object
-host: petstore.swagger.io
 info:
   contact:
-    email: support@swagger.io
+    email: mahdimehrabi17@gmail.com
     name: API Support
-    url: http://www.swagger.io/support
+    url: https://github.com/mahdimehrabi
   description: This is a sample server Petstore server.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Boilerplate
   version: "1.0"
 paths:
   /sample-entities:
@@ -75,11 +74,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-array_application_internal_http_dto_SampleEntityResponse'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-array_application_internal_v1_http_dto_SampleEntityResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
       summary: Get all sample entities
       tags:
       - SampleEntity
@@ -93,22 +92,22 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/application_internal_http_dto.SampleEntityRequest'
+          $ref: '#/definitions/application_internal_v1_http_dto.SampleEntityRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_dto_SampleEntityResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
       summary: Create Sample Entity
       tags:
       - SampleEntity
@@ -129,19 +128,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
       summary: Delete Sample Entity
       tags:
       - SampleEntity
@@ -155,7 +154,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/application_internal_http_dto.SampleEntityRequest'
+          $ref: '#/definitions/application_internal_v1_http_dto.SampleEntityRequest'
       - description: id
         in: path
         name: id
@@ -167,19 +166,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+            $ref: '#/definitions/application_internal_v1_http_response.Response-application_internal_v1_http_swagger_EmptyObject'
       summary: Update Sample Entity
       tags:
       - SampleEntity
