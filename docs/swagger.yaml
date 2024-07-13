@@ -1,0 +1,82 @@
+basePath: /v2
+definitions:
+  application_internal_http_dto.SampleEntityRequest:
+    properties:
+      name:
+        type: string
+      text:
+        type: string
+    required:
+    - name
+    - text
+    type: object
+  application_internal_http_dto.SampleEntityResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      text:
+        type: string
+    type: object
+  application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse:
+    properties:
+      data:
+        $ref: '#/definitions/application_internal_http_dto.SampleEntityResponse'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  application_internal_http_response.Response-application_internal_http_swagger_EmptyObject:
+    properties:
+      data:
+        $ref: '#/definitions/application_internal_http_swagger.EmptyObject'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  application_internal_http_swagger.EmptyObject:
+    type: object
+host: petstore.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: jwt login
+      parameters:
+      - description: request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/application_internal_http_dto.SampleEntityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_dto_SampleEntityResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/application_internal_http_response.Response-application_internal_http_swagger_EmptyObject'
+      summary: Create
+      tags:
+      - auth
+swagger: "2.0"

@@ -5,11 +5,13 @@ import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/http/dto"
 	"application/internal/http/response"
+	_ "application/internal/http/swagger"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
 	"errors"
+	_ "github.com/swaggo/http-swagger/example/go-chi/docs"
 	"go.opentelemetry.io/otel"
 	"log/slog"
 	"net/http"
@@ -29,6 +31,18 @@ func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sample_entity.S
 	}
 }
 
+// @BasePath /api/sample-entities
+
+// @Summary Create
+// @Schemes
+// @Description jwt login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param body body dto.SampleEntityRequest true "request body"
+// @Success 200 {object} response.Response[dto.SampleEntityResponse]
+// @failure 400 {object} response.Response[swagger.EmptyObject]
+// @Router / [post]
 func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Create")
