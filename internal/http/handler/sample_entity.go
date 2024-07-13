@@ -5,11 +5,13 @@ import (
 	"application/internal/datasource/sample_entitiy"
 	"application/internal/http/dto"
 	"application/internal/http/response"
+	_ "application/internal/http/swagger"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
 	"errors"
+	_ "github.com/swaggo/http-swagger/example/go-chi/docs"
 	"go.opentelemetry.io/otel"
 	"log/slog"
 	"net/http"
@@ -29,6 +31,17 @@ func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sample_entity.S
 	}
 }
 
+// @Summary Create Sample Entity
+// @Schemes
+// @Description Create Sample Entity
+// @Tags SampleEntity
+// @Accept json
+// @Produce json
+// @Param body body dto.SampleEntityRequest true "request body"
+// @Success 201 {object} response.Response[dto.SampleEntityResponse]
+// @failure 400 {object} response.Response[swagger.EmptyObject]
+// @failure 500 {object} response.Response[swagger.EmptyObject]
+// @Router /sample-entities [post]
 func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Create")
@@ -65,6 +78,19 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
+// @Summary Update Sample Entity
+// @Schemes
+// @Description Update Sample Entity
+// @Tags SampleEntity
+// @Accept json
+// @Produce json
+// @Param body body dto.SampleEntityRequest true "request body"
+// @Param id path int true "id"
+// @Success 200 {object} response.Response[swagger.EmptyObject]
+// @failure 400 {object} response.Response[swagger.EmptyObject]
+// @failure 404 {object} response.Response[swagger.EmptyObject]
+// @failure 500 {object} response.Response[swagger.EmptyObject]
+// @Router /sample-entities/{id} [PUT]
 func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Update")
@@ -113,6 +139,18 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
+// @Summary Delete Sample Entity
+// @Schemes
+// @Description Delete Sample Entity
+// @Tags SampleEntity
+// @Accept json
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {object} response.Response[swagger.EmptyObject]
+// @failure 400 {object} response.Response[swagger.EmptyObject]
+// @failure 404 {object} response.Response[swagger.EmptyObject]
+// @failure 500 {object} response.Response[swagger.EmptyObject]
+// @Router /sample-entities/{id} [DELETE]
 func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.Delete")
@@ -142,6 +180,15 @@ func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
+// @Summary Get all sample entities
+// @Schemes
+// @Description Get all sample entities
+// @Tags SampleEntity
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response[[]dto.SampleEntityResponse]
+// @failure 500 {object} response.Response[swagger.EmptyObject]
+// @Router /sample-entities [GET]
 func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "SampleEntityHandler.List")

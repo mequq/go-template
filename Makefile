@@ -33,11 +33,13 @@ devtools:
 	@echo "Installing devtools"
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install mvdan.cc/gofumpt@latest
-	go install go.uber.org/mock/mockgen@latest
+	go install go.uber.org/mock/mockgen@
+	go install github.com/swaggo/swag/cmd/swag@latest
+
 
 
 swagger:
-	swag init
+	swag init --parseDependency -g ./cmd/main.go -o ./docs
 
 check:
 	golangci-lint run \
