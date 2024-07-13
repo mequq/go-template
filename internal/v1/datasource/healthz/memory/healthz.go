@@ -1,7 +1,7 @@
 package memory
 
 import (
-	biz "application/internal/biz/healthz"
+	biz "application/internal/v1/biz/healthz"
 	"application/pkg/utils"
 	"context"
 	"go.opentelemetry.io/otel"

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	biz "application/internal/biz/healthz"
-	"application/internal/http/response"
+	biz "application/internal/v1/biz/healthz"
+	"application/internal/v1/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"

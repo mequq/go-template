@@ -1,7 +1,7 @@
 package httprecovery
 
 import (
-	"application/internal/http/response"
+	"application/internal/v1/http/response"
 	"fmt"
 	"log/slog"
 	"net/http"

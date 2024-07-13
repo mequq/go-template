@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"application/internal/datasource/sample_entitiy"
-	"application/internal/entity"
-	"application/internal/http/dto"
-	apiResponse "application/internal/http/response"
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/entity"
+	"application/internal/v1/http/dto"
+	apiResponse "application/internal/v1/http/response"
 	mockBiz "application/mock/biz"
 	"bytes"
 	"context"

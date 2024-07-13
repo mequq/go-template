@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"application/internal/entity"
+	"application/internal/v1/entity"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"net/http"

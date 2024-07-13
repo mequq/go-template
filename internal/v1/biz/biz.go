@@ -1,8 +1,8 @@
 package biz
 
 import (
-	biz "application/internal/biz/healthz"
-	"application/internal/biz/sample_entity"
+	biz "application/internal/v1/biz/healthz"
+	"application/internal/v1/biz/sample_entity"
 	"github.com/google/wire"
 )
 
