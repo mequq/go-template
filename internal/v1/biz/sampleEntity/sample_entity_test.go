@@ -1,13 +1,13 @@
 package sampleEntity
 
 import (
+	se "application/internal/v1/datasource/sampleEntity"
 	"context"
 	"errors"
 	"log/slog"
 	"os"
 	"testing"
 
-	"application/internal/v1/datasource/sampleEntity"
 	"application/internal/v1/entity"
 	mse "application/mock/datasource"
 	"go.uber.org/mock/gomock"
@@ -51,7 +51,7 @@ func TestUserService_Create(t *testing.T) {
 			name: "already-exist",
 			sampleEntityDSMock: func() *mse.MockDataSource {
 				dsMock := mse.NewMockDataSource(ctrl)
-				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uint64(1), sampleEntity.ErrAlreadyExist)
+				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(uint64(1), se.ErrAlreadyExist)
 				return dsMock
 			},
 			seInput: &entity.SampleEntity{
@@ -61,7 +61,7 @@ func TestUserService_Create(t *testing.T) {
 			},
 			seOutput: nil,
 			ctx:      context.Background(),
-			error:    sampleEntity.ErrAlreadyExist,
+			error:    se.ErrAlreadyExist,
 		},
 	}
 
@@ -229,7 +229,7 @@ func TestSampleEntity_Update(t *testing.T) {
 			name: "not-found",
 			sampleEntityDSMock: func() *mse.MockDataSource {
 				dsMock := mse.NewMockDataSource(ctrl)
-				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(se.ErrNotFound)
 				return dsMock
 			},
 			seInput: &entity.SampleEntity{
@@ -238,13 +238,13 @@ func TestSampleEntity_Update(t *testing.T) {
 				Text: "text",
 			},
 			ctx:   context.Background(),
-			error: sampleEntity.ErrNotFound,
+			error: se.ErrNotFound,
 		},
 		{
 			name: "already-exist",
 			sampleEntityDSMock: func() *mse.MockDataSource {
 				dsMock := mse.NewMockDataSource(ctrl)
-				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrAlreadyExist)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(se.ErrAlreadyExist)
 				return dsMock
 			},
 			seInput: &entity.SampleEntity{
@@ -253,7 +253,7 @@ func TestSampleEntity_Update(t *testing.T) {
 				Text: "text",
 			},
 			ctx:   context.Background(),
-			error: sampleEntity.ErrAlreadyExist,
+			error: se.ErrAlreadyExist,
 		},
 		{
 			name: "error",
@@ -329,12 +329,12 @@ func TestSampleEntity_Delete(t *testing.T) {
 			name: "not-found",
 			sampleEntityDSMock: func() *mse.MockDataSource {
 				dsMock := mse.NewMockDataSource(ctrl)
-				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(se.ErrNotFound)
 				return dsMock
 			},
 			id:    1,
 			ctx:   context.Background(),
-			error: sampleEntity.ErrNotFound,
+			error: se.ErrNotFound,
 		},
 		{
 			name: "error",
