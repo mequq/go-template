@@ -63,7 +63,7 @@ make coverage_tests
 
 #### Format Code
 
-Formats the code using `gofumpt`.
+Formats the code using `gofumpt` and `gci`.
 
 ```sh
 make fmt
@@ -94,6 +94,8 @@ make swagger-v1
 #### Lint Check
 
 Runs `golangci-lint` with various enabled linters.
+<br>
+[Go Cli Dcos](https://golangci-lint.run)
 
 ```sh
 make check
