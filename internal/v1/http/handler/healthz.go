@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"time"
@@ -80,8 +79,7 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 	duration, err := time.ParseDuration(timeString)
 	if err != nil {
 		logger.Error("LongRun", "err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err)
+		response.InternalError(w)
 		return
 	}
 	time.Sleep(duration)

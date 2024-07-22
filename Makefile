@@ -42,7 +42,7 @@ swagger-v1:
 	swag init --parseDependency -g ./internal/v1/http/server.go -o ./docs/v1
 
 check:
-	golangci-lint run \
+	golangci-lint run  \
 		--build-tags "${BUILD_TAG}" \
 		--timeout=20m0s \
 		--enable=gofmt \
@@ -68,7 +68,9 @@ check:
 		--enable=godox \
 		--enable=gocritic \
 		--enable=gci \
-		--enable=lll
+		--enable=lll \
+		--config=issues.exclude.yaml
+
 
 
 

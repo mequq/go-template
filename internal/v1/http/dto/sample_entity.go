@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"application/internal/v1/entity"
-
 	"github.com/go-playground/validator/v10"
 )
 
@@ -27,10 +26,10 @@ func (r *SampleEntityRequest) Validate() error {
 	return validate.Struct(r)
 }
 
-func (req *SampleEntityRequest) ToEntity() *entity.SampleEntity {
+func (r *SampleEntityRequest) ToEntity() *entity.SampleEntity {
 	return &entity.SampleEntity{
-		Name: req.Name,
-		Text: req.Text,
+		Name: r.Name,
+		Text: r.Text,
 	}
 }
 

@@ -9,9 +9,9 @@ package main
 import (
 	"application/config"
 	biz "application/internal/v1/biz/healthz"
-	"application/internal/v1/biz/sample_entity"
+	"application/internal/v1/biz/sampleEntity"
 	memory2 "application/internal/v1/datasource/healthz/memory"
-	"application/internal/v1/datasource/sample_entitiy/memory"
+	"application/internal/v1/datasource/sampleEntity/memory"
 	http2 "application/internal/v1/http"
 	"application/internal/v1/http/handler"
 	"context"
@@ -26,7 +26,7 @@ func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger) (http.
 	hzBiz := biz.NewHealthzBiz(hDS, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(hzBiz, logger)
 	seDs := memory.NewSampleEntity()
-	sampleEntity := sample_entity.NewSampleEntity(seDs, logger)
+	sampleEntity := sampleEntity.NewSampleEntity(seDs, logger)
 	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
 	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
 	httpHandler := http2.NewHttpHandler(v...)

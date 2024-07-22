@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"application/internal/v1/biz/sampleEntity"
+	se "application/internal/v1/datasource/sampleEntity"
 	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
 
-	"application/internal/v1/biz/sample_entity"
-	"application/internal/v1/datasource/sample_entitiy"
 	"application/internal/v1/http/dto"
 	"application/internal/v1/http/response"
 	_ "application/internal/v1/http/swagger"
@@ -23,11 +23,11 @@ import (
 var _ HandlerInterface = (*SampleEntityHandler)(nil)
 
 type SampleEntityHandler struct {
-	sampleEntityBiz sample_entity.SampleEntity
+	sampleEntityBiz sampleEntity.SampleEntity
 	logger          *slog.Logger
 }
 
-func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sample_entity.SampleEntity) *SampleEntityHandler {
+func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sampleEntity.SampleEntity) *SampleEntityHandler {
 	return &SampleEntityHandler{
 		logger: logger.With("layer", "MuxSampleEntityService"), sampleEntityBiz: sampleEntityBiz,
 	}
@@ -65,9 +65,9 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	se, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
+	sampleEnt, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
 	if err != nil {
-		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
+		if errors.Is(err, se.ErrAlreadyExist) {
 			response.BadRequest(w, "already-exist")
 			return
 		}
@@ -76,7 +76,7 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Created(w, se)
+	response.Created(w, sampleEnt)
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -124,11 +124,11 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	ent.ID = uint64(id)
 
 	if err := s.sampleEntityBiz.Update(ctx, ent); err != nil {
-		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
+		if errors.Is(err, se.ErrAlreadyExist) {
 			response.BadRequest(w, "already-exist")
 			return
 		}
-		if errors.Is(err, sample_entitiy.ErrNotFound) {
+		if errors.Is(err, se.ErrNotFound) {
 			response.NotFound(w)
 			return
 		}
@@ -169,7 +169,7 @@ func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.sampleEntityBiz.Delete(ctx, uint64(id)); err != nil {
-		if errors.Is(err, sample_entitiy.ErrNotFound) {
+		if errors.Is(err, se.ErrNotFound) {
 			response.NotFound(w)
 			return
 		}

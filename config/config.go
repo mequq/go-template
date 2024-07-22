@@ -20,9 +20,9 @@ type KoanfConfig struct {
 	k *koanf.Koanf
 }
 
-type ConfigOptions func(*KoanfConfig) error
+type Option func(*KoanfConfig) error
 
-func WithYamlConfigPath(path string) ConfigOptions {
+func WithYamlConfigPath(path string) Option {
 	return func(c *KoanfConfig) error {
 		c.yamlConfigPath = path
 		return nil
@@ -30,7 +30,7 @@ func WithYamlConfigPath(path string) ConfigOptions {
 }
 
 // newConfig creates a new config.
-func NewKoanfConfig(opts ...ConfigOptions) (Config, error) {
+func NewKoanfConfig(opts ...Option) (Config, error) {
 	config := &KoanfConfig{
 		k: koanf.New(""),
 	}

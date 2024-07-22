@@ -26,12 +26,29 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
-var ErrorRequestTimeout = errors.New("request take to longs to response")
+var ErrorRequestTimeout = errors.New("request take too long to respond")
 
 func main() {
 	ctx := context.Background()
 	defer ctx.Done()
 
+	// Initialize configuration
+	config := initConfig()
+
+	// Initialize tracing
+	initTracing(ctx)
+
+	// Initialize logger
+	logger := initLogger(config)
+
+	// Initialize and start HTTP server
+	httpServer := initHTTPServer(ctx, config, logger)
+
+	// Handle graceful shutdown
+	handleGracefulShutdown(ctx, httpServer, logger)
+}
+
+func initConfig() configPKG.Config {
 	configAddress := flag.String("config", "", "config file address")
 	flag.Parse()
 	confAddress := *configAddress
@@ -49,6 +66,10 @@ func main() {
 		panic(err)
 	}
 
+	return config
+}
+
+func initTracing(ctx context.Context) {
 	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
 	if err != nil {
 		panic(err)
@@ -60,7 +81,6 @@ func main() {
 		}
 	}()
 
-	// init tracer
 	r := resource.NewWithAttributes(
 		semconv.SchemaURL,
 		semconv.ServiceNameKey.String("myService"),
@@ -69,7 +89,7 @@ func main() {
 		semconv.ContainerName("myContainer"),
 	)
 
-	r2, err := resource.New(context.Background()) // resource.WithFromEnv(),   // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
+	r2, err := resource.New(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -79,39 +99,38 @@ func main() {
 		panic(err)
 	}
 
-	// init tracer
-
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(nil),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(resource),
 	)
 
 	p := b3.New()
-	// Register the B3 propagator globally.
 	otel.SetTextMapPropagator(p)
-
-	// init tracer global
 	otel.SetTracerProvider(tp)
+}
 
-	// init logger
-
-	var httpConfig configPKG.HTTPServer
-	if err := config.Unmarshal("http_server", &httpConfig); err != nil {
-		log.Fatal(err)
-	}
-
+func initLogger(config configPKG.Config) *slog.Logger {
 	var cfg configPKG.LogingConfig
 	if err := config.Unmarshal("", &cfg); err != nil {
 		log.Fatal(err)
 	}
 	logger := initSlogLogger(cfg)
 	logger.Info("logger started", "config", cfg)
+	return logger
+}
+
+func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger) *http.Server {
+	var httpConfig configPKG.HTTPServer
+	if err := config.Unmarshal("http_server", &httpConfig); err != nil {
+		log.Fatal(err)
+	}
 
 	engine, err := wireApp(ctx, config, logger)
 	if err != nil {
 		logger.Error("failed to init app", "err", err)
 		panic(err)
 	}
+
 	serviceAddr := fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port)
 	httpServer := &http.Server{
 		Addr:        serviceAddr,
@@ -127,18 +146,23 @@ func main() {
 		}
 	}()
 	logger.Info(fmt.Sprintf("microservice started at %s", serviceAddr))
+
+	return httpServer
+}
+
+func handleGracefulShutdown(ctx context.Context, httpServer *http.Server, logger *slog.Logger) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	signal := <-quit
+	sig := <-quit
 
 	logger.Info("app stopping...")
 
 	if err := httpServer.Shutdown(ctx); err != nil {
-		logger.Error("failed to shutdown app", err)
+		logger.Error("failed to shutdown app", "err", err)
 		panic(err)
 	}
 
-	logger.Info("app stopped", "signal", signal)
+	logger.Info("app stopped", "signal", sig)
 }
 
 func initSlogLogger(cfg configPKG.LogingConfig) *slog.Logger {
@@ -163,10 +187,9 @@ func initSlogLogger(cfg configPKG.LogingConfig) *slog.Logger {
 	}
 
 	slogHandlers := []slog.Handler{}
-
 	slogHandlers = append(slogHandlers, slog.NewJSONHandler(os.Stdout, slogHandlerOptions))
+
 	if cfg.Observability.Logging.Logstash.Enabled {
-		fmt.Println("logstash enabled")
 		con, err := net.Dial("udp", cfg.Observability.Logging.Logstash.Address)
 		if err != nil {
 			panic(err)

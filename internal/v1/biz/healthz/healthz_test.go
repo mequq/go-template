@@ -13,11 +13,11 @@ func NewRepoMock() HealthzRepoInterface {
 	return &mockRepo{}
 }
 
-func (m *mockRepo) Readiness(ctx context.Context) error {
+func (m *mockRepo) Readiness(_ context.Context) error {
 	return nil
 }
 
-func (m *mockRepo) Liveness(ctx context.Context) error {
+func (m *mockRepo) Liveness(_ context.Context) error {
 	return nil
 }
 

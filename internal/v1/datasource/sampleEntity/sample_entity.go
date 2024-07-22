@@ -1,4 +1,4 @@
-package sample_entitiy
+package sampleEntity
 
 import (
 	"context"

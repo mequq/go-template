@@ -1,10 +1,10 @@
 package memory
 
 import (
+	se "application/internal/v1/datasource/sampleEntity"
 	"context"
 	"sync"
 
-	"application/internal/v1/datasource/sample_entitiy"
 	"application/internal/v1/entity"
 )
 
@@ -14,14 +14,14 @@ type sampleEntity struct {
 	nextID  uint64
 }
 
-func NewSampleEntity() sample_entitiy.DataSource {
+func NewSampleEntity() se.DataSource {
 	return &sampleEntity{
 		entries: make([]*entity.SampleEntity, 0),
 		nextID:  1,
 	}
 }
 
-func (s *sampleEntity) Create(ctx context.Context, sampleEntity *entity.SampleEntity) (uint64, error) {
+func (s *sampleEntity) Create(_ context.Context, sampleEntity *entity.SampleEntity) (uint64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -31,7 +31,7 @@ func (s *sampleEntity) Create(ctx context.Context, sampleEntity *entity.SampleEn
 	return sampleEntity.ID, nil
 }
 
-func (s *sampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEntity) error {
+func (s *sampleEntity) Update(_ context.Context, sampleEntity *entity.SampleEntity) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -41,17 +41,17 @@ func (s *sampleEntity) Update(ctx context.Context, sampleEntity *entity.SampleEn
 			return nil
 		}
 	}
-	return sample_entitiy.ErrNotFound
+	return se.ErrNotFound
 }
 
-func (s *sampleEntity) List(ctx context.Context) ([]*entity.SampleEntity, error) {
+func (s *sampleEntity) List(_ context.Context) ([]*entity.SampleEntity, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	return append([]*entity.SampleEntity(nil), s.entries...), nil
 }
 
-func (s *sampleEntity) Delete(ctx context.Context, id uint64) error {
+func (s *sampleEntity) Delete(_ context.Context, id uint64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -61,5 +61,5 @@ func (s *sampleEntity) Delete(ctx context.Context, id uint64) error {
 			return nil
 		}
 	}
-	return sample_entitiy.ErrNotFound
+	return se.ErrNotFound
 }

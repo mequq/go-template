@@ -5,14 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/datasource/sampleEntity"
 	"application/internal/v1/entity"
 	"application/internal/v1/http/dto"
 	apiResponse "application/internal/v1/http/response"
@@ -67,7 +66,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 			name: "already-exist",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, sample_entitiy.ErrAlreadyExist)
+				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, sampleEntity.ErrAlreadyExist)
 				return dsMock
 			},
 			request: func() *http.Request {
@@ -239,7 +238,6 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 				t.Error(err)
 			}
 			if !gomock.Eq(r).Matches(test.expectedResponse) {
-				fmt.Println(r, test.expectedResponse)
 				t.Errorf("response body not match have:%v want:%v", r, test.expectedResponse)
 			}
 			bizMock.EXPECT()
@@ -326,7 +324,7 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
 				return dsMock
 			},
 			request: func() *http.Request {
@@ -389,7 +387,6 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 			}
 
 			if !gomock.Eq(r).Matches(test.expectedResponse) {
-				fmt.Println(r, test.expectedResponse)
 				t.Errorf("response body not match have:%v want:%v", r, test.expectedResponse)
 			}
 		})
@@ -469,7 +466,7 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sample_entitiy.ErrNotFound)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
 				return dsMock
 			},
 			request: func() *http.Request {
@@ -522,7 +519,6 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 			}
 
 			if !gomock.Eq(r).Matches(test.expectedResponse) {
-				fmt.Println(r, test.expectedResponse)
 				t.Errorf("response body not match have:%v want:%v", r, test.expectedResponse)
 			}
 		})
