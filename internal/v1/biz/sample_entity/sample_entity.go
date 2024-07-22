@@ -1,13 +1,15 @@
 package sample_entity
 
 import (
+	"context"
+	"errors"
+	"log/slog"
+
 	"application/internal/v1/datasource/sample_entitiy"
 	ent "application/internal/v1/entity"
 	"application/pkg/utils"
-	"context"
-	"errors"
+
 	"go.opentelemetry.io/otel"
-	"log/slog"
 )
 
 type SampleEntity interface {

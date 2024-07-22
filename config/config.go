@@ -31,7 +31,6 @@ func WithYamlConfigPath(path string) ConfigOptions {
 
 // newConfig creates a new config.
 func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
-
 	config := &Config{
 		k: koanf.New(""),
 	}

@@ -1,13 +1,15 @@
 package memory
 
 import (
+	"context"
+	"log/slog"
+
 	biz "application/internal/v1/biz/healthz"
 	"application/pkg/utils"
-	"context"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"log/slog"
 )
 
 type HealthzDS struct {

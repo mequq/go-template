@@ -1,10 +1,11 @@
 package memory
 
 import (
-	"application/internal/v1/datasource/sample_entitiy"
-	"application/internal/v1/entity"
 	"context"
 	"sync"
+
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/entity"
 )
 
 type sampleEntity struct {

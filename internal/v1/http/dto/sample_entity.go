@@ -1,10 +1,12 @@
 package dto
 
 import (
-	"application/internal/v1/entity"
 	"encoding/json"
-	"github.com/go-playground/validator/v10"
 	"net/http"
+
+	"application/internal/v1/entity"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type SampleEntityRequest struct {

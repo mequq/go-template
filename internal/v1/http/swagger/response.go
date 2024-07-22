@@ -1,4 +1,3 @@
 package swagger
 
-type EmptyObject struct {
-}
+type EmptyObject struct{}

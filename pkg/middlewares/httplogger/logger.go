@@ -1,11 +1,12 @@
 package httplogger
 
 import (
-	"application/pkg/utils"
 	"log/slog"
 	"net/http"
 	"strings"
 	"time"
+
+	"application/pkg/utils"
 )
 
 type StatusRecorder struct {
@@ -72,10 +73,8 @@ func (lm *LoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler {
 				),
 				"ctx", utils.GetLoggerContext(ctx),
 			)
-
 		}()
 		next.ServeHTTP(recorder, req)
-
 	})
 }
 
@@ -94,5 +93,4 @@ func SetRequestContextLogger(next http.Handler) http.Handler {
 		ctx = utils.SetLoggerContext(ctx, slog.String("request-ip", reqIP))
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})
-
 }

@@ -1,9 +1,10 @@
 package sample_entitiy
 
 import (
-	"application/internal/v1/entity"
 	"context"
 	"errors"
+
+	"application/internal/v1/entity"
 )
 
 var (

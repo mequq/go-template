@@ -10,7 +10,7 @@
 package mock_sample_entitiy
 
 import (
-	entity "application/internal/entity"
+	"application/internal/v1/entity"
 	context "context"
 	reflect "reflect"
 

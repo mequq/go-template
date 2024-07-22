@@ -5,7 +5,6 @@ import "net/http"
 type Middleware func(http.Handler) http.Handler
 
 func MultipleMiddleware(h http.HandlerFunc, m ...Middleware) http.HandlerFunc {
-
 	if len(m) < 1 {
 		return h
 	}
@@ -18,5 +17,4 @@ func MultipleMiddleware(h http.HandlerFunc, m ...Middleware) http.HandlerFunc {
 	}
 
 	return wrapped
-
 }

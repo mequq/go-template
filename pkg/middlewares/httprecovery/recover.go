@@ -1,11 +1,12 @@
 package httprecovery
 
 import (
-	"application/internal/v1/http/response"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+
+	"application/internal/v1/http/response"
 )
 
 type RecoverMiddleware struct {

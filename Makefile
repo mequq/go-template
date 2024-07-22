@@ -33,7 +33,7 @@ devtools:
 	@echo "Installing devtools"
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install mvdan.cc/gofumpt@latest
-	go install go.uber.org/mock/mockgen@
+	go install go.uber.org/mock/mockgen@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 
 

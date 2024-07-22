@@ -1,16 +1,17 @@
 package handler
 
 import (
+	"encoding/json"
+	"log/slog"
+	"net/http"
+	"time"
+
 	biz "application/internal/v1/biz/healthz"
 	"application/internal/v1/http/response"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-	"encoding/json"
-	"log/slog"
-	"net/http"
-	"time"
 
 	"go.opentelemetry.io/otel"
 )
@@ -88,7 +89,6 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
-
 	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
 	if err != nil {
 		panic(err)

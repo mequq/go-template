@@ -1,13 +1,13 @@
 package http
 
 import (
-	"application/internal/v1/http/handler"
 	"net/http"
+
+	"application/internal/v1/http/handler"
 )
 
 func NewHttpHandler(
 	svcs ...handler.HandlerInterface,
-
 ) http.Handler {
 	mux := http.NewServeMux()
 
@@ -16,5 +16,4 @@ func NewHttpHandler(
 	}
 
 	return mux
-
 }

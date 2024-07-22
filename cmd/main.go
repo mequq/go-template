@@ -1,22 +1,21 @@
 package main
 
 import (
-	configPKG "application/config"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"os/signal"
 	"path"
 	"syscall"
 	"time"
 
-	"os"
-
-	"log/slog"
+	configPKG "application/config"
 
 	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/contrib/propagators/b3"
@@ -27,12 +26,9 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
-var (
-	ErrorRequestTimeout = errors.New("request take to longs to response")
-)
+var ErrorRequestTimeout = errors.New("request take to longs to response")
 
 func main() {
-
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -129,7 +125,6 @@ func main() {
 			logger.Error("failed to run app", "err", err)
 			panic(err)
 		}
-
 	}()
 	logger.Info(fmt.Sprintf("microservice started at %s", serviceAddr))
 	quit := make(chan os.Signal, 1)
@@ -144,7 +139,6 @@ func main() {
 	}
 
 	logger.Info("app stopped", "signal", signal)
-
 }
 
 func initSlogLogger(cfg configPKG.LogingConfig) *slog.Logger {
@@ -184,5 +178,4 @@ func initSlogLogger(cfg configPKG.LogingConfig) *slog.Logger {
 	slog.SetDefault(logger)
 
 	return logger
-
 }

@@ -1,22 +1,24 @@
 package handler
 
 import (
-	"application/internal/v1/datasource/sample_entitiy"
-	"application/internal/v1/entity"
-	"application/internal/v1/http/dto"
-	apiResponse "application/internal/v1/http/response"
-	mockBiz "application/mock/biz"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go.uber.org/mock/gomock"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/entity"
+	"application/internal/v1/http/dto"
+	apiResponse "application/internal/v1/http/response"
+	mockBiz "application/mock/biz"
+
+	"go.uber.org/mock/gomock"
 )
 
 func TestSampleEntitieHandler_Create(t *testing.T) {
@@ -25,7 +27,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	var tests = []struct {
+	tests := []struct {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
@@ -133,6 +135,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 		})
 	}
 }
+
 func BenchmarkSampleEntity_Create(b *testing.B) {
 	ctrl := gomock.NewController(b)
 	seBiz := mockBiz.NewMockSampleEntity(ctrl)
@@ -155,7 +158,6 @@ func BenchmarkSampleEntity_Create(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		handler.Create(httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/sample-entities", r))
 	}
-
 }
 
 func TestSampleEntitieHandler_List(t *testing.T) {
@@ -164,7 +166,7 @@ func TestSampleEntitieHandler_List(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	var tests = []struct {
+	tests := []struct {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
@@ -273,7 +275,7 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	var tests = []struct {
+	tests := []struct {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
@@ -318,7 +320,8 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				Message: "invalid-request",
 				Status:  http.StatusBadRequest,
 				Data:    nil,
-			}},
+			},
+		},
 		{
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -341,7 +344,8 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				Message: "not-found",
 				Status:  http.StatusNotFound,
 				Data:    nil,
-			}},
+			},
+		},
 		{
 			name: "internal server error",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -364,7 +368,8 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 				Message: "internal-error",
 				Status:  http.StatusInternalServerError,
 				Data:    nil,
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -418,7 +423,7 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	var tests = []struct {
+	tests := []struct {
 		name                string
 		sampleEntityBizMock func() *mockBiz.MockSampleEntity
 		request             func() *http.Request
@@ -458,7 +463,8 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 				Message: "invalid-request",
 				Status:  http.StatusBadRequest,
 				Data:    nil,
-			}},
+			},
+		},
 		{
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -476,7 +482,8 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 				Message: "not-found",
 				Status:  http.StatusNotFound,
 				Data:    nil,
-			}},
+			},
+		},
 		{
 			name: "internal server error",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
@@ -494,7 +501,8 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 				Message: "internal-error",
 				Status:  http.StatusInternalServerError,
 				Data:    nil,
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {

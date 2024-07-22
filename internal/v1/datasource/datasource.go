@@ -1,8 +1,8 @@
 package datasource
 
 import (
-	memory2 "application/internal/datasource/healthz/memory"
-	"application/internal/datasource/sample_entitiy/memory"
+	memory2 "application/internal/v1/datasource/healthz/memory"
+	"application/internal/v1/datasource/sample_entitiy/memory"
 	"github.com/google/wire"
 )
 

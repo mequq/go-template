@@ -1,15 +1,17 @@
 package sample_entity
 
 import (
-	"application/internal/datasource/sample_entitiy"
-	"application/internal/entity"
-	mse "application/mock/datasource"
+	"application/internal/v1/datasource/sample_entitiy"
+	"application/internal/v1/entity"
 	"context"
 	"errors"
-	"go.uber.org/mock/gomock"
 	"log/slog"
 	"os"
 	"testing"
+
+	mse "application/mock/datasource"
+
+	"go.uber.org/mock/gomock"
 )
 
 func TestUserService_Create(t *testing.T) {
@@ -18,7 +20,7 @@ func TestUserService_Create(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	var tests = []struct {
+	tests := []struct {
 		name               string
 		sampleEntityDSMock func() *mse.MockDataSource
 		seInput            *entity.SampleEntity
@@ -105,7 +107,7 @@ func TestSampleEntity_List(t *testing.T) {
 	})
 
 	dbErr := errors.New("database error")
-	var tests = []struct {
+	tests := []struct {
 		name               string
 		sampleEntityDSMock func() *mse.MockDataSource
 		expectedOutput     []*entity.SampleEntity
@@ -202,7 +204,7 @@ func TestSampleEntity_Update(t *testing.T) {
 	})
 
 	dbErr := errors.New("database error")
-	var tests = []struct {
+	tests := []struct {
 		name               string
 		sampleEntityDSMock func() *mse.MockDataSource
 		seInput            *entity.SampleEntity
@@ -306,7 +308,7 @@ func TestSampleEntity_Delete(t *testing.T) {
 	})
 
 	dbErr := errors.New("database error")
-	var tests = []struct {
+	tests := []struct {
 		name               string
 		sampleEntityDSMock func() *mse.MockDataSource
 		id                 uint64

@@ -7,13 +7,10 @@ import (
 	"testing"
 )
 
-type mockRepo struct {
-}
+type mockRepo struct{}
 
 func NewRepoMock() HealthzRepoInterface {
-
 	return &mockRepo{}
-
 }
 
 func (m *mockRepo) Readiness(ctx context.Context) error {
@@ -100,7 +97,6 @@ func TestHealthzUseCase_Readiness(t *testing.T) {
 }
 
 func TestNewHealthzUseCase(t *testing.T) {
-
 	logger := slog.Default()
 	huc := &HealthzBiz{
 		repo:   nil,

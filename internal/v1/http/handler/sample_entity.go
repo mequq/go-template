@@ -1,6 +1,11 @@
 package handler
 
 import (
+	"errors"
+	"log/slog"
+	"net/http"
+	"strconv"
+
 	"application/internal/v1/biz/sample_entity"
 	"application/internal/v1/datasource/sample_entitiy"
 	"application/internal/v1/http/dto"
@@ -10,12 +15,9 @@ import (
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-	"errors"
+
 	_ "github.com/swaggo/http-swagger/example/go-chi/docs"
 	"go.opentelemetry.io/otel"
-	"log/slog"
-	"net/http"
-	"strconv"
 )
 
 var _ HandlerInterface = (*SampleEntityHandler)(nil)
