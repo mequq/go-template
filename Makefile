@@ -13,8 +13,18 @@ all:
 
 .DEFAULT_GOAL := generate
 
-unit_test:
-	go test ./... -v
+all_tests:
+	go test -v ./internal/http/handler/... ./internal/biz/... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=500ms
+
+
+bench_tests:
+	go test -v ./internal/http/handler/... ./internal/biz/... -bench=. -benchmem -cpu=1,2,3,4 -timeout=500ms
+
+unit_tests:
+	go test -v ./internal/http/handler/... ./internal/biz/...
+
+coverage_tests:
+	go test -v ./internal/http/handler/... ./internal/biz/... -cover  -coverprofile=coverage.out
 
 fmt:
 	gofumpt -l -w .
@@ -23,9 +33,13 @@ devtools:
 	@echo "Installing devtools"
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install mvdan.cc/gofumpt@latest
+	go install go.uber.org/mock/mockgen@
+	go install github.com/swaggo/swag/cmd/swag@latest
 
-swagger:
-	swag init
+
+
+swagger-v1:
+	swag init --parseDependency -g ./internal/v1/http/server.go -o ./docs/v1
 
 check:
 	golangci-lint run \

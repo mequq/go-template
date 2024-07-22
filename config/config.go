@@ -1,8 +1,6 @@
 package config
 
 import (
-	"os"
-	"path"
 	"strings"
 
 	"github.com/knadh/koanf/parsers/yaml"
@@ -12,7 +10,7 @@ import (
 )
 
 type ConfigInterface interface {
-	Unmarshal(cfg any) error
+	Unmarshal(path string, cfg any) error
 }
 
 // config is the config.
@@ -33,13 +31,9 @@ func WithYamlConfigPath(path string) ConfigOptions {
 
 // newConfig creates a new config.
 func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+
 	config := &Config{
-		yamlConfigPath: path.Join(wd, "config.yaml"),
-		k:              koanf.New(""),
+		k: koanf.New(""),
 	}
 
 	for _, opt := range opts {
@@ -66,6 +60,6 @@ func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
 	return config, nil
 }
 
-func (c *Config) Unmarshal(cfg any) error {
-	return c.k.Unmarshal("", cfg)
+func (c *Config) Unmarshal(path string, cfg any) error {
+	return c.k.Unmarshal(path, cfg)
 }
