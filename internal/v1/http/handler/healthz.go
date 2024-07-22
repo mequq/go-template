@@ -39,11 +39,11 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	logger.Debug("Liveness")
 	err := s.uc.Liveness(ctx)
 	if err != nil {
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		return
 	}
 
-	response.ResponseOk(w, nil, "ok")
+	response.Ok(w, nil, "ok")
 }
 
 // Healthz Readiness
@@ -56,11 +56,11 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 
 	err := s.uc.Readiness(ctx)
 	if err != nil {
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		return
 	}
 
-	response.ResponseOk(w, nil, "ok")
+	response.Ok(w, nil, "ok")
 	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -85,7 +85,7 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	time.Sleep(duration)
-	response.ResponseOk(w, nil, "ok")
+	response.Ok(w, nil, "ok")
 }
 
 func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {

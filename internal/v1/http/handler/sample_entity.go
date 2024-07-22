@@ -54,13 +54,13 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	var request dto.SampleEntityRequest
 	if err := request.FromRequest(r); err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
 
 	if err := request.Validate(); err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
@@ -68,15 +68,15 @@ func (s *SampleEntityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	se, err := s.sampleEntityBiz.Create(ctx, request.ToEntity())
 	if err != nil {
 		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
-			response.ResponseBadRequest(w, "already-exist")
+			response.BadRequest(w, "already-exist")
 			return
 		}
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
 		return
 	}
 
-	response.ResponseCreated(w, se)
+	response.Created(w, se)
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -103,13 +103,13 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	var request dto.SampleEntityRequest
 	if err := request.FromRequest(r); err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
 
 	if err := request.Validate(); err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusBadRequest)
 		return
 	}
@@ -117,7 +117,7 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		return
 	}
 	ent := request.ToEntity()
@@ -125,19 +125,19 @@ func (s *SampleEntityHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.sampleEntityBiz.Update(ctx, ent); err != nil {
 		if errors.Is(err, sample_entitiy.ErrAlreadyExist) {
-			response.ResponseBadRequest(w, "already-exist")
+			response.BadRequest(w, "already-exist")
 			return
 		}
 		if errors.Is(err, sample_entitiy.ErrNotFound) {
-			response.ResponseNotFound(w)
+			response.NotFound(w)
 			return
 		}
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
 		return
 	}
 
-	response.ResponseOk(w, nil, "Updated successfully")
+	response.Ok(w, nil, "Updated successfully")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -164,21 +164,21 @@ func (s *SampleEntityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.ResponseBadRequest(w, "invalid-request")
+		response.BadRequest(w, "invalid-request")
 		return
 	}
 
 	if err := s.sampleEntityBiz.Delete(ctx, uint64(id)); err != nil {
 		if errors.Is(err, sample_entitiy.ErrNotFound) {
-			response.ResponseNotFound(w)
+			response.NotFound(w)
 			return
 		}
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusInternalServerError)
 		return
 	}
 
-	response.ResponseOk(w, nil, "sample entity deleted")
+	response.Ok(w, nil, "sample entity deleted")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 
@@ -201,11 +201,11 @@ func (s *SampleEntityHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	es, err := s.sampleEntityBiz.List(ctx)
 	if err != nil {
-		response.ResponseInternalError(w)
+		response.InternalError(w)
 		return
 	}
 
-	response.ResponseOk(w, dto.SampleEntityListResponses(es), "")
+	response.Ok(w, dto.SampleEntityListResponses(es), "")
 	logger.DebugContext(ctx, "SampleEntityHandler.", "url", r.Host, "status", http.StatusOK)
 }
 

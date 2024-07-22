@@ -9,29 +9,29 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-type ConfigInterface interface {
+type Config interface {
 	Unmarshal(path string, cfg any) error
 }
 
 // config is the config.
-type Config struct {
+type KoanfConfig struct {
 	yamlConfigPath string
 
 	k *koanf.Koanf
 }
 
-type ConfigOptions func(*Config) error
+type ConfigOptions func(*KoanfConfig) error
 
 func WithYamlConfigPath(path string) ConfigOptions {
-	return func(c *Config) error {
+	return func(c *KoanfConfig) error {
 		c.yamlConfigPath = path
 		return nil
 	}
 }
 
 // newConfig creates a new config.
-func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
-	config := &Config{
+func NewKoanfConfig(opts ...ConfigOptions) (Config, error) {
+	config := &KoanfConfig{
 		k: koanf.New(""),
 	}
 
@@ -50,8 +50,8 @@ func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
 
 	//  load env variables
 	if err := config.k.Load(env.Provider("APP_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "APP_")), "_", ".", -1)
+		return strings.ReplaceAll(strings.ToLower(
+			strings.TrimPrefix(s, "APP_")), "_", ".")
 	}), nil); err != nil {
 		return nil, err
 	}
@@ -59,6 +59,6 @@ func NewKoanfConfig(opts ...ConfigOptions) (ConfigInterface, error) {
 	return config, nil
 }
 
-func (c *Config) Unmarshal(path string, cfg any) error {
+func (c *KoanfConfig) Unmarshal(path string, cfg any) error {
 	return c.k.Unmarshal(path, cfg)
 }

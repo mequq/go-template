@@ -1,23 +1,22 @@
 package utils
 
-type HttpError struct {
+type HTTPError struct {
 	Message string
 	Code    uint
 	Error   string
 }
 
-func NewHttpError(code uint, message string, err error) HttpError {
+func NewHTTPError(code uint, message string, err error) HTTPError {
 	if err == nil {
-		return HttpError{
+		return HTTPError{
 			Message: message,
 			Code:    code,
 			Error:   "",
 		}
-	} else {
-		return HttpError{
-			Message: message,
-			Code:    code,
-			Error:   err.Error(),
-		}
+	}
+	return HTTPError{
+		Message: message,
+		Code:    code,
+		Error:   err.Error(),
 	}
 }

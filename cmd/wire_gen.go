@@ -21,7 +21,7 @@ import (
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger) (http.Handler, error) {
 	hDS := memory2.NewHealthzDS(logger)
 	hzBiz := biz.NewHealthzBiz(hDS, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(hzBiz, logger)

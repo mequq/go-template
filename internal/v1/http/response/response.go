@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -11,27 +12,27 @@ type Response[T any] struct {
 	Data    T      `json:"data"`
 }
 
-func ResponseOk(w http.ResponseWriter, data any, message string) {
-	ResponseCustom(w, http.StatusOK, data, message)
+func Ok(w http.ResponseWriter, data any, message string) {
+	Custom(w, http.StatusOK, data, message)
 }
 
-func ResponseCreated(w http.ResponseWriter, data any) {
-	ResponseCustom(w, http.StatusCreated, data, "Created Successfully")
+func Created(w http.ResponseWriter, data any) {
+	Custom(w, http.StatusCreated, data, "Created Successfully")
 }
 
-func ResponseNotFound(w http.ResponseWriter) {
-	ResponseCustom(w, http.StatusNotFound, nil, "not-found")
+func NotFound(w http.ResponseWriter) {
+	Custom(w, http.StatusNotFound, nil, "not-found")
 }
 
-func ResponseInternalError(w http.ResponseWriter) {
-	ResponseCustom(w, http.StatusInternalServerError, nil, "internal-error")
+func InternalError(w http.ResponseWriter) {
+	Custom(w, http.StatusInternalServerError, nil, "internal-error")
 }
 
-func ResponseBadRequest(w http.ResponseWriter, message string) {
-	ResponseCustom(w, http.StatusBadRequest, nil, message)
+func BadRequest(w http.ResponseWriter, message string) {
+	Custom(w, http.StatusBadRequest, nil, message)
 }
 
-func ResponseCustom(w http.ResponseWriter, statusCode int, data any, message string) {
+func Custom(w http.ResponseWriter, statusCode int, data any, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(Response[any]{
@@ -40,15 +41,19 @@ func ResponseCustom(w http.ResponseWriter, statusCode int, data any, message str
 		Data:    data,
 	}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("internal-server-error"))
+		if _, err := w.Write([]byte("internal-server-error")); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func PureResponse(w http.ResponseWriter, statusCode int, data any) {
+func Pure(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("internal-server-error"))
+		if _, err := w.Write([]byte("internal-server-error")); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

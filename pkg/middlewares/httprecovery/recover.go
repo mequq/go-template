@@ -58,10 +58,10 @@ func (rm *RecoverMiddleware) RecoverMiddleware(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				rm.logger.Log(req.Context(), rm.logLevel, "Panic Recovered", "panic", err, "stack", debug.Stack())
 				if rm.consolePanic {
-					fmt.Println(err)
+					fmt.Println(err) //nolint:all
 					debug.PrintStack()
 				}
-				response.ResponseInternalError(w)
+				response.InternalError(w)
 			}
 		}()
 		next.ServeHTTP(w, req)

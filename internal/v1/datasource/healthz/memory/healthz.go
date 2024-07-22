@@ -6,7 +6,6 @@ import (
 
 	biz "application/internal/v1/biz/healthz"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -23,7 +22,8 @@ func NewHealthzDS(logger *slog.Logger) biz.HealthzRepoInterface {
 }
 
 func (r *HealthzDS) Readiness(ctx context.Context) error {
-	_, span := otel.Tracer("repo", trace.WithInstrumentationVersion("12"), trace.WithInstrumentationAttributes(attribute.String("a", "d"))).Start(ctx, "Readiness")
+	_, span := otel.Tracer("repo", trace.WithInstrumentationVersion("12"),
+		trace.WithInstrumentationAttributes(attribute.String("a", "d"))).Start(ctx, "Readiness")
 	defer span.End()
 	return nil
 }

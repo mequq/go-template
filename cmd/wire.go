@@ -20,7 +20,7 @@ import (
 	"application/config"
 )
 
-func wireApp(ctx context.Context, cfg config.ConfigInterface, logger *slog.Logger) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger) (http.Handler, error) {
 	panic(wire.Build(
 		datasource.DataProviderSet,
 		biz.BizProviderSet,
