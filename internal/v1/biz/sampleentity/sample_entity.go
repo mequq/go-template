@@ -1,14 +1,14 @@
 package sampleentity
 
 import (
-	se "application/internal/v1/datasource/sampleentity"
 	"context"
 	"errors"
 	"log/slog"
 
-	ent "application/internal/v1/entity"
 	"application/pkg/utils"
 
+	se "application/internal/v1/datasource/sampleentity"
+	ent "application/internal/v1/entity"
 	"go.opentelemetry.io/otel"
 )
 
