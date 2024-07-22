@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"application/internal/v1/datasource/sampleEntity"
+	"application/internal/v1/datasource/sampleentity"
 	"application/internal/v1/entity"
 	"application/internal/v1/http/dto"
 	apiResponse "application/internal/v1/http/response"
@@ -66,7 +66,7 @@ func TestSampleEntitieHandler_Create(t *testing.T) {
 			name: "already-exist",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, sampleEntity.ErrAlreadyExist)
+				dsMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, sampleentity.ErrAlreadyExist)
 				return dsMock
 			},
 			request: func() *http.Request {
@@ -324,7 +324,7 @@ func TestSampleEntityHandler_Update(t *testing.T) {
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
+				dsMock.EXPECT().Update(gomock.Any(), gomock.Any()).Return(sampleentity.ErrNotFound)
 				return dsMock
 			},
 			request: func() *http.Request {
@@ -409,7 +409,6 @@ func BenchmarkSampleEntityHandler_Update(b *testing.B) {
 		}
 		b, _ := json.Marshal(sampleReq)
 		req := httptest.NewRequest(http.MethodPut, "/entities/1", bytes.NewReader(b))
-		req = req.WithContext(context.WithValue(req.Context(), "path_value", "1"))
 		handler.Update(recorder, req)
 	}
 }
@@ -466,7 +465,7 @@ func TestSampleEntityHandler_Delete(t *testing.T) {
 			name: "not found",
 			sampleEntityBizMock: func() *mockBiz.MockSampleEntity {
 				dsMock := mockBiz.NewMockSampleEntity(ctrl)
-				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sampleEntity.ErrNotFound)
+				dsMock.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(sampleentity.ErrNotFound)
 				return dsMock
 			},
 			request: func() *http.Request {

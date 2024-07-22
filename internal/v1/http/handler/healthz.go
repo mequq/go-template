@@ -20,7 +20,7 @@ type HealthzHandler struct {
 	uc     biz.HealthzUseCaseInterface
 }
 
-var _ HandlerInterface = (*HealthzHandler)(nil)
+var _ Handler = (*HealthzHandler)(nil)
 
 func NewMuxHealthzHandler(uc biz.HealthzUseCaseInterface, logger *slog.Logger) *HealthzHandler {
 	return &HealthzHandler{
@@ -64,7 +64,7 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 }
 
 // panic
-func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) Panic(_ http.ResponseWriter, r *http.Request) {
 	panic("Panic for test")
 }
 

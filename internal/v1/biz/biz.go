@@ -1,10 +1,9 @@
 package biz
 
 import (
-	"github.com/google/wire"
-
 	biz "application/internal/v1/biz/healthz"
-	"application/internal/v1/biz/sampleEntity"
+	"application/internal/v1/biz/sampleentity"
+	"github.com/google/wire"
 )
 
-var ProviderSet = wire.NewSet(sampleEntity.NewSampleEntity, biz.NewHealthzBiz)
+var ProviderSet = wire.NewSet(sampleentity.NewSampleEntity, biz.NewHealthzBiz)

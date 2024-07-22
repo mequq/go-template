@@ -13,14 +13,14 @@ var HandlerProviderSet = wire.NewSet(
 )
 
 // New ServiceList
-func NewServiceList(healthzSvc *HealthzHandler, sampleEntityHandler *SampleEntityHandler) []HandlerInterface {
-	return []HandlerInterface{
+func NewServiceList(healthzSvc *HealthzHandler, sampleEntityHandler *SampleEntityHandler) []Handler {
+	return []Handler{
 		healthzSvc,
 		sampleEntityHandler,
 	}
 }
 
 // Service Interface
-type HandlerInterface interface {
+type Handler interface {
 	RegisterMuxRouter(mux *http.ServeMux)
 }

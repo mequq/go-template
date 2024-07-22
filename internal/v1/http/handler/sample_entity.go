@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"application/internal/v1/biz/sampleEntity"
-	se "application/internal/v1/datasource/sampleEntity"
+	"application/internal/v1/biz/sampleentity"
+	se "application/internal/v1/datasource/sampleentity"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -20,14 +20,14 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-var _ HandlerInterface = (*SampleEntityHandler)(nil)
+var _ Handler = (*SampleEntityHandler)(nil)
 
 type SampleEntityHandler struct {
-	sampleEntityBiz sampleEntity.SampleEntity
+	sampleEntityBiz sampleentity.SampleEntity
 	logger          *slog.Logger
 }
 
-func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sampleEntity.SampleEntity) *SampleEntityHandler {
+func NewSampleEntityHandler(logger *slog.Logger, sampleEntityBiz sampleentity.SampleEntity) *SampleEntityHandler {
 	return &SampleEntityHandler{
 		logger: logger.With("layer", "MuxSampleEntityService"), sampleEntityBiz: sampleEntityBiz,
 	}

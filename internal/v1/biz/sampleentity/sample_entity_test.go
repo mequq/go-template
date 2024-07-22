@@ -1,7 +1,7 @@
-package sampleEntity
+package sampleentity
 
 import (
-	se "application/internal/v1/datasource/sampleEntity"
+	se "application/internal/v1/datasource/sampleentity"
 	"context"
 	"errors"
 	"log/slog"

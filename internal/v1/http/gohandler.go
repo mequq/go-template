@@ -6,8 +6,8 @@ import (
 	"application/internal/v1/http/handler"
 )
 
-func NewHttpHandler(
-	svcs ...handler.HandlerInterface,
+func NewHTTPHandler(
+	svcs ...handler.Handler,
 ) http.Handler {
 	mux := http.NewServeMux()
 

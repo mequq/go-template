@@ -1,11 +1,10 @@
 package biz
 
 import (
-	"context"
-	"log/slog"
-
 	"application/pkg/utils"
+	"context"
 	"go.opentelemetry.io/otel"
+	"log/slog"
 )
 
 type HealthzRepoInterface interface {

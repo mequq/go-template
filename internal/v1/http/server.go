@@ -15,4 +15,4 @@ import "github.com/google/wire"
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @BasePath /api/v1
-var ServerProviderSet = wire.NewSet(NewHttpHandler)
+var ServerProviderSet = wire.NewSet(NewHTTPHandler)
