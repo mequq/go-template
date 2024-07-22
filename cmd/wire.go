@@ -10,14 +10,12 @@ import (
 	"log/slog"
 	"net/http"
 
+	"application/config"
 	"application/internal/biz"
 	"application/internal/datasource"
 	rest_api "application/internal/http"
 	"application/internal/http/handler"
-
 	"github.com/google/wire"
-
-	"application/config"
 )
 
 func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger) (http.Handler, error) {

@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	biz "application/internal/v1/biz/healthz"
-
 	"application/pkg/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"

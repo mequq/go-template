@@ -1,13 +1,13 @@
 package sampleentity
 
 import (
-	se "application/internal/v1/datasource/sampleentity"
 	"context"
 	"errors"
 	"log/slog"
 	"os"
 	"testing"
 
+	se "application/internal/v1/datasource/sampleentity"
 	"application/internal/v1/entity"
 	mse "application/mock/datasource"
 	"go.uber.org/mock/gomock"

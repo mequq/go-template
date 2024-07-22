@@ -1,22 +1,19 @@
 package handler
 
 import (
-	"application/internal/v1/biz/sampleentity"
-	se "application/internal/v1/datasource/sampleentity"
 	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
 
+	"application/internal/v1/biz/sampleentity"
+	se "application/internal/v1/datasource/sampleentity"
 	"application/internal/v1/http/dto"
 	"application/internal/v1/http/response"
-	_ "application/internal/v1/http/swagger"
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-
-	_ "github.com/swaggo/http-swagger/example/go-chi/docs"
 	"go.opentelemetry.io/otel"
 )
 

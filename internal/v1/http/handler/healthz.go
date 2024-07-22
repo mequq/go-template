@@ -11,7 +11,6 @@ import (
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 )
 
@@ -64,7 +63,7 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 }
 
 // panic
-func (s *HealthzHandler) Panic(_ http.ResponseWriter, r *http.Request) {
+func (s *HealthzHandler) Panic(_ http.ResponseWriter, _ *http.Request) {
 	panic("Panic for test")
 }
 

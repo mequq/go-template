@@ -5,10 +5,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"application/pkg/utils"
-
 	se "application/internal/v1/datasource/sampleentity"
 	ent "application/internal/v1/entity"
+	"application/pkg/utils"
 	"go.opentelemetry.io/otel"
 )
 

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"application/internal/v1/entity"
-
 	"github.com/go-playground/validator/v10"
 )
 

@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 )
 
