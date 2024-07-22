@@ -14,17 +14,17 @@ all:
 .DEFAULT_GOAL := generate
 
 all_tests:
-	go test -v ./internal/http/handler/... ./internal/biz/... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=500ms
+	go test -v ./internal/v1/http/handler/... ./internal/v1/biz/... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=500ms
 
 
 bench_tests:
-	go test -v ./internal/http/handler/... ./internal/biz/... -bench=. -benchmem -cpu=1,2,3,4 -timeout=500ms
+	go test -v ./internal/v1/http/handler/... ./internal/v1/biz/... -bench=. -benchmem -cpu=1,2,3,4 -timeout=500ms
 
 unit_tests:
-	go test -v ./internal/http/handler/... ./internal/biz/...
+	go test -v ./internal/v1/http/handler/... ./internal/v1/biz/...
 
 coverage_tests:
-	go test -v ./internal/http/handler/... ./internal/biz/... -cover  -coverprofile=coverage.out
+	go test -v ./internal/v1/http/handler/... ./internal/v1/biz/... -cover  -coverprofile=coverage.out
 
 fmt:
 	gofumpt -l -w .
