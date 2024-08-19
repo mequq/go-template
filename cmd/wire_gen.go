@@ -7,6 +7,10 @@
 package main
 
 import (
+	"context"
+	"log/slog"
+	"net/http"
+
 	"application/config"
 	"application/internal/biz/healthz"
 	"application/internal/biz/sample/v1"
@@ -14,9 +18,6 @@ import (
 	"application/internal/datasource/sample/memory"
 	http2 "application/internal/http"
 	"application/internal/http/handler"
-	"context"
-	"log/slog"
-	"net/http"
 )
 
 // Injectors from wire.go:

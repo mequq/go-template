@@ -1,10 +1,10 @@
 package dto
 
 import (
-	sampleentity "application/internal/entity/sample"
 	"encoding/json"
 	"net/http"
 
+	sampleentity "application/internal/entity/sample"
 	"github.com/go-playground/validator/v10"
 )
 

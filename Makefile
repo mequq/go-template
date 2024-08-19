@@ -14,7 +14,7 @@ all:
 .DEFAULT_GOAL := generate
 
 all_tests:
-	go test -v ./internal/v1/http/handler/... ./internal/v1/biz/... -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1,2,3,4 -timeout=500ms
+	go test -v ./internal/biz/... -v  ./internal/handler/...  -bench=. -cover  -coverprofile=coverage.out -benchmem -cpu=1 -timeout=500ms -json
 
 
 bench_tests:

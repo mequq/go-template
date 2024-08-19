@@ -7,12 +7,10 @@ import (
 
 	healthzusecase "application/internal/biz/healthz"
 	"application/internal/http/response"
-
 	"application/pkg/middlewares"
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 )
 

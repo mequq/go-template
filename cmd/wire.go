@@ -15,7 +15,6 @@ import (
 	"application/internal/datasource"
 	rest_api "application/internal/http"
 	"application/internal/http/handler"
-
 	"github.com/google/wire"
 )
 

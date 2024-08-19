@@ -10,10 +10,10 @@
 package mock_sampleusecasev1
 
 import (
-	sampleentity "application/internal/entity/sample"
 	context "context"
 	reflect "reflect"
 
+	sampleentity "application/internal/entity/sample"
 	gomock "go.uber.org/mock/gomock"
 )
 

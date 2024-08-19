@@ -7,7 +7,6 @@ import (
 
 	sampleentity "application/internal/entity/sample"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 )
 

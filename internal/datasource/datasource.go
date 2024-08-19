@@ -3,7 +3,6 @@ package datasource
 import (
 	healthzrepo "application/internal/datasource/healthz"
 	samplememrepo "application/internal/datasource/sample/memory"
-
 	"github.com/google/wire"
 )
 

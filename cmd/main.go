@@ -16,7 +16,6 @@ import (
 	"time"
 
 	configPKG "application/config"
-
 	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"

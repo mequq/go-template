@@ -1,14 +1,14 @@
 package sampleusecasev1
 
 import (
-	sampleentity "application/internal/entity/sample"
-	mock_sampleusecasev1 "application/mock/sample/v1"
 	"context"
 	"errors"
 	"log/slog"
 	"os"
 	"testing"
 
+	sampleentity "application/internal/entity/sample"
+	mock_sampleusecasev1 "application/mock/sample/v1"
 	"go.uber.org/mock/gomock"
 )
 
@@ -76,7 +76,6 @@ func TestUserService_Create(t *testing.T) {
 			if !gomock.Eq(se).Matches(test.seOutput) {
 				t.Errorf("output:%v is not equal to %v", se, test.seOutput)
 			}
-
 		})
 	}
 }

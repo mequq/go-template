@@ -1,11 +1,6 @@
 package handler
 
 import (
-	sampleusecasev1 "application/internal/biz/sample/v1"
-	sampleentity "application/internal/entity/sample"
-	"application/internal/http/dto"
-	"application/internal/http/response"
-	mock_sampleusecasev1 "application/mock/sample/v1"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -16,6 +11,11 @@ import (
 	"os"
 	"testing"
 
+	sampleusecasev1 "application/internal/biz/sample/v1"
+	sampleentity "application/internal/entity/sample"
+	"application/internal/http/dto"
+	"application/internal/http/response"
+	mock_sampleusecasev1 "application/mock/sample/v1"
 	"go.uber.org/mock/gomock"
 )
 

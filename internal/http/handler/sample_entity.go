@@ -13,7 +13,6 @@ import (
 	"application/pkg/middlewares/httplogger"
 	"application/pkg/middlewares/httprecovery"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 )
 

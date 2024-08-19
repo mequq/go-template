@@ -6,7 +6,6 @@ import (
 
 	healthzusecase "application/internal/biz/healthz"
 	"application/pkg/utils"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
