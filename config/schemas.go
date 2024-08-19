@@ -15,8 +15,13 @@ type (
 		Enabled bool   `mapstructure:"enabled"`
 		Address string `mapstructure:"address"`
 	}
+
+	Server struct {
+		HTTPServer HTTPServer `mapstructure:"http"`
+	}
+
 	HTTPServer struct {
-		Port       int    `mapstructure:"port"`
+		Port       int    `koanf:"Port"`
 		Host       string `mapstructure:"host"`
 		Production bool   `mapstructure:"production"`
 	}

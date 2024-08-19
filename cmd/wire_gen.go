@@ -7,28 +7,27 @@
 package main
 
 import (
+	"application/config"
+	"application/internal/biz/healthz"
+	"application/internal/biz/sample/v1"
+	"application/internal/datasource/healthz"
+	"application/internal/datasource/sample/memory"
+	http2 "application/internal/http"
+	"application/internal/http/handler"
 	"context"
 	"log/slog"
 	"net/http"
-
-	"application/config"
-	biz "application/internal/v1/biz/healthz"
-	"application/internal/v1/biz/sampleentity"
-	memory2 "application/internal/v1/datasource/healthz/memory"
-	"application/internal/v1/datasource/sampleentity/memory"
-	http2 "application/internal/v1/http"
-	"application/internal/v1/http/handler"
 )
 
 // Injectors from wire.go:
 
 func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger) (http.Handler, error) {
-	hDS := memory2.NewHealthzDS(logger)
-	hzBiz := biz.NewHealthzBiz(hDS, logger)
-	healthzHandler := handler.NewMuxHealthzHandler(hzBiz, logger)
-	seDs := memory.NewSampleEntity()
-	sampleEntity := sampleentity.NewSampleEntity(seDs, logger)
-	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntity)
+	healthzRepoInterface := healthzrepo.NewHealthzDS(logger)
+	healthzUseCaseInterface := healthzusecase.NewHealthzBiz(healthzRepoInterface, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
+	sampleEntityRepoInterface := samplememrepo.NewSampleEntity()
+	sampleEntityUsecaseInterface := sampleusecasev1.NewSampleEntity(sampleEntityRepoInterface, logger)
+	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntityUsecaseInterface)
 	v := handler.NewServiceList(healthzHandler, sampleEntityHandler)
 	httpHandler := http2.NewHTTPHandler(v...)
 	return httpHandler, nil

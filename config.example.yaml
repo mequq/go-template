@@ -40,7 +40,7 @@ observability:
       host: "localhost"
       path: "/metrics"
   logging:
-    level: "info"
+    level: "debug"
     logstash:
       enabled: false
       address: "127.0.0.1:9000"

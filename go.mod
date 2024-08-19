@@ -10,7 +10,6 @@ require (
 	github.com/knadh/koanf/providers/file v0.1.0
 	github.com/knadh/koanf/v2 v2.1.0
 	github.com/samber/slog-multi v1.0.2
-	github.com/swaggo/http-swagger/example/go-chi v0.0.0-20230830153024-537f045bded0
 	github.com/swaggo/swag v1.16.3
 	go.opentelemetry.io/contrib/propagators/b3 v1.24.0
 	go.opentelemetry.io/otel v1.24.0

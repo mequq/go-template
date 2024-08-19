@@ -11,6 +11,7 @@ import (
 
 type Config interface {
 	Unmarshal(path string, cfg any) error
+	String(key string) string
 }
 
 // config is the config.
@@ -32,7 +33,7 @@ func WithYamlConfigPath(path string) Option {
 // newConfig creates a new config.
 func NewKoanfConfig(opts ...Option) (Config, error) {
 	config := &KoanfConfig{
-		k: koanf.New(""),
+		k: koanf.New("."),
 	}
 
 	for _, opt := range opts {
@@ -61,4 +62,8 @@ func NewKoanfConfig(opts ...Option) (Config, error) {
 
 func (c *KoanfConfig) Unmarshal(path string, cfg any) error {
 	return c.k.Unmarshal(path, cfg)
+}
+
+func (c *KoanfConfig) String(key string) string {
+	return c.k.String(key)
 }

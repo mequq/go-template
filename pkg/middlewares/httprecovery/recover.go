@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"application/internal/v1/http/response"
+	"application/internal/http/response"
 )
 
 type RecoverMiddleware struct {

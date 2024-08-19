@@ -16,6 +16,7 @@ import (
 	"time"
 
 	configPKG "application/config"
+
 	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
@@ -110,20 +111,22 @@ func initTracing(ctx context.Context) {
 
 func initLogger(config configPKG.Config) *slog.Logger {
 	var cfg configPKG.LogingConfig
+	// var cfg map[string]interface{}
 	if err := config.Unmarshal("", &cfg); err != nil {
 		log.Fatal(err)
 	}
 	logger := initSlogLogger(cfg)
-	logger.Info("logger started", "config", cfg)
+	logger.Debug("logger started", "config", cfg)
 	return logger
 }
 
 func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger) *http.Server {
 	var httpConfig configPKG.HTTPServer
-	if err := config.Unmarshal("http_server", &httpConfig); err != nil {
+	if err := config.Unmarshal("server.http", &httpConfig); err != nil {
 		log.Fatal(err)
 	}
 
+	logger.Debug("starting server", "port", httpConfig.Port, "host", httpConfig.Host)
 	engine, err := wireApp(ctx, config, logger)
 	if err != nil {
 		logger.Error("failed to init app", "err", err)
