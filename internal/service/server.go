@@ -1,0 +1,19 @@
+package service
+
+import (
+	"net/http"
+
+	"github.com/google/wire"
+)
+
+// @BasePath /api/v1
+var ServerProviderSet = wire.NewSet(NewHTTPHandler, NewOAPI)
+
+// Service Interface
+type Handler interface {
+	RegisterMuxRouter(mux *http.ServeMux)
+}
+
+type OpenApiHandler interface {
+	RegisterOpenApi(o OAPI)
+}

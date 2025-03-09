@@ -1,0 +1,12 @@
+{
+  "name": "go-template",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "golang",
+      "source": "github.com/purpleclay/daggerverse/golang@1190a20046659b68001a6e16cd5c12fab960b216"
+    }
+  ],
+  "source": "dagger-ci",
+  "engineVersion": "v0.13.0"
+}

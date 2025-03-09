@@ -1,0 +1,45 @@
+name: "go-template"
+version: "v1.0.0"
+description: "A simple go template"
+enviroment: "development"
+server:
+  http:
+    port: 8080
+    host: ""
+
+observability:
+  otel-grpc:
+    enabled: true
+    address: "localhost:4317"
+  tracing:
+    enabled: true
+  metrics:
+    enabled: true
+  logging:
+    level: "info"
+
+service:
+  scheduler:
+    enabled: false
+    interval: "3s"
+
+
+
+datasource:
+  mysql:
+    dsn: "root:salam@tcp(localhost:3306)/schaduler?charset=utf8mb4&parseTime=True&loc=UTC"
+    connection_pool_enabled: true
+    connection_pool_max_idle: 10
+    connection_pool_max_open: 100
+    connection_pool_max_lifetime: "1h"
+    connection_pool_max_idle_time: "1h"
+    connection_pool_health_check_period: "1m"
+    connection_pool_health_check_timeout: "1s"
+    enabled: false
+  redis:
+    Enabled: false
+    Address: localhost:6379
+    Password: ""
+    DB: ""
+
+

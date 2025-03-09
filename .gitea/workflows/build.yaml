@@ -1,0 +1,22 @@
+name:  build and deploy
+run-name: reuse
+on:
+  push:
+
+jobs:
+  call-go-build:
+    uses: infra-templates/workflows/.gitea/workflows/go-build.yaml@492c5ab86d6553d3f94aa5f69e8c55b2842a326f
+  call-docker-image:
+    needs: call-workflow-go-build
+    uses: infra-templates/workflows/.gitea/workflows/docker-image.yaml@4a60d3351820cf204b4ed827cb214a6d2423dd15
+    with:
+      registry_address: ${{ vars.REGISTERY_ADDRESS }}
+      registry_username: ${{ vars.REGISTERY_USER }}
+      registry_password: ${{ secrets.REGISTERY_PASSWORD }}
+
+  call-kustomize:
+    needs: [call-docker-image, call-go-build]
+    uses: infra-templates/workflows/.gitea/workflows/argocd-kustomize.yaml@31becb3e5fb96e10f13275f73eac3e8e73848cfe
+    with:
+      argocd_repo: myhome/argocd-development
+      argocd_git_token: ${{ secrets.ARGO_GIT_TOKEN}}

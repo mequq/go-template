@@ -1,0 +1,13 @@
+quiet: False
+# keeptree: True
+disable-version-string: True
+with-expecter: True
+# mockname: "{{.InterfaceName}}"
+# filename: "{{.MockName}}.go"
+outpkg: mocks
+packages:
+  ./internal/biz:
+    config:
+      dir: ./{{.InterfaceDirRelative}}/mocks
+      all: true
+      recursive: true

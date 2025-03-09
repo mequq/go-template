@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+
+  redis:
+    image: redis:7.0.3
+    container_name: redis
+    restart: "no"
+    network_mode: host
+
