@@ -28,8 +28,7 @@ func main() {
 
 	runtimeCommand, err := getRuntimeCommand()
 	if err != nil {
-		log.Println(err, " failed to get runtime command")
-		return
+		panic(err)
 	}
 
 	// Initialize configuration
@@ -69,15 +68,13 @@ func main() {
 	if observabilitConfig.Metrics.Enabled {
 		metricProvider, shutdown, err := metrics.NewProvider(ctx, otelAddress, resources)
 		if err != nil {
-			log.Println(err, " failed to create metric provider")
-			return
+			panic(err)
 		}
 		defer shutdown()
 		otel.SetMeterProvider(metricProvider)
 		if err := host.Start(); err != nil {
 			slog.Info("Failed to start host observer", "error", err)
 		}
-
 		if err := runtime.Start(); err != nil {
 			slog.Info("Failed to start runtime observer", "error", err)
 		}
@@ -85,11 +82,9 @@ func main() {
 
 	logProvider, shutdown, err := loggers.NewProvider(ctx, otelAddress, resources)
 	if err != nil {
-		log.Println(err, " failed to create log provider")
-		return
+		panic(err)
 	}
 	defer shutdown()
-
 	handlers := []slog.Handler{}
 	handlers = append(
 		handlers,

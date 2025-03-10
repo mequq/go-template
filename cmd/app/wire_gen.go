@@ -7,7 +7,6 @@
 package main
 
 import (
-	"application/config"
 	"application/internal/biz/healthz"
 	"application/internal/biz/sample"
 	"application/internal/datasource"
@@ -15,6 +14,13 @@ import (
 	"application/internal/repo/sample/memory"
 	"application/internal/service"
 	"application/internal/service/handler"
+	"application/internal/service/handler/building"
+	"application/internal/service/handler/channel"
+	"application/internal/service/handler/healthz"
+	"application/internal/service/handler/movie"
+	"application/internal/service/handler/sampleentity"
+	"application/internal/service/handler/series"
+	"application/pkg/initializer/config"
 	"context"
 	"github.com/swaggest/openapi-go/openapi3"
 	"log/slog"
@@ -28,12 +34,15 @@ func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r
 	inmemoryDB := datasource.NewInmemoryDB(logger)
 	healthzRepoInterface := healthzrepo.NewHealthzDS(logger, inmemoryDB)
 	healthzUseCaseInterface := healthzusecase.NewHealthzBiz(healthzRepoInterface, logger)
-	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
+	healthzHandler := healthz.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
 	sampleEntityRepoInterface := samplememrepo.NewSampleEntity()
 	sampleEntityUsecaseInterface := sampleusecasev1.NewSampleEntity(sampleEntityRepoInterface, logger)
-	sampleEntityHandler := handler.NewSampleEntityHandler(logger, sampleEntityUsecaseInterface)
-	buildingHandler := handler.NewMuxBuildingHandler(logger)
-	v := handler.NewServiceList(healthzHandler, sampleEntityHandler, buildingHandler)
+	sampleEntityHandler := sampleentity.NewSampleEntityHandler(logger, sampleEntityUsecaseInterface)
+	buildingHandler := building.NewMuxBuildingHandler(logger)
+	movieHandler := movie.NewMuxMovieHandler(logger)
+	seriesHandler := series.NewMuxSeriesHandler(logger)
+	channelHandler := channel.NewMuxChannelHandler(logger)
+	v := handler.NewServiceList(healthzHandler, sampleEntityHandler, buildingHandler, movieHandler, seriesHandler, channelHandler)
 	httpHandler, err := service.NewHTTPHandler(oapi3r, oapi, v...)
 	if err != nil {
 		return nil, err

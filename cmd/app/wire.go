@@ -10,12 +10,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"application/config"
 	"application/internal/biz"
 	"application/internal/datasource"
 	"application/internal/repo"
 	rest_api "application/internal/service"
 	"application/internal/service/handler"
+	"application/pkg/initializer/config"
 
 	"github.com/google/wire"
 	"github.com/swaggest/openapi-go/openapi3"

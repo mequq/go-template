@@ -1,7 +1,7 @@
 package main
 
 import (
-	configPKG "application/config"
+	configPKG "application/pkg/initializer/config"
 	"context"
 	"flag"
 	"fmt"
@@ -44,6 +44,12 @@ type observabilitConfig struct {
 	Logging struct {
 		Level string
 	}
+}
+
+type HTTPServer struct {
+	Port       int    `koanf:"Port"`
+	Host       string `mapstructure:"host"`
+	Production bool   `mapstructure:"production"`
 }
 
 type RuntimeCommand struct {
@@ -127,7 +133,7 @@ func initConfig(confAddress string) configPKG.Config {
 }
 
 func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, openApiReflector *openapi3.Reflector) *http.Server {
-	var httpConfig configPKG.HTTPServer
+	var httpConfig HTTPServer
 	if err := config.Unmarshal("server.http", &httpConfig); err != nil {
 		panic(err)
 	}

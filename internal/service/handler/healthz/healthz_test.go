@@ -1,4 +1,4 @@
-package handler
+package healthz
 
 import (
 	healthzusecase "application/internal/biz/healthz"
