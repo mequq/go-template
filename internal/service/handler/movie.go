@@ -1,4 +1,4 @@
-package movie
+package handler
 
 import (
 	"application/internal/service"

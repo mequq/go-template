@@ -1,4 +1,4 @@
-package clip
+package handler
 
 import (
 	"application/internal/service"

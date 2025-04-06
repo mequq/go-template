@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	sampleentity "application/internal/entity/sample"
+	sampleentity "application/internal/entity"
 
 	"github.com/go-playground/validator/v10"
 )

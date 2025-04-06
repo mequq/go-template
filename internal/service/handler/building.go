@@ -1,4 +1,4 @@
-package building
+package handler
 
 import (
 	"application/internal/service"

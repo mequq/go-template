@@ -1,11 +1,11 @@
-package sampleusecasev1
+package biz
 
 import (
 	"context"
 	"errors"
 	"log/slog"
 
-	sampleentity "application/internal/entity/sample"
+	sampleentity "application/internal/entity"
 	"application/pkg/utils"
 
 	"go.opentelemetry.io/otel"

@@ -1,10 +1,10 @@
-package sampleusecasev1
+package biz
 
 import (
 	"context"
 	"errors"
 
-	sampleentity "application/internal/entity/sample"
+	sampleentity "application/internal/entity"
 )
 
 var (

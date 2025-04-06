@@ -1,4 +1,4 @@
-package healthzusecase
+package biz
 
 import "context"
 

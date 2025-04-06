@@ -7,19 +7,11 @@
 package main
 
 import (
-	"application/internal/biz/healthz"
-	"application/internal/biz/sample"
+	"application/internal/biz"
 	"application/internal/datasource"
-	"application/internal/repo/healthz"
-	"application/internal/repo/sample/memory"
+	"application/internal/repo"
 	"application/internal/service"
 	"application/internal/service/handler"
-	"application/internal/service/handler/building"
-	"application/internal/service/handler/channel"
-	"application/internal/service/handler/healthz"
-	"application/internal/service/handler/movie"
-	"application/internal/service/handler/sampleentity"
-	"application/internal/service/handler/series"
 	"application/pkg/initializer/config"
 	"context"
 	"github.com/swaggest/openapi-go/openapi3"
@@ -32,17 +24,14 @@ import (
 func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector) (http.Handler, error) {
 	oapi := service.NewOAPI(oapi3r, logger)
 	inmemoryDB := datasource.NewInmemoryDB(logger)
-	healthzRepoInterface := healthzrepo.NewHealthzDS(logger, inmemoryDB)
-	healthzUseCaseInterface := healthzusecase.NewHealthzBiz(healthzRepoInterface, logger)
-	healthzHandler := healthz.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
-	sampleEntityRepoInterface := samplememrepo.NewSampleEntity()
-	sampleEntityUsecaseInterface := sampleusecasev1.NewSampleEntity(sampleEntityRepoInterface, logger)
-	sampleEntityHandler := sampleentity.NewSampleEntityHandler(logger, sampleEntityUsecaseInterface)
-	buildingHandler := building.NewMuxBuildingHandler(logger)
-	movieHandler := movie.NewMuxMovieHandler(logger)
-	seriesHandler := series.NewMuxSeriesHandler(logger)
-	channelHandler := channel.NewMuxChannelHandler(logger)
-	v := handler.NewServiceList(healthzHandler, sampleEntityHandler, buildingHandler, movieHandler, seriesHandler, channelHandler)
+	healthzRepoInterface := repo.NewHealthzDS(logger, inmemoryDB)
+	healthzUseCaseInterface := biz.NewHealthzBiz(healthzRepoInterface, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
+	buildingHandler := handler.NewMuxBuildingHandler(logger)
+	movieHandler := handler.NewMuxMovieHandler(logger)
+	seriesHandler := handler.NewMuxSeriesHandler(logger)
+	channelHandler := handler.NewMuxChannelHandler(logger)
+	v := handler.NewServiceList(healthzHandler, buildingHandler, movieHandler, seriesHandler, channelHandler)
 	httpHandler, err := service.NewHTTPHandler(oapi3r, oapi, v...)
 	if err != nil {
 		return nil, err

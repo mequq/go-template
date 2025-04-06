@@ -1,11 +1,11 @@
-package healthz
+package handler
 
 import (
 	"log/slog"
 	"net/http"
 	"time"
 
-	healthzusecase "application/internal/biz/healthz"
+	healthzusecase "application/internal/biz"
 	"application/internal/datasource"
 	"application/internal/service"
 	"application/internal/service/response"
@@ -41,10 +41,6 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
-	if err := s.memDB.DB.PingContext(ctx); err != nil {
-		response.InternalError(w)
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
 	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
 	logger.Debug("Liveness")

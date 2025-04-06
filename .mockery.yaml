@@ -6,8 +6,8 @@ with-expecter: True
 # filename: "{{.MockName}}.go"
 outpkg: mocks
 packages:
-  ./internal/biz:
+  application/internal/biz:
     config:
-      dir: ./{{.InterfaceDirRelative}}/mocks
+      dir: ./{{.InterfaceDir}}/mocks
       all: true
       recursive: true

@@ -1,27 +1,28 @@
-package samplememrepo
+package repo
 
 import (
 	"context"
 	"sync"
 
-	sampleusecasev1 "application/internal/biz/sample"
-	sampleentity "application/internal/entity/sample"
+	"application/internal/biz"
+	sampleusecasev1 "application/internal/biz"
+	entity "application/internal/entity"
 )
 
 type sampleEntity struct {
 	mu      sync.Mutex
-	entries []*sampleentity.Sample
+	entries []*entity.Sample
 	nextID  uint64
 }
 
-func NewSampleEntity() sampleusecasev1.SampleEntityRepoInterface {
+func NewSampleEntity() biz.SampleEntityRepoInterface {
 	return &sampleEntity{
-		entries: make([]*sampleentity.Sample, 0),
+		entries: make([]*entity.Sample, 0),
 		nextID:  1,
 	}
 }
 
-func (s *sampleEntity) Create(_ context.Context, sampleEntity *sampleentity.Sample) (uint64, error) {
+func (s *sampleEntity) Create(_ context.Context, sampleEntity *entity.Sample) (uint64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -31,7 +32,7 @@ func (s *sampleEntity) Create(_ context.Context, sampleEntity *sampleentity.Samp
 	return sampleEntity.ID, nil
 }
 
-func (s *sampleEntity) Update(_ context.Context, sampleEntity *sampleentity.Sample) error {
+func (s *sampleEntity) Update(_ context.Context, sampleEntity *entity.Sample) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -44,11 +45,11 @@ func (s *sampleEntity) Update(_ context.Context, sampleEntity *sampleentity.Samp
 	return sampleusecasev1.ErrNotFound
 }
 
-func (s *sampleEntity) List(_ context.Context) ([]*sampleentity.Sample, error) {
+func (s *sampleEntity) List(_ context.Context) ([]*entity.Sample, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return append([]*sampleentity.Sample(nil), s.entries...), nil
+	return append([]*entity.Sample(nil), s.entries...), nil
 }
 
 func (s *sampleEntity) Delete(_ context.Context, id uint64) error {

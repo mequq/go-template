@@ -1,10 +1,10 @@
-package healthzrepo
+package repo
 
 import (
 	"context"
 	"log/slog"
 
-	healthzusecase "application/internal/biz/healthz"
+	healthzusecase "application/internal/biz"
 	"application/internal/datasource"
 	"application/pkg/utils"
 

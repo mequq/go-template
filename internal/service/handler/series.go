@@ -1,4 +1,4 @@
-package series
+package handler
 
 import (
 	"application/internal/service"

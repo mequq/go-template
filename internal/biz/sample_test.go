@@ -1,4 +1,4 @@
-package sampleusecasev1
+package biz
 
 // import (
 // 	"context"
