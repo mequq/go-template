@@ -3,6 +3,8 @@ This simple boilerplate, based on clean architecture principles, serves as an ex
 .
 .
 .
+
+1
 ## Setup 
 ```
 cp config.example.yaml config.yaml 
