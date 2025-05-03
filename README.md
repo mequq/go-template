@@ -1,6 +1,10 @@
 # Golang Boilerplate (template)
 This simple boilerplate, based on clean architecture principles, serves as an excellent foundation for your REST API microservices.
 .
+.
+.
+
+1
 ## Setup 
 ```
 cp config.example.yaml config.yaml 
