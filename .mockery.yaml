@@ -8,6 +8,6 @@ outpkg: mocks
 packages:
   application/internal/biz:
     config:
-      dir: ./{{.InterfaceDir}}/mocks
+      dir: ./internal/mocks
       all: true
       recursive: true
