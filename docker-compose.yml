@@ -8,3 +8,6 @@ services:
     restart: "no"
     network_mode: host
 
+
+include:
+  - infra-dev/monitoring-compose.yaml

@@ -1,0 +1,38 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+exporters:
+  otlphttp:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+  # prometheus:
+  #   endpoint: "0.0.0.0:8080"
+  prometheusremotewrite:
+    endpoint: "http://prometheus:9090/api/v1/write"
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+processors:
+  filter/drop_debug:
+    error_mode: ignore
+    logs:
+      log_record:
+        - 'severity_number < SEVERITY_NUMBER_INFO'
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [filter/drop_debug]
+      exporters: [otlphttp]
+    metrics:
+      receivers: [otlp]
+      exporters: [prometheusremotewrite]
+    traces:
+      receivers: [otlp]
+      exporters: [otlp]

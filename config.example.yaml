@@ -9,7 +9,7 @@ server:
 
 observability:
   otel-grpc:
-    enabled: false
+    enabled: true
     address: "localhost:4317"
   tracing:
     enabled: true

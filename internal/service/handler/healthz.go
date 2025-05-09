@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
+
 	"time"
 
 	healthzusecase "application/internal/biz"
@@ -16,13 +18,16 @@ import (
 
 	"github.com/swaggest/openapi-go"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	otelCodes "go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type HealthzHandler struct {
 	logger *slog.Logger
 	uc     healthzusecase.HealthzUseCaseInterface
 	memDB  *datasource.InmemoryDB
+	tracer trace.Tracer
 }
 
 var _ service.Handler = (*HealthzHandler)(nil)
@@ -32,6 +37,7 @@ func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slo
 	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
 		uc:     uc,
+		tracer: otel.Tracer("handler"),
 	}
 }
 
@@ -39,11 +45,11 @@ func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slo
 func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
+	ctx, span := s.tracer.Start(ctx, "HealthzLiveness", trace.WithAttributes(attribute.Bool("liveness", true)))
 	defer span.End()
 	w.Header().Set("Content-Type", "application/json")
 	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
-	logger.Debug("Liveness")
+	logger.DebugContext(ctx, "Liveness")
 	err := s.uc.Liveness(ctx)
 	if err != nil {
 		response.InternalError(w)
@@ -73,7 +79,16 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 }
 
 // panic
-func (s *HealthzHandler) Panic(_ http.ResponseWriter, _ *http.Request) {
+func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctx, span := s.tracer.Start(ctx, "Panic", trace.WithAttributes(attribute.Bool("panic", true)))
+	defer span.End()
+	logger := s.logger.With("method", "Panic", "ctx", ctx)
+	logger.ErrorContext(ctx, "Panic")
+	span.SetStatus(otelCodes.Error, "Panic")
+	span.RecordError(errors.New("Panic"))
+	span.AddEvent("Panic", trace.WithStackTrace(true))
+
 	panic("Panic for test")
 }
 
