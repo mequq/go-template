@@ -10,4 +10,4 @@ services:
 
 
 include:
-  - infra-dev/monitoring-compose.yaml
+  - infra/compose/monitoring-compose.yaml
