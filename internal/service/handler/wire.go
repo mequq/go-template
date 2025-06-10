@@ -8,28 +8,23 @@ import (
 
 var HandlerProviderSet = wire.NewSet(
 
-	NewMuxHealthzHandler,
 	NewServiceList,
-	NewMuxBuildingHandler,
-	NewMuxMovieHandler,
-	NewMuxSeriesHandler,
-	NewMuxChannelHandler,
+	NewMuxHealthzHandler,
+
+	NewMuxTokenHandler,
+	NewMuxCampaignHandler,
 )
 
 // New ServiceList
 func NewServiceList(
 	healthzSvc *HealthzHandler,
 
-	buildingSvc *BuildingHandler,
-	movieSvc *MovieHandler,
-	seriesSvc *SeriesHandler,
-	channelSvc *ChannelHandler,
+	tokenSvc *TokenHandler,
+	campaignSvc *CampaignHandler,
 ) []service.Handler {
 	return []service.Handler{
 		healthzSvc,
-		buildingSvc,
-		movieSvc,
-		seriesSvc,
-		channelSvc,
+		tokenSvc,
+		campaignSvc,
 	}
 }
