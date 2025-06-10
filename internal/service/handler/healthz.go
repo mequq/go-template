@@ -8,7 +8,6 @@ import (
 	"time"
 
 	healthzusecase "application/internal/biz"
-	"application/internal/datasource"
 	"application/internal/service"
 	"application/internal/service/response"
 	"application/pkg/middlewares"
@@ -26,7 +25,6 @@ import (
 type HealthzHandler struct {
 	logger *slog.Logger
 	uc     healthzusecase.HealthzUseCaseInterface
-	memDB  *datasource.InmemoryDB
 	tracer trace.Tracer
 }
 
