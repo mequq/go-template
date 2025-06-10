@@ -17,11 +17,12 @@ import (
 	"application/internal/service/handler"
 	"application/pkg/initializer/config"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"github.com/swaggest/openapi-go/openapi3"
 )
 
-func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector, validate *validator.Validate) (http.Handler, error) {
 	panic(wire.Build(
 		datasource.DataProviderSet,
 		biz.BizProviderSet,

@@ -14,6 +14,7 @@ import (
 	"application/internal/service/handler"
 	"application/pkg/initializer/config"
 	"context"
+	"github.com/go-playground/validator/v10"
 	"github.com/swaggest/openapi-go/openapi3"
 	"log/slog"
 	"net/http"
@@ -21,17 +22,15 @@ import (
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector) (http.Handler, error) {
+func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector, validate *validator.Validate) (http.Handler, error) {
 	oapi := service.NewOAPI(oapi3r, logger)
 	inmemoryDB := datasource.NewInmemoryDB(logger)
 	healthzRepoInterface := repo.NewHealthzDS(logger, inmemoryDB)
 	healthzUseCaseInterface := biz.NewHealthzBiz(healthzRepoInterface, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
-	buildingHandler := handler.NewMuxBuildingHandler(logger)
-	movieHandler := handler.NewMuxMovieHandler(logger)
-	seriesHandler := handler.NewMuxSeriesHandler(logger)
-	channelHandler := handler.NewMuxChannelHandler(logger)
-	v := handler.NewServiceList(healthzHandler, buildingHandler, movieHandler, seriesHandler, channelHandler)
+	tokenHandler := handler.NewMuxTokenHandler(logger)
+	campaignHandler := handler.NewMuxCampaignHandler(logger)
+	v := handler.NewServiceList(healthzHandler, tokenHandler, campaignHandler)
 	httpHandler, err := service.NewHTTPHandler(oapi3r, oapi, v...)
 	if err != nil {
 		return nil, err

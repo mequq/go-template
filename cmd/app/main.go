@@ -6,11 +6,13 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"time"
 
 	"application/pkg/initializer/observability/loggers"
 	"application/pkg/initializer/observability/metrics"
 	"application/pkg/initializer/observability/trace"
 
+	"github.com/go-playground/validator/v10"
 	slogmulti "github.com/samber/slog-multi"
 	"github.com/swaggest/openapi-go/openapi3"
 
@@ -23,8 +25,8 @@ import (
 
 func main() {
 
-	ctx := context.Background()
-	defer ctx.Done()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	runtimeCommand, err := getRuntimeCommand()
 	if err != nil {
@@ -102,7 +104,7 @@ func main() {
 	oapi3Reflector := openapi3.NewReflector()
 
 	// Initialize and start HTTP server
-	httpServer := initHTTPServer(ctx, config, logger, oapi3Reflector)
+	httpServer := initHTTPServer(ctx, config, logger, oapi3Reflector, validator.New(validator.WithRequiredStructEnabled()))
 
 	if runtimeCommand.saveOpenApi {
 		err := saveOpenApiSpec(oapi3Reflector, runtimeCommand.openApiPath)
@@ -110,7 +112,12 @@ func main() {
 			logger.Error("failed to save openapi spec", "err", err)
 			return
 		}
+		return
 	}
+
 	// Handle graceful shutdown
 	handleGracefulShutdown(ctx, httpServer, logger)
+	cancel()
+	time.Sleep(300 * time.Millisecond) // Give some time for the logger to flush before exiting
+
 }

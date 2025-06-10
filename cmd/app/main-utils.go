@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/swaggest/openapi-go/openapi3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	sdkotel "go.opentelemetry.io/otel/sdk/resource"
@@ -132,7 +133,7 @@ func initConfig(confAddress string) configPKG.Config {
 	return config
 }
 
-func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, openApiReflector *openapi3.Reflector) *http.Server {
+func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, openApiReflector *openapi3.Reflector, validate *validator.Validate) *http.Server {
 	var httpConfig HTTPServer
 	if err := config.Unmarshal("server.http", &httpConfig); err != nil {
 		panic(err)
@@ -140,7 +141,7 @@ func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.L
 
 	logger.Debug("starting server", "port", httpConfig.Port, "host", httpConfig.Host)
 
-	engine, err := wireApp(ctx, config, logger, openApiReflector)
+	engine, err := wireApp(ctx, config, logger, openApiReflector, validate)
 	if err != nil {
 		logger.Error("failed to init app", "err", err)
 		panic(err)
