@@ -53,12 +53,12 @@ func main() {
 	}
 
 	if observabilitConfig.Tracing.Enabled {
-		traceProvider, shutdown, err := trace.NewProvider(ctx, otelAddress, resources)
+		traceProvider, err := trace.NewProvider(ctx, otelAddress, resources)
 		if err != nil {
 			log.Println(err, " failed to create trace provider")
 			return
 		}
-		defer shutdown()
+
 		otel.SetTextMapPropagator(
 			propagation.NewCompositeTextMapPropagator(
 				propagation.TraceContext{},
@@ -68,11 +68,10 @@ func main() {
 	}
 
 	if observabilitConfig.Metrics.Enabled {
-		metricProvider, shutdown, err := metrics.NewProvider(ctx, otelAddress, resources)
+		metricProvider, err := metrics.NewProvider(ctx, otelAddress, resources)
 		if err != nil {
 			panic(err)
 		}
-		defer shutdown()
 		otel.SetMeterProvider(metricProvider)
 		if err := host.Start(); err != nil {
 			slog.Info("Failed to start host observer", "error", err)
@@ -82,11 +81,10 @@ func main() {
 		}
 	}
 
-	logProvider, shutdown, err := loggers.NewProvider(ctx, otelAddress, resources)
+	logProvider, err := loggers.NewProvider(ctx, otelAddress, resources)
 	if err != nil {
 		panic(err)
 	}
-	defer shutdown()
 	handlers := []slog.Handler{}
 	handlers = append(
 		handlers,

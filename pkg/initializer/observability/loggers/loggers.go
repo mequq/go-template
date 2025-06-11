@@ -2,6 +2,7 @@ package loggers
 
 import (
 	"context"
+	"log/slog"
 	"net"
 
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
@@ -15,11 +16,12 @@ func NewProvider(
 	ctx context.Context,
 	otelCollectorGrpcAddress *net.TCPAddr,
 	resources *resoucesdkotel.Resource,
-) (logapiotel.LoggerProvider, func(), error) {
+) (logapiotel.LoggerProvider, error) {
 	if otelCollectorGrpcAddress != nil {
-		batchExporter, err := otlploggrpc.New(ctx, otlploggrpc.WithEndpoint(otelCollectorGrpcAddress.String()), otlploggrpc.WithInsecure())
+		bgctx := context.Background()
+		batchExporter, err := otlploggrpc.New(bgctx, otlploggrpc.WithEndpoint(otelCollectorGrpcAddress.String()), otlploggrpc.WithInsecure())
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		lp := logsdkotel.NewLoggerProvider(
@@ -28,14 +30,22 @@ func NewProvider(
 			),
 			logsdkotel.WithResource(resources),
 		)
-		return lp, func() {
-			if err := lp.Shutdown(ctx); err != nil {
-				return
+
+		go func() {
+			<-ctx.Done()
+			if err := lp.Shutdown(bgctx); err != nil {
+				slog.Error("failed to shutdown logger provider", "error", err)
+
 			}
-		}, nil
+			if err := batchExporter.Shutdown(bgctx); err != nil {
+				slog.Error("failed to shutdown batch exporter", "error", err)
+			}
+		}()
+		return lp, nil
+
 	} else {
 		lp := lognoopotel.NewLoggerProvider()
-		return lp, func() {}, nil
+		return lp, nil
 
 	}
 

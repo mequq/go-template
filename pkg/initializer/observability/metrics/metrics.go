@@ -19,16 +19,17 @@ func NewProvider(
 	ctx context.Context,
 	otelCollectorGrpcAddress *net.TCPAddr,
 	resources *resoucesdkotel.Resource,
-) (meterapiotel.MeterProvider, func(), error) {
+) (meterapiotel.MeterProvider, error) {
+	bgctx := context.Background()
 
 	if otelCollectorGrpcAddress != nil {
 		metricExporter, err := otlpmetricgrpc.New(
-			ctx, otlpmetricgrpc.WithEndpoint(otelCollectorGrpcAddress.String()),
+			bgctx, otlpmetricgrpc.WithEndpoint(otelCollectorGrpcAddress.String()),
 			otlpmetricgrpc.WithInsecure(),
 		)
 		if err != nil {
 			slog.Info("Failed to create OTLP metric exporter", "error", err)
-			return nil, nil, err
+			return nil, err
 		}
 		mp := metersdkotel.NewMeterProvider(
 			metersdkotel.WithReader(metersdkotel.NewPeriodicReader(
@@ -38,14 +39,19 @@ func NewProvider(
 			metersdkotel.WithResource(resources),
 		)
 
-		return mp, func() {
-			if err := mp.Shutdown(ctx); err != nil {
-				slog.Info("Failed to stop OTLP metric exporter", "error", err)
+		go func() {
+			<-ctx.Done()
+			if err := mp.Shutdown(bgctx); err != nil {
+				slog.Error("failed to shutdown meter provider", "error", err)
 			}
-		}, nil
+			if err := metricExporter.Shutdown(bgctx); err != nil {
+				slog.Error("failed to shutdown metric exporter", "error", err)
+			}
+		}()
 
+		return mp, nil
 	} else {
 		mp := metrnoopotel.NewMeterProvider()
-		return mp, func() {}, nil
+		return mp, nil
 	}
 }
