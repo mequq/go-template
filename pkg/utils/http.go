@@ -1,22 +1,13 @@
 package utils
 
-type HTTPError struct {
-	Message string
-	Code    uint
-	Error   string
-}
+import (
+	"net/http"
+	"strings"
+)
 
-func NewHTTPError(code uint, message string, err error) HTTPError {
-	if err == nil {
-		return HTTPError{
-			Message: message,
-			Code:    code,
-			Error:   "",
-		}
+func GetUserIPAddress(r *http.Request) string {
+	if r.Header.Get("X-Forwarded-For") != "" {
+		return r.Header.Get("X-Forwarded-For")
 	}
-	return HTTPError{
-		Message: message,
-		Code:    code,
-		Error:   err.Error(),
-	}
+	return strings.Split(r.RemoteAddr, ":")[0] // Split to get the IP address without port
 }

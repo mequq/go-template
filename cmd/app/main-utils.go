@@ -140,6 +140,7 @@ func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.L
 	}
 
 	logger.Debug("starting server", "port", httpConfig.Port, "host", httpConfig.Host)
+	logger.Info("starting server", "port", httpConfig.Port, "host", httpConfig.Host)
 
 	engine, err := wireApp(ctx, config, logger, openApiReflector, validate)
 	if err != nil {

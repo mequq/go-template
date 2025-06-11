@@ -39,25 +39,29 @@ func NewHTTPLoggerMiddleware(opts ...Options[*HTTPLoggerMiddleware]) *HTTPLogger
 func (lm *HTTPLoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		startTime := time.Now()
+		ctx := req.Context()
 		recorder := &StatusRecorder{
 			ResponseWriter: w,
 			Status:         http.StatusOK,
 		}
-		defer func() {
-			ctx := req.Context()
 
-			lm.logger.Log(ctx, lm.level, "request fulfilled",
-				slog.Group(
-					"request-info",
-					slog.String("method", req.Method),
-					slog.String("url", req.URL.String()),
-					slog.Int("status", recorder.Status),
-					slog.String("duration", time.Since(startTime).String()),
-				),
-				"ctx", utils.GetLoggerContext(ctx),
+		ctx = utils.SetLoggerContext(ctx, slog.String("request-id", req.Header.Get("x-request-id")))
+		ctx = utils.SetLoggerContext(ctx, slog.String("request-ip", utils.GetUserIPAddress(req)))
+		ctx = utils.SetLoggerContext(ctx, slog.String("method", req.Method))
+		ctx = utils.SetLoggerContext(ctx, slog.String("url", req.URL.String()))
+
+		defer func() {
+
+			attrs := utils.GetLoggerContextAsAttrs(ctx)
+
+			attrs = append(attrs,
+				slog.Int("status", recorder.Status),
+				slog.String("duration", time.Since(startTime).String()),
 			)
+			lm.logger.LogAttrs(ctx, lm.level, "request fulfilled", attrs...)
 		}()
-		next.ServeHTTP(recorder, req)
+
+		next.ServeHTTP(recorder, req.WithContext(ctx))
 	})
 }
 

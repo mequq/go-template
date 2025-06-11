@@ -86,3 +86,53 @@ func GetLoggerContext(ctx context.Context) slog.Value {
 	}
 	return slog.GroupValue()
 }
+
+func GetLoggerContextAsAttrs(ctx context.Context) []slog.Attr {
+	if ctx == nil {
+		return nil
+	}
+
+	if ctx.Value(LoggerContext) != nil {
+		attrs := ctx.Value(LoggerContext).([]slog.Attr)
+		return attrs
+	}
+	return nil
+}
+
+type ContextLoggerHandler struct {
+	slog.Handler
+	keyName string
+}
+
+func NewContextLoggerHandler(handler slog.Handler) slog.Handler {
+	return &ContextLoggerHandler{
+		Handler: handler,
+		keyName: "context",
+	}
+}
+
+func (c *ContextLoggerHandler) Handle(ctx context.Context, r slog.Record) error {
+
+	attr := slog.GroupValue(GetLoggerContextAsAttrs(ctx)...)
+	r.AddAttrs(slog.Attr{
+		Key:   c.keyName,
+		Value: attr,
+	})
+
+	return c.Handler.Handle(ctx, r)
+}
+
+func (c *ContextLoggerHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &ContextLoggerHandler{
+		Handler: c.Handler.WithAttrs(attrs),
+	}
+}
+
+func (c *ContextLoggerHandler) WithGroup(name string) slog.Handler {
+	return &ContextLoggerHandler{
+		Handler: c.Handler.WithGroup(name),
+	}
+}
+func (c *ContextLoggerHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return c.Handler.Enabled(ctx, level)
+}

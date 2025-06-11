@@ -11,6 +11,7 @@ import (
 	"application/pkg/initializer/observability/loggers"
 	"application/pkg/initializer/observability/metrics"
 	"application/pkg/initializer/observability/trace"
+	"application/pkg/utils"
 
 	"github.com/go-playground/validator/v10"
 	slogmulti "github.com/samber/slog-multi"
@@ -86,12 +87,16 @@ func main() {
 		panic(err)
 	}
 	handlers := []slog.Handler{}
-	handlers = append(
-		handlers,
+
+	contextHandler := utils.NewContextLoggerHandler(
 		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			AddSource: true,
 			Level:     logLevel(observabilitConfig.Logging.Level),
 		}),
+	)
+	handlers = append(
+		handlers,
+		contextHandler,
 		otelslog.NewHandler("otel", otelslog.WithLoggerProvider(logProvider), otelslog.WithSource(true)),
 	)
 
