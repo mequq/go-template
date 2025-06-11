@@ -28,9 +28,7 @@ func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r
 	healthzRepoInterface := repo.NewHealthzDS(logger, inmemoryDB)
 	healthzUseCaseInterface := biz.NewHealthzBiz(healthzRepoInterface, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
-	tokenHandler := handler.NewMuxTokenHandler(logger)
-	campaignHandler := handler.NewMuxCampaignHandler(logger)
-	v := handler.NewServiceList(healthzHandler, tokenHandler, campaignHandler)
+	v := handler.NewServiceList(healthzHandler)
 	httpHandler, err := service.NewHTTPHandler(oapi3r, oapi, v...)
 	if err != nil {
 		return nil, err

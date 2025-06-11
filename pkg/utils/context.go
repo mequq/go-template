@@ -101,13 +101,11 @@ func GetLoggerContextAsAttrs(ctx context.Context) []slog.Attr {
 
 type ContextLoggerHandler struct {
 	slog.Handler
-	keyName string
 }
 
 func NewContextLoggerHandler(handler slog.Handler) slog.Handler {
 	return &ContextLoggerHandler{
 		Handler: handler,
-		keyName: "context",
 	}
 }
 
@@ -115,7 +113,7 @@ func (c *ContextLoggerHandler) Handle(ctx context.Context, r slog.Record) error 
 
 	attr := slog.GroupValue(GetLoggerContextAsAttrs(ctx)...)
 	r.AddAttrs(slog.Attr{
-		Key:   c.keyName,
+		Key:   "context",
 		Value: attr,
 	})
 

@@ -11,9 +11,6 @@ import (
 	"application/internal/service"
 	"application/internal/service/response"
 	"application/pkg/middlewares"
-	"application/pkg/middlewares/httplogger"
-	"application/pkg/middlewares/httprecovery"
-	"application/pkg/utils"
 
 	"github.com/swaggest/openapi-go"
 	"go.opentelemetry.io/otel"
@@ -46,7 +43,7 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 	ctx, span := s.tracer.Start(ctx, "HealthzLiveness", trace.WithAttributes(attribute.Bool("liveness", true)))
 	defer span.End()
 	w.Header().Set("Content-Type", "application/json")
-	logger := s.logger.With("method", "HealthzLiveness", "ctx", utils.GetLoggerContext(r.Context()))
+	logger := s.logger.With("method", "HealthzLiveness")
 	logger.DebugContext(ctx, "Liveness")
 	err := s.uc.Liveness(ctx)
 	if err != nil {
@@ -62,7 +59,7 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
 	defer span.End()
-	logger := s.logger.With("method", "HealthzReadiness", "ctx", ctx)
+	logger := s.logger.With("method", "HealthzReadiness")
 	w.Header().Set("Content-Type", "application/json")
 
 	err := s.uc.Readiness(ctx)
@@ -81,7 +78,7 @@ func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := s.tracer.Start(ctx, "Panic", trace.WithAttributes(attribute.Bool("panic", true)))
 	defer span.End()
-	logger := s.logger.With("method", "Panic", "ctx", ctx)
+	logger := s.logger.With("method", "Panic")
 	logger.ErrorContext(ctx, "Panic")
 	span.SetStatus(otelCodes.Error, "Panic")
 	span.RecordError(errors.New("Panic"))
@@ -99,7 +96,7 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 	// add baggage
 	// sleep 30 second
 	timeString := r.PathValue("time")
-	logger := s.logger.With("method", "LongRun", "ctx", ctx)
+	logger := s.logger.With("method", "LongRun")
 	logger.Debug("LongRun", "time", timeString)
 
 	// sleep to int
@@ -116,30 +113,20 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 
 func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
 
-	recoverMiddleware, err := httprecovery.NewRecoveryMiddleware()
-	if err != nil {
-		panic(err)
-	}
+	recoverMiddleware := middlewares.NewRecoveryMiddleware()
 
-	loggerMiddleware, err := httplogger.NewLoggerMiddleware()
-	if err != nil {
-		panic(err)
-	}
-	loggerMiddlewareDebug, err := httplogger.NewLoggerMiddleware(httplogger.WithLevel(slog.LevelDebug))
-	if err != nil {
-		panic(err)
-	}
+	loggerMiddleware := middlewares.NewHTTPLoggerMiddleware()
+
+	loggerMiddlewareDebug := middlewares.NewHTTPLoggerMiddleware(middlewares.WithLevel[*middlewares.HTTPLoggerMiddleware](slog.LevelDebug))
 
 	healthzMiddleware := []middlewares.Middleware{
 		recoverMiddleware.RecoverMiddleware,
-		httplogger.SetRequestContextLogger,
 		loggerMiddlewareDebug.LoggerMiddleware,
 	}
 
 	otherMiddleware := []middlewares.Middleware{
 		loggerMiddleware.LoggerMiddleware,
 		recoverMiddleware.RecoverMiddleware,
-		httplogger.SetRequestContextLogger,
 	}
 	mux.HandleFunc("GET /healthz/liveness", middlewares.MultipleMiddleware(s.HealthzLiveness, healthzMiddleware...))
 	mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))

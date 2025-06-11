@@ -4,4 +4,4 @@ import (
 	"github.com/google/wire"
 )
 
-var RepoProvider = wire.NewSet(NewHealthzDS, NewSampleEntity, NewTokenRepo)
+var RepoProvider = wire.NewSet(NewHealthzDS, NewSampleEntity)

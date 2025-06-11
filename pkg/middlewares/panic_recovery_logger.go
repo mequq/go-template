@@ -18,7 +18,7 @@ func NewRecoveryMiddleware(opts ...Options[*RecoverMiddleware]) *RecoverMiddlewa
 	r := &RecoverMiddleware{
 		MiddlewareGeneral: MiddlewareGeneral{
 			logger: slog.Default(),
-			level:  slog.LevelDebug,
+			level:  slog.LevelError,
 		},
 		consolePanic: true,
 	}
