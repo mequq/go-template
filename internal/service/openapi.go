@@ -58,6 +58,9 @@ func (s *OAPIMP) Register(method, path string, handler OPHandlerFunc, opt ...Reg
 	op := s.GenerateOperationContext(method, path)
 
 	for _, o := range opt {
+		if o == nil {
+			continue
+		}
 		o(op)
 	}
 
