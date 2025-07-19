@@ -1,0 +1,95 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Application.",
+        "title": "Swagger",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "2.0"
+    },
+    "paths": {
+        "/healthz/liveness": {
+            "get": {
+                "description": "Check the liveness of the service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "healthz"
+                ],
+                "summary": "Healthz Liveness",
+                "operationId": "healthz-liveness",
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        },
+        "/healthz/panic": {
+            "get": {
+                "tags": [
+                    "healthz"
+                ],
+                "responses": {
+                    "500": {
+                        "description": "panic"
+                    }
+                }
+            }
+        },
+        "/healthz/rediness": {
+            "get": {
+                "description": "Check the readiness of the service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "healthz"
+                ],
+                "summary": "Healthz Readiness",
+                "operationId": "healthz-rediness",
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        },
+        "/healthz/sleep/{time}": {
+            "get": {
+                "tags": [
+                    "healthz"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Group ID",
+                        "name": "time",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        }
+    }
+}

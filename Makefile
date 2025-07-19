@@ -38,9 +38,10 @@ devtools:
 
 
 
+swagger:
+	swag i  -d internal/service/handler/ -g wire.go  -pd
 
-swagger-v1:
-	swag init --parseDependency -g ./internal/v1/http/server.go -o ./docs
+
 
 check:
 	golangci-lint run  \

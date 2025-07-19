@@ -12,7 +12,6 @@ import (
 	"application/internal/service/response"
 	"application/pkg/middlewares"
 
-	"github.com/swaggest/openapi-go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	otelCodes "go.opentelemetry.io/otel/codes"
@@ -26,7 +25,6 @@ type HealthzHandler struct {
 }
 
 var _ service.Handler = (*HealthzHandler)(nil)
-var _ service.OpenApiHandler = (*HealthzHandler)(nil)
 
 func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slog.Logger) *HealthzHandler {
 	return &HealthzHandler{
@@ -37,6 +35,15 @@ func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slo
 }
 
 // Healthz Liveness
+//
+//	@Summary		Healthz Liveness
+//	@Description	Check the liveness of the service
+//	@ID				healthz-liveness
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	"ok"
+//	@Router			/healthz/liveness [get]
+//	@Tags healthz
 func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
@@ -55,6 +62,15 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 }
 
 // Healthz Readiness
+//
+//	@Summary		Healthz Readiness
+//	@Description	Check the readiness of the service
+//	@ID				healthz-rediness
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	"ok"
+//	@Router			/healthz/rediness [get]
+//	@Tags	healthz
 func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
@@ -74,6 +90,10 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 }
 
 // panic
+//
+//	@Router	/healthz/panic [get]
+//	@Success 500 "panic"
+//	@Tags	healthz
 func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := s.tracer.Start(ctx, "Panic", trace.WithAttributes(attribute.Bool("panic", true)))
@@ -87,6 +107,12 @@ func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	panic("Panic for test")
 }
 
+// longRun for test
+//
+//	@Router		/healthz/sleep/{time} [get]
+//	@Success	200	"ok"
+//	@Param 		time path string true "Group ID"
+//	@Tags		healthz
 func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
@@ -132,24 +158,4 @@ func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
 	mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))
 	mux.HandleFunc("GET /healthz/panic", middlewares.MultipleMiddleware(s.Panic, otherMiddleware...))
 	mux.HandleFunc("GET /healthz/sleep/{time}", middlewares.MultipleMiddleware(s.LongRun, otherMiddleware...))
-}
-
-func (s *HealthzHandler) OHealthzLiveness(op openapi.OperationContext) {
-	op.SetSummary("Healthz Liveness")
-	op.AddRespStructure(new(response.Response[string]), openapi.WithHTTPStatus(http.StatusOK))
-	op.AddRespStructure(new(response.Response[string]), openapi.WithHTTPStatus(http.StatusInternalServerError))
-}
-
-// rediness
-func (s *HealthzHandler) OHealthzReadiness(op openapi.OperationContext) {
-	op.SetSummary("Healthz Readiness")
-	op.AddRespStructure(new(response.Response[string]))
-	op.AddRespStructure(new(response.Response[string]), openapi.WithHTTPStatus(http.StatusInternalServerError))
-}
-
-func (s *HealthzHandler) RegisterOpenApi(o service.OAPI) {
-	healthzTag := service.WithTags("Healthz(Internal)")
-
-	o.Register(http.MethodGet, "/healthz/liveness", s.OHealthzLiveness, healthzTag)
-	o.Register(http.MethodGet, "/healthz/readiness", s.OHealthzReadiness, healthzTag)
 }

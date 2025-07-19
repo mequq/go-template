@@ -7,15 +7,11 @@ import (
 )
 
 // @BasePath /api/v1
-var ServerProviderSet = wire.NewSet(NewHTTPHandler, NewOAPI)
+var ServerProviderSet = wire.NewSet(NewHTTPHandler)
 
 // Service Interface
 type Handler interface {
 	RegisterMuxRouter(mux *http.ServeMux)
-}
-
-type OpenApiHandler interface {
-	RegisterOpenApi(o OAPI)
 }
 
 func NotImplemented(w http.ResponseWriter, r *http.Request) {

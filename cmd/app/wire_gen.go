@@ -15,21 +15,19 @@ import (
 	"application/pkg/initializer/config"
 	"context"
 	"github.com/go-playground/validator/v10"
-	"github.com/swaggest/openapi-go/openapi3"
 	"log/slog"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, oapi3r *openapi3.Reflector, validate *validator.Validate) (http.Handler, error) {
-	oapi := service.NewOAPI(oapi3r, logger)
+func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, validate *validator.Validate) (http.Handler, error) {
 	inmemoryDB := datasource.NewInmemoryDB(logger)
 	healthzRepoInterface := repo.NewHealthzDS(logger, inmemoryDB)
 	healthzUseCaseInterface := biz.NewHealthzBiz(healthzRepoInterface, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
 	v := handler.NewServiceList(healthzHandler)
-	httpHandler, err := service.NewHTTPHandler(oapi3r, oapi, v...)
+	httpHandler, err := service.NewHTTPHandler(logger, v...)
 	if err != nil {
 		return nil, err
 	}

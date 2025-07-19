@@ -1,0 +1,62 @@
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Application.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger
+  version: "2.0"
+paths:
+  /healthz/liveness:
+    get:
+      consumes:
+      - application/json
+      description: Check the liveness of the service
+      operationId: healthz-liveness
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      summary: Healthz Liveness
+      tags:
+      - healthz
+  /healthz/panic:
+    get:
+      responses:
+        "500":
+          description: panic
+      tags:
+      - healthz
+  /healthz/rediness:
+    get:
+      consumes:
+      - application/json
+      description: Check the readiness of the service
+      operationId: healthz-rediness
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      summary: Healthz Readiness
+      tags:
+      - healthz
+  /healthz/sleep/{time}:
+    get:
+      parameters:
+      - description: Group ID
+        in: path
+        name: time
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+      tags:
+      - healthz
+swagger: "2.0"

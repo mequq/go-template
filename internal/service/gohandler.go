@@ -1,39 +1,42 @@
 package service
 
 import (
+	"log/slog"
 	"net/http"
-	"reflect"
+
+	_ "application/docs" // Import generated docs
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/swaggest/openapi-go/openapi3"
 	"github.com/swaggest/swgui/v5emb"
+	"github.com/swaggo/swag"
 )
 
 func NewHTTPHandler(
-	r *openapi3.Reflector,
-	o OAPI,
+	logger *slog.Logger,
 	svcs ...Handler,
 ) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	for _, svc := range svcs {
 
-		if _, err := r.Reflect(svc); err == nil {
-			svc.RegisterMuxRouter(mux)
-		} else {
-			return nil, err
-		}
-
-		if reflect.TypeOf(svc).Implements(reflect.TypeFor[OpenApiHandler]()) {
-			svc.(OpenApiHandler).RegisterOpenApi(o)
-		}
+		svc.RegisterMuxRouter(mux)
 
 	}
 
 	mux.Handle("/metrics", promhttp.Handler())
 
-	sw := NewSwagger(o)
-	mux.HandleFunc("/docs/swagger/swagger.json", sw.swagerjson)
+	doc, err := swag.ReadDoc("")
+	if err != nil {
+		logger.Error("failed to read swagger doc", "err", err)
+
+		return nil, err
+	}
+
+	mux.HandleFunc("/docs/swagger/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(doc)) //nolint // ignore error
+	})
 
 	mux.Handle("/swagger/", v5emb.New(
 		"swagger",
@@ -42,26 +45,4 @@ func NewHTTPHandler(
 	))
 
 	return mux, nil
-}
-
-type Swagger struct {
-	OpenAPI OAPI
-}
-
-func NewSwagger(o OAPI) *Swagger {
-	return &Swagger{
-		OpenAPI: o,
-	}
-}
-
-func (s *Swagger) swagerjson(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	json, err := s.OpenAPI.GetJsonData()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(json) //nolint // ignore error
 }
