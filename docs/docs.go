@@ -24,6 +24,123 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v3/content/v2/movies": {
+            "get": {
+                "description": "Fetch a list of movies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "Get list of movies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MovieListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/content/v2/movies/{movie_id}": {
+            "get": {
+                "description": "Fetch a movie by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "Get a movie by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "movie_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Movie"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/content/v2/movies/{movie_id}/similar": {
+            "get": {
+                "description": "Fetch similar movies based on a given movie ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Movies"
+                ],
+                "summary": "Get similar movies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Movie ID",
+                        "name": "movie_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MovieListResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
+                    }
+                }
+            }
+        },
         "/healthz/liveness": {
             "get": {
                 "description": "Check the liveness of the service",
@@ -40,7 +157,10 @@ const docTemplate = `{
                 "operationId": "healthz-liveness",
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-bool"
+                        }
                     }
                 }
             }
@@ -50,9 +170,13 @@ const docTemplate = `{
                 "tags": [
                     "healthz"
                 ],
+                "summary": "Panic for test",
                 "responses": {
                     "500": {
-                        "description": "panic"
+                        "description": "panic",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
                     }
                 }
             }
@@ -73,7 +197,10 @@ const docTemplate = `{
                 "operationId": "healthz-rediness",
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
                     }
                 }
             }
@@ -83,10 +210,11 @@ const docTemplate = `{
                 "tags": [
                     "healthz"
                 ],
+                "summary": "Long Run for test",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Group ID",
+                        "description": "Time to sleep, e.g. 30s",
                         "name": "time",
                         "in": "path",
                         "required": true
@@ -94,8 +222,69 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response-string"
+                        }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.Movie": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "release_year": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MovieListResponse": {
+            "type": "object",
+            "properties": {
+                "movies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Movie"
+                    }
+                }
+            }
+        },
+        "response.Response-bool": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Response-string": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
                 }
             }
         }

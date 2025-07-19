@@ -41,9 +41,9 @@ func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slo
 //	@ID				healthz-liveness
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	"ok"
+//	@Success		200	{object}	response.Response[bool]	"ok"
 //	@Router			/healthz/liveness [get]
-//	@Tags healthz
+//	@Tags			healthz
 func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
@@ -68,9 +68,9 @@ func (s *HealthzHandler) HealthzLiveness(w http.ResponseWriter, r *http.Request)
 //	@ID				healthz-rediness
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	"ok"
+//	@Success		200	{object}	response.Response[string]	"ok"
 //	@Router			/healthz/rediness [get]
-//	@Tags	healthz
+//	@Tags			healthz
 func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
@@ -91,9 +91,10 @@ func (s *HealthzHandler) HealthzReadiness(w http.ResponseWriter, r *http.Request
 
 // panic
 //
-//	@Router	/healthz/panic [get]
-//	@Success 500 "panic"
-//	@Tags	healthz
+//	@Router		/healthz/panic [get]
+//	@Summary	Panic for test
+//	@Success	500	{object}	response.Response[string]	"panic"
+//	@Tags		healthz
 func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := s.tracer.Start(ctx, "Panic", trace.WithAttributes(attribute.Bool("panic", true)))
@@ -110,8 +111,9 @@ func (s *HealthzHandler) Panic(w http.ResponseWriter, r *http.Request) {
 // longRun for test
 //
 //	@Router		/healthz/sleep/{time} [get]
-//	@Success	200	"ok"
-//	@Param 		time path string true "Group ID"
+//	@Summary	Long Run for test
+//	@Success	200		{object}	response.Response[string]	"ok"
+//	@Param		time	path		string						true	"Time to sleep, e.g. 30s"
 //	@Tags		healthz
 func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 

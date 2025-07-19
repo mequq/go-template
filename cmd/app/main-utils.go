@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/swaggest/openapi-go/openapi3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	sdkotel "go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
@@ -95,34 +94,6 @@ func logLevel(logLevel string) slog.Level {
 	}
 }
 
-func saveOpenApiSpec(oapi3Reflector *openapi3.Reflector, openApiPath string) error {
-	yamlPath := openApiPath + "swagger.yaml"
-	data, err := oapi3Reflector.Spec.MarshalYAML()
-	if err != nil {
-		slog.Error("failed to marshal openapi spec", "err", err)
-		return err
-	}
-	err = os.WriteFile(yamlPath, data, 0o644) //nolint
-	if err != nil {
-		slog.Error("failed to write openapi spec", "err", err)
-		return err
-	}
-
-	jsonPath := openApiPath + "swagger.json"
-	data, err = oapi3Reflector.Spec.MarshalJSON()
-	if err != nil {
-		slog.Error("failed to marshal openapi spec", "err", err)
-		return err
-	}
-	err = os.WriteFile(jsonPath, data, 0o644) //nolint
-	if err != nil {
-		slog.Error("failed to write openapi spec", "err", err)
-		return err
-	}
-	return nil
-
-}
-
 func initConfig(confAddress string) configPKG.Config {
 
 	config, err := configPKG.NewKoanfConfig(configPKG.WithYamlConfigPath(confAddress))
@@ -133,7 +104,7 @@ func initConfig(confAddress string) configPKG.Config {
 	return config
 }
 
-func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, openApiReflector *openapi3.Reflector, validate *validator.Validate) *http.Server {
+func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, validate *validator.Validate) *http.Server {
 	var httpConfig HTTPServer
 	if err := config.Unmarshal("server.http", &httpConfig); err != nil {
 		panic(err)

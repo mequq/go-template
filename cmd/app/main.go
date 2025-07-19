@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	slogmulti "github.com/samber/slog-multi"
-	"github.com/swaggest/openapi-go/openapi3"
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/instrumentation/host"
@@ -104,19 +103,9 @@ func main() {
 	slog.SetDefault(logger)
 
 	// init open api
-	oapi3Reflector := openapi3.NewReflector()
 
 	// Initialize and start HTTP server
-	httpServer := initHTTPServer(ctx, config, logger, oapi3Reflector, validator.New(validator.WithRequiredStructEnabled()))
-
-	if runtimeCommand.saveOpenApi {
-		err := saveOpenApiSpec(oapi3Reflector, runtimeCommand.openApiPath)
-		if err != nil {
-			logger.Error("failed to save openapi spec", "err", err)
-			return
-		}
-		return
-	}
+	httpServer := initHTTPServer(ctx, config, logger, validator.New(validator.WithRequiredStructEnabled()))
 
 	// Handle graceful shutdown
 	handleGracefulShutdown(ctx, httpServer, logger)
