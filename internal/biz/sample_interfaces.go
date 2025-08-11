@@ -12,14 +12,14 @@ var (
 	ErrAlreadyExist = errors.New("simple entity already exist")
 )
 
-type SampleEntityRepoInterface interface {
+type RepositorySampleer interface {
 	Create(ctx context.Context, sampleEntity *sampleentity.Sample) (id uint64, err error)
 	Update(ctx context.Context, sampleEntity *sampleentity.Sample) error
 	List(ctx context.Context) ([]*sampleentity.Sample, error)
 	Delete(ctx context.Context, id uint64) error
 }
 
-type SampleEntityUsecaseInterface interface {
+type UsecaseSampleer interface {
 	Create(ctx context.Context, sampEnt *sampleentity.Sample) (*sampleentity.Sample, error)
 	Update(ctx context.Context, sampEnt *sampleentity.Sample) error
 	List(ctx context.Context) ([]*sampleentity.Sample, error)

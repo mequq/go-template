@@ -5,6 +5,6 @@ import (
 )
 
 var BizProviderSet = wire.NewSet(
-	NewHealthzBiz,
-	wire.Bind(new(HealthzUseCaseInterface), new(*HealthzBiz)),
+	NewHealthz,
+	wire.Bind(new(UsecaseHealthzer), new(*healthz)),
 )

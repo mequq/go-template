@@ -13,21 +13,21 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type HealthzDS struct {
+type healthz struct {
 	logger *slog.Logger
 	memDB  *datasource.InmemoryDB
 	tracer trace.Tracer
 }
 
-func NewHealthzDS(logger *slog.Logger, memDB *datasource.InmemoryDB) *HealthzDS {
-	return &HealthzDS{
+func NewHealthzDS(logger *slog.Logger, memDB *datasource.InmemoryDB) *healthz {
+	return &healthz{
 		logger: logger.With("layer", "healthzRepo"),
 		memDB:  memDB,
 		tracer: otel.Tracer("healthzRepo"),
 	}
 }
 
-func (r *HealthzDS) Readiness(ctx context.Context) error {
+func (r *healthz) Readiness(ctx context.Context) error {
 	ctx, span := r.tracer.Start(ctx, "readiness", trace.WithAttributes(attribute.Bool("readiness", true)))
 	defer span.End()
 	logger := r.logger.With("method", "readiness")
@@ -41,7 +41,7 @@ func (r *HealthzDS) Readiness(ctx context.Context) error {
 	return nil
 }
 
-func (r *HealthzDS) Liveness(ctx context.Context) error {
+func (r *healthz) Liveness(ctx context.Context) error {
 	ctx, span := r.tracer.Start(ctx, "Liveness", trace.WithAttributes(attribute.Bool("liveness", true)))
 	defer span.End()
 

@@ -24,9 +24,9 @@ import (
 func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, validate *validator.Validate) (http.Handler, error) {
 	serveMux := http.NewServeMux()
 	inmemoryDB := datasource.NewInmemoryDB(logger)
-	healthzDS := repo.NewHealthzDS(logger, inmemoryDB)
-	healthzBiz := biz.NewHealthzBiz(healthzDS, logger)
-	healthzHandler := handler.NewMuxHealthzHandler(healthzBiz, logger, serveMux)
+	healthz := repo.NewHealthzDS(logger, inmemoryDB)
+	bizHealthz := biz.NewHealthz(healthz, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(bizHealthz, logger, serveMux)
 	nats, err := datasource.NewNats(ctx, logger, cfg)
 	if err != nil {
 		return nil, err

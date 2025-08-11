@@ -9,6 +9,6 @@ import (
 var RepoProvider = wire.NewSet(
 	NewHealthzDS,
 	NewSampleEntity,
-	wire.Bind(new(biz.HealthzRepoInterface), new(*HealthzDS)),
-	wire.Bind(new(biz.SampleEntityRepoInterface), new(*sampleEntity)),
+	wire.Bind(new(biz.RepositoryHealthzer), new(*healthz)),
+	wire.Bind(new(biz.RepositorySampleer), new(*sampleEntity)),
 )

@@ -2,12 +2,12 @@ package biz
 
 import "context"
 
-type HealthzRepoInterface interface {
+type RepositoryHealthzer interface {
 	Readiness(ctx context.Context) error
 	Liveness(ctx context.Context) error
 }
 
-type HealthzUseCaseInterface interface {
+type UsecaseHealthzer interface {
 	Readiness(ctx context.Context) error
 	Liveness(ctx context.Context) error
 }

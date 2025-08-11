@@ -8,7 +8,7 @@ import (
 
 	"time"
 
-	healthzusecase "application/internal/biz"
+	"application/internal/biz"
 	"application/internal/service"
 	"application/internal/service/response"
 	"application/pkg/middlewares"
@@ -21,14 +21,14 @@ import (
 
 type HealthzHandler struct {
 	logger *slog.Logger
-	uc     healthzusecase.HealthzUseCaseInterface
+	uc     biz.UsecaseHealthzer
 	tracer trace.Tracer
 	mux    *http.ServeMux
 }
 
 var _ service.Handler = (*HealthzHandler)(nil)
 
-func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slog.Logger, mux *http.ServeMux) *HealthzHandler {
+func NewMuxHealthzHandler(uc biz.UsecaseHealthzer, logger *slog.Logger, mux *http.ServeMux) *HealthzHandler {
 	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
 		uc:     uc,

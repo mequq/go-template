@@ -13,10 +13,10 @@ import (
 
 type sampleEntity struct {
 	logger *slog.Logger
-	repo   SampleEntityRepoInterface
+	repo   RepositorySampleer
 }
 
-func NewSampleEntity(repo SampleEntityRepoInterface, logger *slog.Logger) *sampleEntity {
+func NewSampleEntity(repo RepositorySampleer, logger *slog.Logger) *sampleEntity {
 	return &sampleEntity{
 		repo:   repo,
 		logger: logger.With("layer", "SampleEntityBiz"),
