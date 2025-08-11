@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 
@@ -12,14 +13,18 @@ import (
 )
 
 func NewHTTPHandler(
+	ctx context.Context,
 	logger *slog.Logger,
+	mux *http.ServeMux,
 	svcs ...Handler,
 ) (http.Handler, error) {
-	mux := http.NewServeMux()
 
 	for _, svc := range svcs {
 
-		svc.RegisterMuxRouter(mux)
+		if err := svc.RegisterHandler(ctx); err != nil {
+			logger.Error("failed to register handler", "err", err)
+			return nil, err
+		}
 
 	}
 
@@ -28,7 +33,6 @@ func NewHTTPHandler(
 	doc, err := swag.ReadDoc("")
 	if err != nil {
 		logger.Error("failed to read swagger doc", "err", err)
-
 		return nil, err
 	}
 

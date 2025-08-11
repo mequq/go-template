@@ -18,7 +18,7 @@ type HealthzBiz struct {
 }
 
 // New Usecase
-func NewHealthzBiz(repo HealthzRepoInterface, logger *slog.Logger) HealthzUseCaseInterface {
+func NewHealthzBiz(repo HealthzRepoInterface, logger *slog.Logger) *HealthzBiz {
 	return &HealthzBiz{
 		repo:   repo,
 		logger: logger.With("layer", "HealthzBiz"),

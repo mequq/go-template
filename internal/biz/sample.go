@@ -16,7 +16,7 @@ type sampleEntity struct {
 	repo   SampleEntityRepoInterface
 }
 
-func NewSampleEntity(repo SampleEntityRepoInterface, logger *slog.Logger) SampleEntityUsecaseInterface {
+func NewSampleEntity(repo SampleEntityRepoInterface, logger *slog.Logger) *sampleEntity {
 	return &sampleEntity{
 		repo:   repo,
 		logger: logger.With("layer", "SampleEntityBiz"),

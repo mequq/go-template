@@ -2,35 +2,32 @@ package handler
 
 import (
 	"application/internal/service"
-	"application/internal/service/response"
+	"context"
 	"log/slog"
 	"net/http"
-
-	"github.com/swaggest/openapi-go/openapi3"
 )
 
 type BuildingHandler struct {
 	logger *slog.Logger
+	mux    *http.ServeMux
 }
 
 var _ service.Handler = (*BuildingHandler)(nil)
 
-func NewMuxBuildingHandler(logger *slog.Logger) *BuildingHandler {
+func NewMuxBuildingHandler(logger *slog.Logger, mux *http.ServeMux) *BuildingHandler {
 	return &BuildingHandler{
 		logger: logger.With("layer", "MuxBuildingService"),
+		mux:    mux,
 	}
 }
 
 // register router
 
-func (s *BuildingHandler) RegisterMuxRouter(r *http.ServeMux) {
-	r.HandleFunc("GET /api/building/v1/buildings", response.NotIplemented)
-	r.HandleFunc("GET /api/building/v1/buildings/{buildingID}", response.NotIplemented)
-	r.HandleFunc("POST /api/building/v1/buildings", response.NotIplemented)
-	r.HandleFunc("PUT /api/building/v1/buildings/{buildingID}", response.NotIplemented)
-	r.HandleFunc("DELETE /api/building/v1/buildings/{buildingID}", response.NotIplemented)
-}
-
-func (s *BuildingHandler) OpenApiSpec(r *openapi3.Reflector) error {
+func (s *BuildingHandler) RegisterHandler(_ context.Context) error {
+	s.mux.HandleFunc("GET /api/building/v1/buildings", service.NotImplemented)
+	s.mux.HandleFunc("GET /api/building/v1/buildings/{buildingID}", service.NotImplemented)
+	s.mux.HandleFunc("POST /api/building/v1/buildings", service.NotImplemented)
+	s.mux.HandleFunc("PUT /api/building/v1/buildings/{buildingID}", service.NotImplemented)
+	s.mux.HandleFunc("DELETE /api/building/v1/buildings/{buildingID}", service.NotImplemented)
 	return nil
 }

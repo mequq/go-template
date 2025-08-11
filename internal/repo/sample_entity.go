@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"application/internal/biz"
 	sampleusecasev1 "application/internal/biz"
 	entity "application/internal/entity"
 )
@@ -15,7 +14,7 @@ type sampleEntity struct {
 	nextID  uint64
 }
 
-func NewSampleEntity() biz.SampleEntityRepoInterface {
+func NewSampleEntity() *sampleEntity {
 	return &sampleEntity{
 		entries: make([]*entity.Sample, 0),
 		nextID:  1,

@@ -22,12 +22,18 @@ import (
 // Injectors from wire.go:
 
 func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, validate *validator.Validate) (http.Handler, error) {
+	serveMux := http.NewServeMux()
 	inmemoryDB := datasource.NewInmemoryDB(logger)
-	healthzRepoInterface := repo.NewHealthzDS(logger, inmemoryDB)
-	healthzUseCaseInterface := biz.NewHealthzBiz(healthzRepoInterface, logger)
-	healthzHandler := handler.NewMuxHealthzHandler(healthzUseCaseInterface, logger)
-	v := handler.NewServiceList(healthzHandler)
-	httpHandler, err := service.NewHTTPHandler(logger, v...)
+	healthzDS := repo.NewHealthzDS(logger, inmemoryDB)
+	healthzBiz := biz.NewHealthzBiz(healthzDS, logger)
+	healthzHandler := handler.NewMuxHealthzHandler(healthzBiz, logger, serveMux)
+	nats, err := datasource.NewNats(ctx, logger, cfg)
+	if err != nil {
+		return nil, err
+	}
+	campainHandler := handler.NewCampainHandler(logger, nats)
+	v := handler.NewServiceList(healthzHandler, campainHandler)
+	httpHandler, err := service.NewHTTPHandler(ctx, logger, serveMux, v...)
 	if err != nil {
 		return nil, err
 	}

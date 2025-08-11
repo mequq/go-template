@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -22,15 +23,17 @@ type HealthzHandler struct {
 	logger *slog.Logger
 	uc     healthzusecase.HealthzUseCaseInterface
 	tracer trace.Tracer
+	mux    *http.ServeMux
 }
 
 var _ service.Handler = (*HealthzHandler)(nil)
 
-func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slog.Logger) *HealthzHandler {
+func NewMuxHealthzHandler(uc healthzusecase.HealthzUseCaseInterface, logger *slog.Logger, mux *http.ServeMux) *HealthzHandler {
 	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
 		uc:     uc,
 		tracer: otel.Tracer("handler"),
+		mux:    mux,
 	}
 }
 
@@ -139,7 +142,7 @@ func (s *HealthzHandler) LongRun(w http.ResponseWriter, r *http.Request) {
 	response.Ok(w, nil, "ok")
 }
 
-func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
+func (s *HealthzHandler) RegisterHandler(_ context.Context) error {
 
 	recoverMiddleware := middlewares.NewRecoveryMiddleware()
 
@@ -156,8 +159,9 @@ func (s *HealthzHandler) RegisterMuxRouter(mux *http.ServeMux) {
 		loggerMiddleware.LoggerMiddleware,
 		recoverMiddleware.RecoverMiddleware,
 	}
-	mux.HandleFunc("GET /healthz/liveness", middlewares.MultipleMiddleware(s.HealthzLiveness, healthzMiddleware...))
-	mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))
-	mux.HandleFunc("GET /healthz/panic", middlewares.MultipleMiddleware(s.Panic, otherMiddleware...))
-	mux.HandleFunc("GET /healthz/sleep/{time}", middlewares.MultipleMiddleware(s.LongRun, otherMiddleware...))
+	s.mux.HandleFunc("GET /healthz/liveness", middlewares.MultipleMiddleware(s.HealthzLiveness, healthzMiddleware...))
+	s.mux.HandleFunc("GET /healthz/readiness", middlewares.MultipleMiddleware(s.HealthzReadiness, healthzMiddleware...))
+	s.mux.HandleFunc("GET /healthz/panic", middlewares.MultipleMiddleware(s.Panic, otherMiddleware...))
+	s.mux.HandleFunc("GET /healthz/sleep/{time}", middlewares.MultipleMiddleware(s.LongRun, otherMiddleware...))
+	return nil
 }

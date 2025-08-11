@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	healthzusecase "application/internal/biz"
 	"application/internal/datasource"
 	"application/pkg/utils"
 
@@ -20,7 +19,7 @@ type HealthzDS struct {
 	tracer trace.Tracer
 }
 
-func NewHealthzDS(logger *slog.Logger, memDB *datasource.InmemoryDB) healthzusecase.HealthzRepoInterface {
+func NewHealthzDS(logger *slog.Logger, memDB *datasource.InmemoryDB) *HealthzDS {
 	return &HealthzDS{
 		logger: logger.With("layer", "healthzRepo"),
 		memDB:  memDB,

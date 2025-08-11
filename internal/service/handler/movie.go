@@ -4,27 +4,31 @@ import (
 	"application/internal/service"
 	"application/internal/service/dto"
 	"application/internal/service/response"
+	"context"
 	"log/slog"
 	"net/http"
 )
 
 type MovieHandler struct {
 	logger *slog.Logger
+	mux    *http.ServeMux
 }
 
 var _ service.Handler = (*MovieHandler)(nil)
 
-func NewMuxMovieHandler(logger *slog.Logger) *MovieHandler {
+func NewMuxMovieHandler(logger *slog.Logger, mux *http.ServeMux) *MovieHandler {
 	return &MovieHandler{
 		logger: logger.With("layer", "MuxMovieService"),
+		mux:    mux,
 	}
 }
 
-func (s *MovieHandler) RegisterMuxRouter(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/v3/content/v2/movies", service.NotImplemented)
-	mux.HandleFunc("GET /api/v3/content/v2/movies/{movie_id}", service.NotImplemented)
-	mux.HandleFunc("GET /api/v3/content/v2/movies/{movie_id}/similar", service.NotImplemented)
+func (s *MovieHandler) RegisterHandler(_ context.Context) error {
+	s.mux.HandleFunc("GET /api/v3/content/v2/movies", service.NotImplemented)
+	s.mux.HandleFunc("GET /api/v3/content/v2/movies/{movie_id}", service.NotImplemented)
+	s.mux.HandleFunc("GET /api/v3/content/v2/movies/{movie_id}/similar", service.NotImplemented)
 
+	return nil
 }
 
 // Get list of movies
