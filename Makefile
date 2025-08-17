@@ -40,7 +40,7 @@ devtools:
 
 swagger:
 	swag fmt
-	swag i  -d internal/service/handler/ -g wire.go  -pd
+	swag i  -d internal/service -g server.go  -pd
 
 
 
