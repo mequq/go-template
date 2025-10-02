@@ -1,5 +1,5 @@
 
-ARG DOCKER_IMAGE=golang:1.23.2
+ARG DOCKER_IMAGE=golang:1.24.3-bullseye
 FROM ${DOCKER_IMAGE} AS builder
 RUN mkdir -p /src
 

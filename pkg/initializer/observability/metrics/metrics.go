@@ -29,21 +29,27 @@ func NewProvider(
 		)
 		if err != nil {
 			slog.Info("Failed to create OTLP metric exporter", "error", err)
+
 			return nil, err
 		}
+
+		const interval = 3 * time.Second
+
 		mp := metersdkotel.NewMeterProvider(
 			metersdkotel.WithReader(metersdkotel.NewPeriodicReader(
 				metricExporter,
-				metersdkotel.WithInterval(3*time.Second),
+				metersdkotel.WithInterval(interval),
 			)),
 			metersdkotel.WithResource(resources),
 		)
 
 		go func() {
 			<-ctx.Done()
+
 			if err := mp.Shutdown(bgctx); err != nil {
 				slog.Error("failed to shutdown meter provider", "error", err)
 			}
+
 			if err := metricExporter.Shutdown(bgctx); err != nil {
 				slog.Error("failed to shutdown metric exporter", "error", err)
 			}
@@ -52,6 +58,7 @@ func NewProvider(
 		return mp, nil
 	} else {
 		mp := metrnoopotel.NewMeterProvider()
+
 		return mp, nil
 	}
 }

@@ -35,12 +35,14 @@ func BadRequest(w http.ResponseWriter, message string) {
 func Custom(w http.ResponseWriter, statusCode int, data any, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
+
 	if err := json.NewEncoder(w).Encode(Response[any]{
 		Message: message,
 		Status:  statusCode,
 		Data:    data,
 	}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+
 		if _, err := w.Write([]byte("internal-server-error")); err != nil {
 			log.Fatal(err)
 		}
@@ -50,8 +52,10 @@ func Custom(w http.ResponseWriter, statusCode int, data any, message string) {
 func Pure(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
+
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+
 		if _, err := w.Write([]byte("internal-server-error")); err != nil {
 			log.Fatal(err)
 		}

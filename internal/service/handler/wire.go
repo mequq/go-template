@@ -22,17 +22,13 @@ var HandlerProviderSet = wire.NewSet(
 
 	NewServiceList,
 	NewMuxHealthzHandler,
-	NewCampainHandler,
 )
 
-// New ServiceList
+// NewServiceList.
 func NewServiceList(
 	healthzSvc *HealthzHandler,
-	campainSvc *campainHandler,
-
 ) []service.Handler {
 	return []service.Handler{
 		healthzSvc,
-		campainSvc,
 	}
 }

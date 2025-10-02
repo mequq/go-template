@@ -29,5 +29,6 @@ func (s *BuildingHandler) RegisterHandler(_ context.Context) error {
 	s.mux.HandleFunc("POST /api/building/v1/buildings", service.NotImplemented)
 	s.mux.HandleFunc("PUT /api/building/v1/buildings/{buildingID}", service.NotImplemented)
 	s.mux.HandleFunc("DELETE /api/building/v1/buildings/{buildingID}", service.NotImplemented)
+
 	return nil
 }

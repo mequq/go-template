@@ -14,7 +14,7 @@ type Config interface {
 	String(key string) string
 }
 
-// config is the config.
+// KoanfConfig is the config.
 type KoanfConfig struct {
 	yamlConfigPath string
 
@@ -26,11 +26,12 @@ type Option func(*KoanfConfig) error
 func WithYamlConfigPath(path string) Option {
 	return func(c *KoanfConfig) error {
 		c.yamlConfigPath = path
+
 		return nil
 	}
 }
 
-// newConfig creates a new config.
+// NewKoanfConfig creates a new KoanfConfig instance.
 func NewKoanfConfig(opts ...Option) (Config, error) {
 	config := &KoanfConfig{
 		k: koanf.New("."),

@@ -1,16 +1,16 @@
 package middlewares
 
 import (
+	"application/pkg/utils"
 	"log/slog"
 	"net/http"
 	"strings"
 	"time"
-
-	"application/pkg/utils"
 )
 
 type StatusRecorder struct {
 	http.ResponseWriter
+
 	Status int
 }
 
@@ -33,6 +33,7 @@ func NewHTTPLoggerMiddleware(opts ...Options[*HTTPLoggerMiddleware]) *HTTPLogger
 	for _, opt := range opts {
 		opt(r)
 	}
+
 	return r
 }
 
@@ -51,7 +52,6 @@ func (lm *HTTPLoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler
 		ctx = utils.SetLoggerContext(ctx, slog.String("url", req.URL.String()))
 
 		defer func() {
-
 			attrs := utils.GetLoggerContextAsAttrs(ctx)
 
 			attrs = append(attrs,
@@ -77,12 +77,17 @@ func SetRequestContextLogger(next http.Handler) http.Handler {
 
 		reqID := req.Header.Get("x-request-id")
 		if reqID != "" {
-			ctx = utils.SetLoggerContext(ctx, slog.String("request-id", req.Header.Get("x-request-id")))
+			ctx = utils.SetLoggerContext(
+				ctx,
+				slog.String("request-id", req.Header.Get("x-request-id")),
+			)
 		}
+
 		reqIP := req.Header.Get("x-forwarded-for")
 		if reqIP == "" {
 			reqIP = strings.Split(req.RemoteAddr, ":")[0]
 		}
+
 		ctx = utils.SetLoggerContext(ctx, slog.String("request-ip", reqIP))
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})

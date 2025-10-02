@@ -19,11 +19,13 @@ func (r *SampleEntityRequest) FromRequest(req *http.Request) error {
 	if err := decoder.Decode(&r); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (r *SampleEntityRequest) Validate() error {
 	validate := validator.New(validator.WithRequiredStructEnabled())
+
 	return validate.Struct(r)
 }
 
@@ -53,5 +55,6 @@ func SampleEntityListResponses(entities []*sampleentity.Sample) []SampleEntityRe
 	for i, e := range entities {
 		responses[i] = FromEntity(e)
 	}
+
 	return responses
 }

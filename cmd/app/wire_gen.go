@@ -14,9 +14,10 @@ import (
 	"application/internal/service/handler"
 	"application/pkg/initializer/config"
 	"context"
-	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 // Injectors from wire.go:
@@ -27,12 +28,7 @@ func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, valida
 	healthz := repo.NewHealthzDS(logger, inmemoryDB)
 	bizHealthz := biz.NewHealthz(healthz, logger)
 	healthzHandler := handler.NewMuxHealthzHandler(bizHealthz, logger, serveMux)
-	nats, err := datasource.NewNats(ctx, logger, cfg)
-	if err != nil {
-		return nil, err
-	}
-	campainHandler := handler.NewCampainHandler(logger, nats)
-	v := handler.NewServiceList(healthzHandler, campainHandler)
+	v := handler.NewServiceList(healthzHandler)
 	httpHandler, err := service.NewHTTPHandler(ctx, logger, serveMux, v...)
 	if err != nil {
 		return nil, err

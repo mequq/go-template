@@ -1,10 +1,9 @@
 package biz
 
 import (
+	"application/pkg/utils"
 	"context"
 	"log/slog"
-
-	"application/pkg/utils"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -17,7 +16,7 @@ type healthz struct {
 	tracer trace.Tracer
 }
 
-// New Usecase
+// NewHealthz creates a new instance of the Healthz use case.
 func NewHealthz(repo RepositoryHealthzer, logger *slog.Logger) *healthz {
 	return &healthz{
 		repo:   repo,
@@ -27,19 +26,31 @@ func NewHealthz(repo RepositoryHealthzer, logger *slog.Logger) *healthz {
 }
 
 func (uc *healthz) Readiness(ctx context.Context) error {
-	ctx, span := uc.tracer.Start(ctx, "ReadinessUsecase", trace.WithAttributes(attribute.Bool("readiness", true)))
+	ctx, span := uc.tracer.Start(
+		ctx,
+		"ReadinessUsecase",
+		trace.WithAttributes(attribute.Bool("readiness", true)),
+	)
 	logger := uc.logger.With("method", "Readiness", "ctx", utils.GetLoggerContext(ctx))
 	logger.DebugContext(ctx, "Readiness")
+
 	defer span.End()
 	span.AddEvent("Readiness", trace.WithStackTrace(true))
+
 	return uc.repo.Readiness(ctx)
 }
 
 func (uc *healthz) Liveness(ctx context.Context) error {
 	logger := uc.logger.With("method", "LivenessUsecase", "ctx", utils.GetLoggerContext(ctx))
-	ctx, sp := uc.tracer.Start(ctx, "Liveness", trace.WithAttributes(attribute.Bool("liveness", true)))
+	ctx, sp := uc.tracer.Start(
+		ctx,
+		"Liveness",
+		trace.WithAttributes(attribute.Bool("liveness", true)),
+	)
+
 	defer sp.End()
 	sp.AddEvent("Liveness", trace.WithStackTrace(true))
 	logger.Debug("Liveness")
+
 	return uc.repo.Liveness(ctx)
 }

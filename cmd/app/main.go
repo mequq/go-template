@@ -1,6 +1,10 @@
 package main
 
 import (
+	"application/pkg/initializer/observability/loggers"
+	"application/pkg/initializer/observability/metrics"
+	"application/pkg/initializer/observability/trace"
+	"application/pkg/utils"
 	"context"
 	"log"
 	"log/slog"
@@ -8,14 +12,8 @@ import (
 	"os"
 	"time"
 
-	"application/pkg/initializer/observability/loggers"
-	"application/pkg/initializer/observability/metrics"
-	"application/pkg/initializer/observability/trace"
-	"application/pkg/utils"
-
 	"github.com/go-playground/validator/v10"
 	slogmulti "github.com/samber/slog-multi"
-
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/instrumentation/host"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -23,8 +21,9 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 )
 
-func main() {
-
+// TODO: refactor main to reduce cognitive complexity.
+// main function.
+func main() { //nolint:cyclop,funlen
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -39,6 +38,7 @@ func main() {
 	resources := newResources(ctx, config)
 
 	observabilitConfig := observabilitConfig{}
+
 	err = config.Unmarshal("observability", &observabilitConfig)
 	if err != nil {
 		log.Println(err, " failed to unmarshal observability config")
@@ -56,6 +56,7 @@ func main() {
 		traceProvider, err := trace.NewProvider(ctx, otelAddress, resources)
 		if err != nil {
 			log.Println(err, " failed to create trace provider")
+
 			return
 		}
 
@@ -72,10 +73,13 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
 		otel.SetMeterProvider(metricProvider)
+
 		if err := host.Start(); err != nil {
 			slog.Info("Failed to start host observer", "error", err)
 		}
+
 		if err := runtime.Start(); err != nil {
 			slog.Info("Failed to start runtime observer", "error", err)
 		}
@@ -85,6 +89,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	handlers := []slog.Handler{}
 
 	contextHandler := utils.NewContextLoggerHandler(
@@ -96,7 +101,11 @@ func main() {
 	handlers = append(
 		handlers,
 		contextHandler,
-		otelslog.NewHandler("otel", otelslog.WithLoggerProvider(logProvider), otelslog.WithSource(true)),
+		otelslog.NewHandler(
+			"otel",
+			otelslog.WithLoggerProvider(logProvider),
+			otelslog.WithSource(true),
+		),
 	)
 
 	logger := slog.New(slogmulti.Fanout(handlers...))
@@ -104,12 +113,24 @@ func main() {
 
 	// init open api
 
+	envs := os.Environ()
+	for id, env := range envs {
+		logger.InfoContext(ctx, "envs", "id", id, "value", env)
+	}
+
 	// Initialize and start HTTP server
-	httpServer := initHTTPServer(ctx, config, logger, validator.New(validator.WithRequiredStructEnabled()))
+	httpServer := initHTTPServer(
+		ctx,
+		config,
+		logger,
+		validator.New(validator.WithRequiredStructEnabled()),
+	)
 
 	// Handle graceful shutdown
 	handleGracefulShutdown(ctx, httpServer, logger)
 	cancel()
-	time.Sleep(300 * time.Millisecond) // Give some time for the logger to flush before exiting
 
+	const loggerFlushDelay = 300 * time.Millisecond
+
+	time.Sleep(loggerFlushDelay) // Give some time for the logger to flush before exiting
 }

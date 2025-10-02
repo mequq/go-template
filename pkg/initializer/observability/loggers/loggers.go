@@ -19,7 +19,12 @@ func NewProvider(
 ) (logapiotel.LoggerProvider, error) {
 	if otelCollectorGrpcAddress != nil {
 		bgctx := context.Background()
-		batchExporter, err := otlploggrpc.New(bgctx, otlploggrpc.WithEndpoint(otelCollectorGrpcAddress.String()), otlploggrpc.WithInsecure())
+
+		batchExporter, err := otlploggrpc.New(
+			bgctx,
+			otlploggrpc.WithEndpoint(otelCollectorGrpcAddress.String()),
+			otlploggrpc.WithInsecure(),
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -33,20 +38,20 @@ func NewProvider(
 
 		go func() {
 			<-ctx.Done()
+
 			if err := lp.Shutdown(bgctx); err != nil {
 				slog.Error("failed to shutdown logger provider", "error", err)
-
 			}
+
 			if err := batchExporter.Shutdown(bgctx); err != nil {
 				slog.Error("failed to shutdown batch exporter", "error", err)
 			}
 		}()
-		return lp, nil
 
+		return lp, nil
 	} else {
 		lp := lognoopotel.NewLoggerProvider()
+
 		return lp, nil
-
 	}
-
 }

@@ -1,16 +1,16 @@
 package middlewares
 
 import (
+	"application/internal/service/response"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
-
-	"application/internal/service/response"
 )
 
 type RecoverMiddleware struct {
 	MiddlewareGeneral
+
 	consolePanic bool
 }
 
@@ -25,6 +25,7 @@ func NewRecoveryMiddleware(opts ...Options[*RecoverMiddleware]) *RecoverMiddlewa
 	for _, opt := range opts {
 		opt(r)
 	}
+
 	return r
 }
 
@@ -38,11 +39,21 @@ func (rm *RecoverMiddleware) RecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				rm.MiddlewareGeneral.logger.Log(req.Context(), rm.MiddlewareGeneral.level, "Panic Recovered", "panic", err, "stack", string(debug.Stack()))
+				rm.MiddlewareGeneral.logger.Log(
+					req.Context(),
+					rm.MiddlewareGeneral.level,
+					"Panic Recovered",
+					"panic",
+					err,
+					"stack",
+					string(debug.Stack()),
+				)
+
 				if rm.consolePanic {
-					fmt.Println(err) //nolint:all
+					fmt.Println(err)
 					debug.PrintStack()
 				}
+
 				response.InternalError(w)
 			}
 		}()

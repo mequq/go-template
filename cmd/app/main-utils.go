@@ -1,7 +1,7 @@
 package main
 
 import (
-	configPKG "application/pkg/initializer/config"
+	"application/pkg/initializer/config"
 	"context"
 	"flag"
 	"fmt"
@@ -60,10 +60,10 @@ type RuntimeCommand struct {
 }
 
 func getRuntimeCommand() (*RuntimeCommand, error) {
-
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Println("failed to get working directory", "err", err)
+
 		return nil, err
 	}
 
@@ -94,9 +94,8 @@ func logLevel(logLevel string) slog.Level {
 	}
 }
 
-func initConfig(confAddress string) configPKG.Config {
-
-	config, err := configPKG.NewKoanfConfig(configPKG.WithYamlConfigPath(confAddress))
+func initConfig(confAddress string) config.Config {
+	config, err := config.NewKoanfConfig(config.WithYamlConfigPath(confAddress))
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +103,14 @@ func initConfig(confAddress string) configPKG.Config {
 	return config
 }
 
-func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.Logger, validate *validator.Validate) *http.Server {
+const readTimeout = 3 * time.Second
+
+func initHTTPServer(
+	ctx context.Context,
+	config config.Config,
+	logger *slog.Logger,
+	validate *validator.Validate,
+) *http.Server {
 	var httpConfig HTTPServer
 	if err := config.Unmarshal("server.http", &httpConfig); err != nil {
 		panic(err)
@@ -122,9 +128,9 @@ func initHTTPServer(ctx context.Context, config configPKG.Config, logger *slog.L
 	engine = otelhttp.NewHandler(engine, "")
 	serviceAddr := fmt.Sprintf("%s:%d", httpConfig.Host, httpConfig.Port)
 	httpServer := &http.Server{
-		Addr:        serviceAddr,
+		ReadTimeout: readTimeout,
 		Handler:     engine,
-		ReadTimeout: 3 * time.Second,
+		Addr:        serviceAddr,
 	}
 
 	go func() {
@@ -154,11 +160,13 @@ func handleGracefulShutdown(ctx context.Context, httpServer *http.Server, logger
 	logger.Info("app stopped", "signal", sig)
 }
 
-func newResources(ctx context.Context, cfg configPKG.Config) *sdkotel.Resource {
+func newResources(ctx context.Context, cfg config.Config) *sdkotel.Resource {
 	appInfo := appConfig{}
+
 	err := cfg.Unmarshal("", &appInfo)
 	if err != nil {
 		log.Println(err, " failed to unmarshal config")
+
 		return nil
 	}
 
@@ -177,7 +185,6 @@ func newResources(ctx context.Context, cfg configPKG.Config) *sdkotel.Resource {
 		sdkotel.WithOS(),
 		sdkotel.WithTelemetrySDK(),
 	)
-
 	if err != nil {
 		log.Println("failed to create host resource", "err", err)
 	}
@@ -188,5 +195,4 @@ func newResources(ctx context.Context, cfg configPKG.Config) *sdkotel.Resource {
 	}
 
 	return resource
-
 }

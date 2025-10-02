@@ -22,6 +22,7 @@ func NewCredential(secret string, opt ...CredFunctionOptions) *Credential {
 	for _, o := range opt {
 		o(cred)
 	}
+
 	return cred
 }
 
@@ -35,14 +36,17 @@ func (c *Credential) ParseToken(jwtToken string) (map[string]any, error) {
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
 		c.logger.Error("Failed to parse token", "error", err)
+
 		return nil, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		c.logger.Debug("Token parsed successfully", "claims", claims)
+
 		return claims, nil
 	} else {
 		c.logger.Error("Invalid token claims")
+
 		return nil, errors.New("invalid token claims")
 	}
 }

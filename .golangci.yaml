@@ -1,0 +1,17 @@
+# See the dedicated "version" documentation section.
+version: "2"
+
+linters:
+  default: fast
+  disable:
+    - depguard
+  exclusions:
+    paths:
+      - ^docs/.*
+  
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+    - swaggo

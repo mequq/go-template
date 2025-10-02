@@ -25,8 +25,8 @@ func MultipleMiddleware(h http.HandlerFunc, m ...Middleware) http.HandlerFunc {
 type Options[T GeneralConfigInterface] func(T)
 
 type GeneralConfigInterface interface {
-	setLogger(*slog.Logger)
-	setLevel(slog.Level)
+	setLogger(logger *slog.Logger)
+	setLevel(level slog.Level)
 }
 
 type MiddlewareGeneral struct {
@@ -38,14 +38,17 @@ func (mg *MiddlewareGeneral) setLogger(logger *slog.Logger) {
 	if logger == nil {
 		return
 	}
+
 	mg.logger = logger
 }
 
 func (mg *MiddlewareGeneral) setLevel(level slog.Level) {
 	if level < slog.LevelDebug || level > slog.LevelError {
 		mg.logger.Error("invalid log level", "level", level)
+
 		return
 	}
+
 	mg.level = level
 }
 
@@ -61,7 +64,6 @@ func WithLogger[T GeneralConfigInterface](logger *slog.Logger) Options[T] {
 
 func WithLevel[T GeneralConfigInterface](level slog.Level) Options[T] {
 	return func(m T) {
-
 		if mg, ok := any(m).(GeneralConfigInterface); ok {
 			mg.setLevel(level)
 		} else {

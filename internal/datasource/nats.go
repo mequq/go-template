@@ -26,22 +26,24 @@ type NatsConfig struct {
 }
 
 func NewNats(ctx context.Context, logger *slog.Logger, config config.Config) (*Nats, error) {
-
 	cfg := new(NatsConfig)
 	if err := config.Unmarshal("datasource.nats", cfg); err != nil {
 		logger.Error("Failed to unmarshal NATS config", "error", err)
+
 		return nil, err
 	}
 
 	nc, err := nats.Connect(cfg.DSN)
 	if err != nil {
 		logger.Error("Failed to connect to NATS", "error", err)
+
 		return nil, err
 	}
 
 	js, err := jetstream.New(nc)
 	if err != nil {
 		logger.Error("Failed to create JetStream context", "error", err)
+
 		return nil, err
 	}
 
@@ -54,15 +56,19 @@ func NewNats(ctx context.Context, logger *slog.Logger, config config.Config) (*N
 	if cfg.InitJetstream {
 		if err := nats.initJetStream(ctx, cfg); err != nil {
 			logger.Error("Failed to initialize JetStream", "error", err)
+
 			return nil, err
 		}
 	} else {
 		logger.Info("JetStream initialization skipped")
+
 		stream, err := js.Stream(ctx, cfg.StreamName)
 		if err != nil {
 			logger.Error("Failed to get existing NATS stream", "stream_name", cfg.StreamName, "error", err)
+
 			return nil, err
 		}
+
 		nats.Stream = stream
 	}
 
@@ -70,7 +76,6 @@ func NewNats(ctx context.Context, logger *slog.Logger, config config.Config) (*N
 }
 
 func (n *Nats) initJetStream(ctx context.Context, cfg *NatsConfig) error {
-
 	streamConfig := jetstream.StreamConfig{
 		Name:        cfg.StreamName,
 		Subjects:    strings.Split(cfg.Subjects, ","),
@@ -83,6 +88,7 @@ func (n *Nats) initJetStream(ctx context.Context, cfg *NatsConfig) error {
 	s, err := n.JetStream.CreateOrUpdateStream(ctx, streamConfig)
 	if err != nil {
 		n.logger.Error("Failed to add NATS stream", "error", err)
+
 		return err
 	}
 
@@ -97,6 +103,8 @@ func (n *Nats) initJetStream(ctx context.Context, cfg *NatsConfig) error {
 	); err != nil {
 		return err
 	}
+
 	n.logger.Info("NATS stream initialized successfully", "stream_name", cfg.StreamName)
+
 	return nil
 }

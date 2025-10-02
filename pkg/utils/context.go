@@ -16,6 +16,7 @@ func SetLoggerContext(ctx context.Context, attr ...slog.Attr) context.Context {
 	if ctxattrs, ok := ctx.Value(LoggerContext).([]slog.Attr); ok {
 		attrs = append(attrs, ctxattrs...)
 	}
+
 	return context.WithValue(ctx, LoggerContext, attrs)
 }
 
@@ -26,8 +27,10 @@ func GetLoggerContext(ctx context.Context) slog.Value {
 
 	if ctx.Value(LoggerContext) != nil {
 		attrs := ctx.Value(LoggerContext).([]slog.Attr)
+
 		return slog.GroupValue(attrs...)
 	}
+
 	return slog.GroupValue()
 }
 
@@ -38,8 +41,10 @@ func GetLoggerContextAsAttrs(ctx context.Context) []slog.Attr {
 
 	if ctx.Value(LoggerContext) != nil {
 		attrs := ctx.Value(LoggerContext).([]slog.Attr)
+
 		return attrs
 	}
+
 	return nil
 }
 
@@ -54,7 +59,6 @@ func NewContextLoggerHandler(handler slog.Handler) slog.Handler {
 }
 
 func (c *ContextLoggerHandler) Handle(ctx context.Context, r slog.Record) error {
-
 	attr := slog.GroupValue(GetLoggerContextAsAttrs(ctx)...)
 	r.AddAttrs(slog.Attr{
 		Key:   "context",
@@ -75,6 +79,7 @@ func (c *ContextLoggerHandler) WithGroup(name string) slog.Handler {
 		Handler: c.Handler.WithGroup(name),
 	}
 }
+
 func (c *ContextLoggerHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return c.Handler.Enabled(ctx, level)
 }

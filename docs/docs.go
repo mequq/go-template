@@ -24,123 +24,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v3/content/v2/movies": {
-            "get": {
-                "description": "Fetch a list of movies",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Movies"
-                ],
-                "summary": "Get list of movies",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.MovieListResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v3/content/v2/movies/{movie_id}": {
-            "get": {
-                "description": "Fetch a movie by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Movies"
-                ],
-                "summary": "Get a movie by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Movie ID",
-                        "name": "movie_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Movie"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v3/content/v2/movies/{movie_id}/similar": {
-            "get": {
-                "description": "Fetch similar movies based on a given movie ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Movies"
-                ],
-                "summary": "Get similar movies",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Movie ID",
-                        "name": "movie_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.MovieListResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
-                    }
-                }
-            }
-        },
         "/healthz/liveness": {
             "get": {
                 "description": "Check the liveness of the service",
@@ -232,34 +115,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.Movie": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "release_year": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.MovieListResponse": {
-            "type": "object",
-            "properties": {
-                "movies": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.Movie"
-                    }
-                }
-            }
-        },
         "response.Response-bool": {
             "type": "object",
             "properties": {
@@ -304,7 +159,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/api/v1",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Swagger",
 	Description:      "API documentation",
@@ -314,6 +169,6 @@ var SwaggerInfo = &swag.Spec{
 	RightDelim:       "}}",
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }
