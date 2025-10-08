@@ -10,11 +10,11 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-type kConfig struct {
-	koanf.Koanf
+type KConfig struct {
+	*koanf.Koanf
 }
 
-func NewKoanfConfig(runtimeFlags *runTimeFlags) (*kConfig, error) {
+func NewKoanfConfig(runtimeFlags *runTimeFlags) (*KConfig, error) {
 	k := koanf.New(".")
 
 	if err := k.Load(file.Provider(runtimeFlags.configYamlAddress), yaml.Parser()); err != nil {
@@ -28,5 +28,5 @@ func NewKoanfConfig(runtimeFlags *runTimeFlags) (*kConfig, error) {
 		return nil, errors.Join(errors.New("failed to load env vars"), err)
 	}
 
-	return &kConfig{*k}, nil
+	return &KConfig{k}, nil
 }

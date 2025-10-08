@@ -95,14 +95,17 @@ func (s *HealthzHandler) RegisterHandler(_ context.Context) error {
 func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := s.logger.With("method", "liveness")
+
 	ctx, span := s.tracer.Start(
 		ctx,
 		"liveness",
 
 		trace.WithAttributes(otlpsemconv.AppWidgetName("liveness")),
 	)
-	span.SetName("liveness")
 	defer span.End()
+
+	span.SetName("liveness")
+
 	w.Header().Set("Content-Type", "application/json")
 
 	logger.DebugContext(ctx, "Liveness")

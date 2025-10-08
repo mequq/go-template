@@ -13,7 +13,7 @@ type appConfig struct {
 	Environment string `koanf:"environment"`
 }
 
-func NewAppConfig(ctx context.Context, c *kConfig) (*appConfig, error) {
+func NewAppConfig(ctx context.Context, c *KConfig) (*appConfig, error) {
 	config := new(appConfig)
 	if err := c.Unmarshal("app", config); err != nil {
 		return nil, err

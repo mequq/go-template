@@ -52,11 +52,13 @@ func wireApp(ctx context.Context) (app.Application, error) {
 	}
 	logger := app.NewSlogLogger(appLogger)
 	serveMux := http.NewServeMux()
-	inmemoryDB := datasource.NewInmemoryDB(logger)
-	healthz := repo.NewHealthzDS(logger, inmemoryDB)
-	bizHealthz := biz.NewHealthz(healthz, logger)
-	healthzHandler := handler.NewMuxHealthzHandler(bizHealthz, logger, serveMux)
-	v := handler.NewServiceList(healthzHandler)
+	healthz := biz.NewHealthz(logger, controller)
+	healthzHandler := handler.NewMuxHealthzHandler(healthz, logger, serveMux)
+	inmemoryDB := datasource.NewInmemoryDB(logger, controller)
+	placeholder := repo.NewPlaceholder(logger, inmemoryDB)
+	bizPlaceholder := biz.NewPlaceholder(logger, placeholder)
+	handlerPlaceholder := handler.NewPlaceholder(logger, serveMux, bizPlaceholder)
+	v := handler.NewServiceList(healthzHandler, handlerPlaceholder)
 	httpHandler, err := service.NewHTTPHandler(ctx, logger, serveMux, v...)
 	if err != nil {
 		return nil, err

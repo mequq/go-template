@@ -24,7 +24,7 @@ type appLoggerConfig struct {
 	} `koanf:"slog"`
 }
 
-func NewAppLoggerConfig(c *kConfig) (*appLoggerConfig, error) {
+func NewAppLoggerConfig(c *KConfig) (*appLoggerConfig, error) {
 	config := new(appLoggerConfig)
 
 	if err := c.Unmarshal("logger", config); err != nil {

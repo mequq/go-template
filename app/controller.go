@@ -2,15 +2,30 @@ package app
 
 import (
 	"context"
-	"errors"
-	"fmt"
+	"time"
 )
+
+type healthzOptions struct {
+	timeout time.Duration
+}
+
+// HealthzOption is a function option for healthz registration.
+type HealthzOption func(*healthzOptions)
+
+// WithTimeout sets a timeout for the healthz check.
+func WithTimeout(d time.Duration) HealthzOption {
+	return func(o *healthzOptions) {
+		o.timeout = d
+	}
+}
 
 type Controller interface {
 	GetSutdowners() map[string]func(ctx context.Context) error
 	GetStarters() map[string]func(ctx context.Context) error
 	RegisterShutdown(name string, shutdown func(ctx context.Context) error)
 	RegisterStartup(name string, startup func(ctx context.Context) error)
+	RegisterHealthz(name string, healthz func(ctx context.Context) error, opts ...HealthzOption)
+	GetHealthz() map[string]func(ctx context.Context) error
 }
 
 var _ Controller = (*controller)(nil)
@@ -18,36 +33,40 @@ var _ Controller = (*controller)(nil)
 type controller struct {
 	shutdowners map[string]func(ctx context.Context) error
 	starters    map[string]func(ctx context.Context) error
+	healthz     map[string]func(ctx context.Context) error
 }
 
 func NewController() *controller {
 	return &controller{
 		shutdowners: make(map[string]func(ctx context.Context) error),
 		starters:    make(map[string]func(ctx context.Context) error),
+		healthz:     make(map[string]func(ctx context.Context) error),
 	}
 }
 
-// Shutdown implements Controller.
-func (c *controller) Shutdown(ctx context.Context) error {
-	for name, shutdown := range c.shutdowners {
-		if err := shutdown(ctx); err != nil {
-			return errors.Join(fmt.Errorf("failed to shutdown component %s: %w", name, err))
-		}
+// RegisterHealthz registers a healthz check with a name.
+func (c *controller) RegisterHealthz(name string, healthz func(ctx context.Context) error, opts ...HealthzOption) {
+	options := &healthzOptions{
+		timeout: 5 * time.Second,
 	}
 
-	return nil
-}
-
-func (c *controller) Start(ctx context.Context) error {
-	for name, startup := range c.starters {
-		if err := startup(ctx); err != nil {
-			return errors.Join(fmt.Errorf("failed to start component %s: %w", name, err))
-		}
+	for _, o := range opts {
+		o(options)
 	}
 
-	return nil
+	c.healthz[name] = func(ctx context.Context) error {
+		ctx, cancel := context.WithTimeout(ctx, options.timeout)
+		defer cancel()
+
+		return healthz(ctx)
+	}
 }
 
+func (c *controller) GetHealthz() map[string]func(ctx context.Context) error {
+	return c.healthz
+}
+
+// RegisterShutdown registers a shutdown function with a name.
 func (c *controller) RegisterShutdown(name string, shutdown func(ctx context.Context) error) {
 	c.shutdowners[name] = shutdown
 }

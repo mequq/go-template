@@ -47,7 +47,7 @@ type collectorConfig struct {
 	} `koanf:"logs"`
 }
 
-func NewCollectorConfig(ctx context.Context, c *kConfig) (*collectorConfig, error) {
+func NewCollectorConfig(ctx context.Context, c *KConfig) (*collectorConfig, error) {
 	config := new(collectorConfig)
 	if err := c.Unmarshal("collector", config); err != nil {
 		return nil, err

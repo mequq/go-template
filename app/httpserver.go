@@ -14,7 +14,7 @@ type httpServerConfig struct {
 	} `koanf:"http"`
 }
 
-func NewHTTPServerConfig(ctx context.Context, c *kConfig) (*httpServerConfig, error) {
+func NewHTTPServerConfig(ctx context.Context, c *KConfig) (*httpServerConfig, error) {
 	config := new(httpServerConfig)
 	if err := c.Unmarshal("server", config); err != nil {
 		return nil, err

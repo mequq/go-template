@@ -1,4 +1,36 @@
 definitions:
+  dto.CreatePlaceholderReq:
+    properties:
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  dto.ErrorResponse:
+    properties:
+      details:
+        type: string
+      message:
+        type: string
+    type: object
+  dto.PlaceholderListResponse:
+    properties:
+      count:
+        type: integer
+      placeholders:
+        items:
+          $ref: '#/definitions/dto.PlaceholderResp'
+        type: array
+    type: object
+  dto.PlaceholderResp:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   response.Response-bool:
     properties:
       data:
@@ -33,6 +65,155 @@ info:
   title: Swagger
   version: "1.0"
 paths:
+  /apis/mocks/placeholders:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all placeholders.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.PlaceholderListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List placeholders
+      tags:
+      - Placeholders
+    post:
+      consumes:
+      - application/json
+      description: Create a new placeholder with the provided details.
+      parameters:
+      - description: Placeholder details
+        in: body
+        name: placeholder
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePlaceholderReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PlaceholderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create a new placeholder
+      tags:
+      - Placeholders
+  /apis/mocks/placeholders/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific placeholder by ID.
+      parameters:
+      - description: Placeholder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete a placeholder
+      tags:
+      - Placeholders
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the details of a specific placeholder by ID.
+      parameters:
+      - description: Placeholder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PlaceholderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get a placeholder
+      tags:
+      - Placeholders
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific placeholder by ID.
+      parameters:
+      - description: Placeholder ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated placeholder details
+        in: body
+        name: placeholder
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePlaceholderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PlaceholderResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Update a placeholder
+      tags:
+      - Placeholders
   /healthz/liveness:
     get:
       consumes:

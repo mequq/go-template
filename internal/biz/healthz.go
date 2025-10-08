@@ -1,55 +1,101 @@
 package biz
 
 import (
+	"application/app"
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
+	"sync"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type healthz struct {
-	repo   RepositoryHealthzer
-	logger *slog.Logger
-	tracer trace.Tracer
+	logger     *slog.Logger
+	tracer     trace.Tracer
+	controller app.Controller
 }
 
 // NewHealthz creates a new instance of the Healthz use case.
-func NewHealthz(repo RepositoryHealthzer, logger *slog.Logger) *healthz {
+func NewHealthz(logger *slog.Logger, controller app.Controller) *healthz {
 	return &healthz{
-		repo:   repo,
-		logger: logger.With("layer", "Healthz"),
-		tracer: otel.Tracer("HealthzUseCase"),
+		logger:     logger.With("layer", "Healthz"),
+		tracer:     otel.Tracer("HealthzUseCase"),
+		controller: controller,
 	}
 }
 
 func (uc *healthz) Readiness(ctx context.Context) error {
-	ctx, span := uc.tracer.Start(
-		ctx,
-		"ReadinessUsecase",
-		trace.WithAttributes(attribute.Bool("readiness", true)),
-	)
-	logger := uc.logger.With("method", "Readiness")
-	logger.DebugContext(ctx, "Readiness")
-
-	defer span.End()
-	span.AddEvent("Readiness", trace.WithStackTrace(true))
-
-	return uc.repo.Readiness(ctx)
+	return uc.checkers(ctx, uc.controller.GetHealthz())
 }
 
 func (uc *healthz) Liveness(ctx context.Context) error {
-	logger := uc.logger.With("method", "LivenessUsecase")
-	ctx, sp := uc.tracer.Start(
+	return uc.checkers(ctx, uc.controller.GetHealthz())
+}
+
+func (uc *healthz) checkers(ctx context.Context, checkFunc map[string]func(ctx context.Context) error) error {
+	logger := uc.logger.With("method", "checkers")
+
+	if len(checkFunc) == 0 {
+		return nil
+	}
+
+	ctx, span := uc.tracer.Start(
 		ctx,
-		"Liveness",
-		trace.WithAttributes(attribute.Bool("liveness", true)),
+		"checkers",
+		trace.WithAttributes(attribute.Bool("checkers", true)),
 	)
+	defer span.End()
 
-	defer sp.End()
-	sp.AddEvent("Liveness", trace.WithStackTrace(true))
-	logger.DebugContext(ctx, "Liveness")
+	wg := sync.WaitGroup{}
 
-	return uc.repo.Liveness(ctx)
+	errCh := make(chan struct {
+		name string
+		err  error
+	}, len(checkFunc))
+
+	for name, check := range checkFunc {
+		wg.Add(1)
+
+		go func(name string, check func(ctx context.Context) error) {
+			defer wg.Done()
+
+			ctx, span := uc.tracer.Start(
+				ctx, fmt.Sprintf("Readiness-%s", name),
+				trace.WithAttributes(attribute.String("name", name)),
+			)
+			defer span.End()
+
+			if err := check(ctx); err != nil {
+				errCh <- struct {
+					name string
+					err  error
+				}{name: name, err: err}
+
+				logger.ErrorContext(ctx, "check failed", "name", name, "error", err)
+			}
+		}(name, check)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	if len(errCh) > 0 {
+		span.AddEvent("check failed", trace.WithStackTrace(true))
+		span.SetStatus(codes.Error, "Readiness check failed")
+
+		var err error = nil
+
+		for resp := range errCh {
+			span.RecordError(resp.err, trace.WithAttributes(attribute.String("name", resp.name)))
+			err = errors.Join(fmt.Errorf("service %s failed.: %w", resp.name, resp.err), err)
+		}
+
+		return err
+	}
+	return nil
 }

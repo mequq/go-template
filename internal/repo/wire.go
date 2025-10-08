@@ -7,6 +7,6 @@ import (
 )
 
 var RepoProvider = wire.NewSet(
-	NewHealthzDS,
-	wire.Bind(new(biz.RepositoryHealthzer), new(*healthz)),
+	NewPlaceholder,
+	wire.Bind(new(biz.RepositoryPlaceholder), new(*placeholder)),
 )

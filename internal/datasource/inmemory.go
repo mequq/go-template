@@ -1,6 +1,8 @@
 package datasource
 
 import (
+	"application/app"
+	"context"
 	"database/sql"
 	"log/slog"
 
@@ -8,15 +10,23 @@ import (
 )
 
 type InmemoryDB struct {
-	DB     *sql.DB
+	*sql.DB
+
 	logger *slog.Logger
 }
 
-func NewInmemoryDB(logger *slog.Logger) *InmemoryDB {
+func NewInmemoryDB(logger *slog.Logger, controller app.Controller) *InmemoryDB {
 	db, err := sql.Open("ramsql", "TestLoadUserAddresses")
 	if err != nil {
 		panic(err)
 	}
+
+	controller.RegisterHealthz(
+		"inmemorydb",
+		func(ctx context.Context) error {
+			return db.PingContext(ctx)
+		},
+	)
 
 	return &InmemoryDB{
 		DB:     db,
