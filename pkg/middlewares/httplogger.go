@@ -65,12 +65,6 @@ func (lm *HTTPLoggerMiddleware) LoggerMiddleware(next http.Handler) http.Handler
 	})
 }
 
-// func WithLogger[T any](logger *slog.Logger) Options[*T] {
-// 	return func(lm *T) {
-// 		lm.MiddlewareGeneral.logger = logger
-// 	}
-// }
-
 func SetRequestContextLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()

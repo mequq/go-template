@@ -9,11 +9,14 @@ exporters:
     tls:
       insecure: true
 
-  # prometheus:
-  #   endpoint: "0.0.0.0:8080"
+  debug:
+    verbosity: detailed
+    
+
   prometheusremotewrite:
     endpoint: "http://prometheus:9090/api/v1/write"
-  otlp:
+
+  otlp/tempo:
     endpoint: tempo:4317
     tls:
       insecure: true
@@ -28,11 +31,11 @@ service:
   pipelines:
     logs:
       receivers: [otlp]
-      processors: [filter/drop_debug]
-      exporters: [otlphttp]
+      # processors: [filter/drop_debug]
+      exporters: [otlphttp, debug]
     metrics:
       receivers: [otlp]
-      exporters: [prometheusremotewrite]
+      exporters: [prometheusremotewrite, debug]
     traces:
       receivers: [otlp]
-      exporters: [otlp]
+      exporters: [otlp/tempo, debug]

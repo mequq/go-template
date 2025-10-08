@@ -1,136 +1,35 @@
 package main
 
 import (
-	"application/pkg/initializer/observability/loggers"
-	"application/pkg/initializer/observability/metrics"
-	"application/pkg/initializer/observability/trace"
-	"application/pkg/utils"
 	"context"
-	"log"
 	"log/slog"
-	"net"
 	"os"
-	"time"
-
-	"github.com/go-playground/validator/v10"
-	slogmulti "github.com/samber/slog-multi"
-	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/contrib/instrumentation/host"
-	"go.opentelemetry.io/contrib/instrumentation/runtime"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
+	"os/signal"
+	"syscall"
 )
 
-// TODO: refactor main to reduce cognitive complexity.
 // main function.
-func main() { //nolint:cyclop,funlen
+func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	runtimeCommand, err := getRuntimeCommand()
+	app, err := wireApp(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	// Initialize configuration
-	config := initConfig(runtimeCommand.configAddress)
-
-	resources := newResources(ctx, config)
-
-	observabilitConfig := observabilitConfig{}
-
-	err = config.Unmarshal("observability", &observabilitConfig)
-	if err != nil {
-		log.Println(err, " failed to unmarshal observability config")
-	}
-
-	var otelAddress *net.TCPAddr
-	if observabilitConfig.OTELGrpc.Enabled {
-		otelAddress, err = net.ResolveTCPAddr("tcp", observabilitConfig.OTELGrpc.Address)
-		if err != nil {
-			log.Println(err, " failed to resolve otel grpc address")
-		}
-	}
-
-	if observabilitConfig.Tracing.Enabled {
-		traceProvider, err := trace.NewProvider(ctx, otelAddress, resources)
-		if err != nil {
-			log.Println(err, " failed to create trace provider")
-
-			return
-		}
-
-		otel.SetTextMapPropagator(
-			propagation.NewCompositeTextMapPropagator(
-				propagation.TraceContext{},
-				propagation.Baggage{}),
-		)
-		otel.SetTracerProvider(traceProvider)
-	}
-
-	if observabilitConfig.Metrics.Enabled {
-		metricProvider, err := metrics.NewProvider(ctx, otelAddress, resources)
-		if err != nil {
-			panic(err)
-		}
-
-		otel.SetMeterProvider(metricProvider)
-
-		if err := host.Start(); err != nil {
-			slog.Info("Failed to start host observer", "error", err)
-		}
-
-		if err := runtime.Start(); err != nil {
-			slog.Info("Failed to start runtime observer", "error", err)
-		}
-	}
-
-	logProvider, err := loggers.NewProvider(ctx, otelAddress, resources)
-	if err != nil {
-		panic(err)
-	}
-
-	handlers := []slog.Handler{}
-
-	contextHandler := utils.NewContextLoggerHandler(
-		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			AddSource: true,
-			Level:     logLevel(observabilitConfig.Logging.Level),
-		}),
-	)
-	handlers = append(
-		handlers,
-		contextHandler,
-		otelslog.NewHandler(
-			"otel",
-			otelslog.WithLoggerProvider(logProvider),
-			otelslog.WithSource(true),
-		),
-	)
-
-	logger := slog.New(slogmulti.Fanout(handlers...))
+	logger := app.GetLogger().With("component", "main")
 	slog.SetDefault(logger)
 
-	// init open api
+	logger.Info("app starting...")
 
-	envs := os.Environ()
-	for id, env := range envs {
-		logger.InfoContext(ctx, "envs", "id", id, "value", env)
+	if err := app.Start(ctx); err != nil {
+		panic(err)
 	}
+	defer app.Shutdown(ctx)
 
-	// Initialize and start HTTP server
-	httpServer := initHTTPServer(
-		ctx,
-		config,
-		logger,
-		validator.New(validator.WithRequiredStructEnabled()),
-	)
-
-	// Handle graceful shutdown
-	handleGracefulShutdown(ctx, httpServer, logger)
-	cancel()
-
-	const loggerFlushDelay = 300 * time.Millisecond
-
-	time.Sleep(loggerFlushDelay) // Give some time for the logger to flush before exiting
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-quit
+	logger.Info("app stopping...", "signal", sig)
 }

@@ -7,22 +7,50 @@
 package main
 
 import (
+	"application/app"
 	"application/internal/biz"
 	"application/internal/datasource"
 	"application/internal/repo"
 	"application/internal/service"
 	"application/internal/service/handler"
-	"application/pkg/initializer/config"
 	"context"
-	"log/slog"
 	"net/http"
-
-	"github.com/go-playground/validator/v10"
 )
 
 // Injectors from wire.go:
 
-func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, validate *validator.Validate) (http.Handler, error) {
+func wireApp(ctx context.Context) (app.Application, error) {
+	runTimeFlags := app.NewRunTimeFlags()
+	kConfig, err := app.NewKoanfConfig(runTimeFlags)
+	if err != nil {
+		return nil, err
+	}
+	appConfig, err := app.NewAppConfig(ctx, kConfig)
+	if err != nil {
+		return nil, err
+	}
+	httpServerConfig, err := app.NewHTTPServerConfig(ctx, kConfig)
+	if err != nil {
+		return nil, err
+	}
+	appLoggerConfig, err := app.NewAppLoggerConfig(kConfig)
+	if err != nil {
+		return nil, err
+	}
+	collectorConfig, err := app.NewCollectorConfig(ctx, kConfig)
+	if err != nil {
+		return nil, err
+	}
+	controller := app.NewController()
+	otlp, err := app.NewOTLP(ctx, collectorConfig, appConfig, controller, httpServerConfig)
+	if err != nil {
+		return nil, err
+	}
+	appLogger, err := app.NewAppLogger(ctx, appConfig, appLoggerConfig, otlp)
+	if err != nil {
+		return nil, err
+	}
+	logger := app.NewSlogLogger(appLogger)
 	serveMux := http.NewServeMux()
 	inmemoryDB := datasource.NewInmemoryDB(logger)
 	healthz := repo.NewHealthzDS(logger, inmemoryDB)
@@ -33,5 +61,7 @@ func wireApp(ctx context.Context, cfg config.Config, logger *slog.Logger, valida
 	if err != nil {
 		return nil, err
 	}
-	return httpHandler, nil
+	httpServer := app.NewHTTPServer(httpServerConfig, httpHandler)
+	appApp := app.NewApp(runTimeFlags, appConfig, httpServer, appLogger, controller)
+	return appApp, nil
 }

@@ -20,20 +20,6 @@ func SetLoggerContext(ctx context.Context, attr ...slog.Attr) context.Context {
 	return context.WithValue(ctx, LoggerContext, attrs)
 }
 
-func GetLoggerContext(ctx context.Context) slog.Value {
-	if ctx == nil {
-		return slog.GroupValue()
-	}
-
-	if ctx.Value(LoggerContext) != nil {
-		attrs := ctx.Value(LoggerContext).([]slog.Attr)
-
-		return slog.GroupValue(attrs...)
-	}
-
-	return slog.GroupValue()
-}
-
 func GetLoggerContextAsAttrs(ctx context.Context) []slog.Attr {
 	if ctx == nil {
 		return nil

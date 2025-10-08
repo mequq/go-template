@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"application/pkg/utils"
 	"context"
 	"log/slog"
 
@@ -31,7 +30,7 @@ func (uc *healthz) Readiness(ctx context.Context) error {
 		"ReadinessUsecase",
 		trace.WithAttributes(attribute.Bool("readiness", true)),
 	)
-	logger := uc.logger.With("method", "Readiness", "ctx", utils.GetLoggerContext(ctx))
+	logger := uc.logger.With("method", "Readiness")
 	logger.DebugContext(ctx, "Readiness")
 
 	defer span.End()
@@ -41,7 +40,7 @@ func (uc *healthz) Readiness(ctx context.Context) error {
 }
 
 func (uc *healthz) Liveness(ctx context.Context) error {
-	logger := uc.logger.With("method", "LivenessUsecase", "ctx", utils.GetLoggerContext(ctx))
+	logger := uc.logger.With("method", "LivenessUsecase")
 	ctx, sp := uc.tracer.Start(
 		ctx,
 		"Liveness",
@@ -50,7 +49,7 @@ func (uc *healthz) Liveness(ctx context.Context) error {
 
 	defer sp.End()
 	sp.AddEvent("Liveness", trace.WithStackTrace(true))
-	logger.Debug("Liveness")
+	logger.DebugContext(ctx, "Liveness")
 
 	return uc.repo.Liveness(ctx)
 }

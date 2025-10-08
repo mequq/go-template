@@ -9,11 +9,13 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"reflect"
 	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	otelCodes "go.opentelemetry.io/otel/codes"
+	otlpsemconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -34,8 +36,10 @@ func NewMuxHealthzHandler(
 	return &HealthzHandler{
 		logger: logger.With("layer", "MuxHealthzService"),
 		uc:     uc,
-		tracer: otel.Tracer("handler"),
-		mux:    mux,
+		tracer: otel.Tracer(
+			reflect.TypeOf(HealthzHandler{}).String(),
+		),
+		mux: mux,
 	}
 }
 
@@ -90,13 +94,14 @@ func (s *HealthzHandler) RegisterHandler(_ context.Context) error {
 //	@Tags			healthz
 func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	logger := s.logger.With("method", "HealthzLiveness")
+	logger := s.logger.With("method", "liveness")
 	ctx, span := s.tracer.Start(
 		ctx,
-		"HealthzLiveness",
-		trace.WithAttributes(attribute.Bool("liveness", true)),
-	)
+		"liveness",
 
+		trace.WithAttributes(otlpsemconv.AppWidgetName("liveness")),
+	)
+	span.SetName("liveness")
 	defer span.End()
 	w.Header().Set("Content-Type", "application/json")
 
@@ -125,7 +130,11 @@ func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request)
 func (s *HealthzHandler) healthzReadiness(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := s.logger.With("method", "HealthzReadiness")
-	ctx, span := otel.Tracer("handler").Start(ctx, "rediness")
+	ctx, span := s.tracer.Start(
+		ctx,
+		"readiness",
+		trace.WithAttributes(attribute.String("name", "readiness2")),
+	)
 
 	defer span.End()
 

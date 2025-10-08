@@ -3,6 +3,9 @@ server:
   http_listen_port: 3200
   log_level: info
 
+usage_report:
+  reporting_enabled: false
+
 query_frontend:
   search:
     duration_slo: 5s

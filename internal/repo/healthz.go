@@ -2,7 +2,6 @@ package repo
 
 import (
 	"application/internal/datasource"
-	"application/pkg/utils"
 	"context"
 	"log/slog"
 
@@ -16,6 +15,7 @@ type healthz struct {
 	logger *slog.Logger
 	memDB  *datasource.InmemoryDB
 	tracer trace.Tracer
+	redis  *datasource.RedisDS
 }
 
 func NewHealthzDS(logger *slog.Logger, memDB *datasource.InmemoryDB) *healthz {
@@ -50,7 +50,7 @@ func (r *healthz) Readiness(ctx context.Context) error {
 }
 
 func (r *healthz) Liveness(ctx context.Context) error {
-	logger := r.logger.With("method", "Liveness", "ctx", utils.GetLoggerContext(ctx))
+	logger := r.logger.With("method", "Liveness")
 
 	_, span := r.tracer.Start(
 		ctx,
@@ -59,7 +59,15 @@ func (r *healthz) Liveness(ctx context.Context) error {
 	)
 	defer span.End()
 
-	logger.Debug("repo Liveness")
+	if err := r.redis.Ping(ctx).Err(); err != nil {
+		span.SetStatus(codes.Error, "Ping failed")
+		span.RecordError(err)
+		r.logger.ErrorContext(ctx, "Ping failed", "error", err)
+
+		return err
+	}
+
+	logger.DebugContext(ctx, "repo Liveness")
 
 	return nil
 }
