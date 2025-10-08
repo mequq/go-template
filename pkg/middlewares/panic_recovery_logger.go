@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"application/internal/service/response"
+	"application/internal/service/dto"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -54,7 +54,7 @@ func (rm *RecoverMiddleware) RecoverMiddleware(next http.Handler) http.Handler {
 					debug.PrintStack()
 				}
 
-				response.InternalError(w)
+				dto.HandleError(fmt.Errorf("internal server error"), w)
 			}
 		}()
 		next.ServeHTTP(w, req)

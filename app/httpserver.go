@@ -3,9 +3,16 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log/slog"
 	"net/http"
+	"runtime/debug"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type httpServerConfig struct {
@@ -34,13 +41,15 @@ type httpServer struct {
 	config  *httpServerConfig
 	handler http.Handler
 	se      *http.Server
+	logger  *slog.Logger
 }
 
-func NewHTTPServer(cfg *httpServerConfig, handler http.Handler) *httpServer {
+func NewHTTPServer(cfg *httpServerConfig, handler http.Handler, AppLogger AppLogger) *httpServer {
 	s := &httpServer{
 		config:  cfg,
 		handler: handler,
 		se:      nil,
+		logger:  AppLogger.GetLogger(),
 	}
 
 	return s
@@ -49,7 +58,7 @@ func NewHTTPServer(cfg *httpServerConfig, handler http.Handler) *httpServer {
 func (s *httpServer) Start(ctx context.Context) error {
 	s.se = &http.Server{
 		Addr:    s.config.HTTP.Addr,
-		Handler: otelhttp.NewHandler(s.handler, "http-server"),
+		Handler: NewRecoveryMiddleware(otelhttp.NewHandler(s.handler, "http-server")),
 	}
 
 	go func() {
@@ -71,4 +80,76 @@ func (s *httpServer) Shutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+type recoverMiddleware struct {
+	logger  slog.Logger
+	level   slog.Level
+	console bool
+	tracer  trace.Tracer
+}
+
+type recoveryOption func(*recoverMiddleware)
+
+func WithRecoveryLogger(logger slog.Logger) recoveryOption {
+	return func(r *recoverMiddleware) {
+		r.logger = logger
+	}
+}
+
+func WithRecoveryLevel(level slog.Level) recoveryOption {
+	return func(r *recoverMiddleware) {
+		r.level = level
+	}
+}
+
+func WithRecoveryConsole(console bool) recoveryOption {
+	return func(r *recoverMiddleware) {
+		r.console = console
+	}
+}
+
+func NewRecoveryMiddleware(next http.Handler, opts ...recoveryOption) http.Handler {
+	r := &recoverMiddleware{
+		logger:  *slog.Default(),
+		level:   slog.LevelError,
+		console: true,
+		tracer:  otel.Tracer("http-server"),
+	}
+	for _, opt := range opts {
+		opt(r)
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+
+		defer func() {
+			ctx, span := r.tracer.Start(ctx, "RecoverMiddleware")
+			defer span.End()
+
+			if err := recover(); err != nil {
+				span.RecordError(fmt.Errorf("%v", err))
+				span.SetStatus(codes.Error, fmt.Sprintf("%v", err))
+				span.SetAttributes(attribute.String("panic", fmt.Sprintf("%v", err)))
+				span.SetAttributes(attribute.String("stack", string(debug.Stack())))
+				r.logger.Log(
+					ctx,
+					r.level,
+					"Panic Recovered",
+					"panic",
+					err,
+					"stack",
+					string(debug.Stack()),
+				)
+
+				if r.console {
+					fmt.Println(err)
+					debug.PrintStack()
+				}
+
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+		}()
+		next.ServeHTTP(w, req)
+	})
 }

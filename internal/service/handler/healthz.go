@@ -3,7 +3,7 @@ package handler
 import (
 	"application/internal/biz"
 	"application/internal/service"
-	"application/internal/service/response"
+	"application/internal/service/dto"
 	"application/pkg/middlewares"
 	"context"
 	"errors"
@@ -59,7 +59,6 @@ func (s *HealthzHandler) RegisterHandler(_ context.Context) error {
 
 	otherMiddleware := []middlewares.Middleware{
 		loggerMiddleware.LoggerMiddleware,
-		recoverMiddleware.RecoverMiddleware,
 	}
 
 	s.mux.HandleFunc(
@@ -112,12 +111,13 @@ func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request)
 
 	err := s.uc.Liveness(ctx)
 	if err != nil {
-		response.InternalError(w)
+		dto.HandleError(errors.New("service not available"), w)
 
 		return
 	}
 
-	response.Ok(w, nil, "ok")
+	span.SetStatus(otelCodes.Ok, "ok")
+	dto.HandleError(nil, w)
 }
 
 // Healthz Readiness
@@ -145,14 +145,14 @@ func (s *HealthzHandler) healthzReadiness(w http.ResponseWriter, r *http.Request
 
 	err := s.uc.Readiness(ctx)
 	if err != nil {
-		response.InternalError(w)
+		dto.HandleError(errors.New("service not available"), w)
 
 		return
 	}
 
 	span.SetStatus(otelCodes.Ok, "ok")
-	response.Ok(w, nil, "ok")
-	logger.DebugContext(ctx, "HealthzReadiness", "url", r.Host, "status", http.StatusOK)
+	logger.InfoContext(ctx, "Readiness ok")
+	dto.HandleError(nil, w)
 }
 
 // panic
@@ -189,7 +189,7 @@ func (s *HealthzHandler) longRun(w http.ResponseWriter, r *http.Request) {
 	// sleep 30 second
 	timeString := r.PathValue("time")
 	logger := s.logger.With("method", "LongRun")
-	logger.Debug("LongRun", "time", timeString)
+	logger.DebugContext(ctx, "LongRun", "time", timeString)
 
 	ctx, span := otel.Tracer("handler").Start(ctx, "LongRun")
 	defer span.End()
@@ -198,12 +198,20 @@ func (s *HealthzHandler) longRun(w http.ResponseWriter, r *http.Request) {
 	duration, err := time.ParseDuration(timeString)
 	if err != nil {
 		logger.Error("LongRun", "err", err)
-		response.InternalError(w)
+
+		span.SetStatus(otelCodes.Error, "error")
+		span.RecordError(err)
+		span.SetAttributes(attribute.String("error", err.Error()))
+
+		dto.HandleError(biz.ErrInvalidResource, w)
 
 		return
 	}
 
-	logger.InfoContext(ctx, "LongRun Test")
 	time.Sleep(duration)
-	response.Ok(w, nil, "ok")
+
+	span.SetStatus(otelCodes.Ok, "ok")
+	logger.InfoContext(ctx, "LongRun Test")
+
+	dto.HandleError(nil, w)
 }

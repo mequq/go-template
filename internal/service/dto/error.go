@@ -38,13 +38,19 @@ var ErrorsMap = ErrorMap{
 }
 
 func HandleError(err error, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	encoder := json.NewEncoder(w)
+
 	if err == nil {
+		w.WriteHeader(http.StatusOK)
+
+		_ = encoder.Encode(ErrorResponse{
+			Message: "ok",
+			Details: "no error",
+		})
+
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	encoder := json.NewEncoder(w)
 
 	for e, v := range ErrorsMap {
 		if errors.Is(err, e) {

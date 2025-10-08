@@ -63,7 +63,7 @@ func wireApp(ctx context.Context) (app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	httpServer := app.NewHTTPServer(httpServerConfig, httpHandler)
+	httpServer := app.NewHTTPServer(httpServerConfig, httpHandler, appLogger)
 	appApp := app.NewApp(runTimeFlags, appConfig, httpServer, appLogger, controller)
 	return appApp, nil
 }
