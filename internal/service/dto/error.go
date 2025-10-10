@@ -18,20 +18,20 @@ type ErrorMap map[error]struct {
 }
 
 var ErrorsMap = ErrorMap{
-	biz.ErrResouceExists: {
+	biz.ErrResourceNotFound: {
 		Message: "یافت نشد",
 		Code:    http.StatusNotFound,
 	},
-	biz.ErrResouceExists: {
+	biz.ErrResourceExists: {
 		Message: "از قبل وجود دارد",
 		Code:    http.StatusConflict,
 	},
-	biz.ErrInvalidResource: {
+	biz.ErrResourceInvalid: {
 		Message: "منبع نامعتبر",
 		Code:    http.StatusBadRequest,
 	},
 
-	biz.ErrNotAuthorized: {
+	biz.ErrResourceAccessDenied: {
 		Message: "دسترسی غیرمجاز",
 		Code:    http.StatusUnauthorized,
 	},

@@ -14,7 +14,7 @@ type UpdatePlaceholderReq struct {
 
 // PlaceholderResp is the response DTO for a placeholder.
 type PlaceholderResp struct {
-	ID   int64  `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -25,7 +25,7 @@ func ToPlaceholderResp(e *entity.Placeholder) *PlaceholderResp {
 	}
 
 	return &PlaceholderResp{
-		ID:   e.ID,
+		ID:   e.ID.String(),
 		Name: e.Name,
 	}
 }

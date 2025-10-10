@@ -58,7 +58,7 @@ func NewHTTPServer(cfg *httpServerConfig, handler http.Handler, AppLogger AppLog
 func (s *httpServer) Start(ctx context.Context) error {
 	s.se = &http.Server{
 		Addr:    s.config.HTTP.Addr,
-		Handler: NewRecoveryMiddleware(otelhttp.NewHandler(s.handler, "http-server")),
+		Handler: otelhttp.NewHandler(NewRecoveryMiddleware(s.handler), "http-server"),
 	}
 
 	go func() {
@@ -124,10 +124,9 @@ func NewRecoveryMiddleware(next http.Handler, opts ...recoveryOption) http.Handl
 		ctx := req.Context()
 
 		defer func() {
-			ctx, span := r.tracer.Start(ctx, "RecoverMiddleware")
-			defer span.End()
-
 			if err := recover(); err != nil {
+				ctx, span := r.tracer.Start(ctx, "RecoverMiddleware")
+				defer span.End()
 				span.RecordError(fmt.Errorf("%v", err))
 				span.SetStatus(codes.Error, fmt.Sprintf("%v", err))
 				span.SetAttributes(attribute.String("panic", fmt.Sprintf("%v", err)))

@@ -27,27 +27,9 @@ definitions:
   dto.PlaceholderResp:
     properties:
       id:
-        type: integer
+        type: string
       name:
         type: string
-    type: object
-  response.Response-bool:
-    properties:
-      data:
-        type: boolean
-      message:
-        type: string
-      status:
-        type: integer
-    type: object
-  response.Response-string:
-    properties:
-      data:
-        type: string
-      message:
-        type: string
-      status:
-        type: integer
     type: object
 externalDocs:
   description: OpenAPI
@@ -149,11 +131,11 @@ paths:
       - application/json
       description: Retrieve the details of a specific placeholder by ID.
       parameters:
-      - description: Placeholder ID
+      - description: Placeholder UUID
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -225,8 +207,6 @@ paths:
       responses:
         "200":
           description: ok
-          schema:
-            $ref: '#/definitions/response.Response-bool'
       summary: Healthz Liveness
       tags:
       - healthz
@@ -236,7 +216,7 @@ paths:
         "500":
           description: panic
           schema:
-            $ref: '#/definitions/response.Response-string'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Panic for test
       tags:
       - healthz
@@ -251,8 +231,6 @@ paths:
       responses:
         "200":
           description: ok
-          schema:
-            $ref: '#/definitions/response.Response-string'
       summary: Healthz Readiness
       tags:
       - healthz
@@ -267,8 +245,6 @@ paths:
       responses:
         "200":
           description: ok
-          schema:
-            $ref: '#/definitions/response.Response-string'
       summary: Long Run for test
       tags:
       - healthz

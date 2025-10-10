@@ -1,6 +1,8 @@
 package entity
 
+import "github.com/google/uuid"
+
 type Placeholder struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }

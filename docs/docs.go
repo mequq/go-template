@@ -112,8 +112,8 @@ const docTemplate = `{
                 "summary": "Get a placeholder",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Placeholder ID",
+                        "type": "string",
+                        "description": "Placeholder UUID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -265,10 +265,7 @@ const docTemplate = `{
                 "operationId": "healthz-liveness",
                 "responses": {
                     "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-bool"
-                        }
+                        "description": "ok"
                     }
                 }
             }
@@ -283,7 +280,7 @@ const docTemplate = `{
                     "500": {
                         "description": "panic",
                         "schema": {
-                            "$ref": "#/definitions/response.Response-string"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -305,10 +302,7 @@ const docTemplate = `{
                 "operationId": "healthz-rediness",
                 "responses": {
                     "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
+                        "description": "ok"
                     }
                 }
             }
@@ -330,10 +324,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response-string"
-                        }
+                        "description": "ok"
                     }
                 }
             }
@@ -382,38 +373,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "response.Response-bool": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "response.Response-string": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
                 }
             }
         }

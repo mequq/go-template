@@ -88,7 +88,7 @@ func (s *HealthzHandler) RegisterHandler(_ context.Context) error {
 //	@ID				healthz-liveness
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	response.Response[bool]	"ok"
+//	@Success		200	"ok"
 //	@Router			/healthz/liveness [get]
 //	@Tags			healthz
 func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +127,7 @@ func (s *HealthzHandler) healthzLiveness(w http.ResponseWriter, r *http.Request)
 //	@ID				healthz-rediness
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	response.Response[string]	"ok"
+//	@Success		200	"ok"
 //	@Router			/healthz/rediness [get]
 //	@Tags			healthz
 func (s *HealthzHandler) healthzReadiness(w http.ResponseWriter, r *http.Request) {
@@ -159,7 +159,7 @@ func (s *HealthzHandler) healthzReadiness(w http.ResponseWriter, r *http.Request
 //
 //	@Router		/healthz/panic [get]
 //	@Summary	Panic for test
-//	@Success	500	{object}	response.Response[string]	"panic"
+//	@Success	500	{object}	dto.ErrorResponse	"panic"
 //	@Tags		healthz
 func (s *HealthzHandler) panic(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -180,8 +180,8 @@ func (s *HealthzHandler) panic(w http.ResponseWriter, r *http.Request) {
 //
 //	@Router		/healthz/sleep/{time} [get]
 //	@Summary	Long Run for test
-//	@Success	200		{object}	response.Response[string]	"ok"
-//	@Param		time	path		string						true	"Time to sleep, e.g. 30s"
+//	@Success	200		"ok"
+//	@Param		time	path	string	true	"Time to sleep, e.g. 30s"
 //	@Tags		healthz
 func (s *HealthzHandler) longRun(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -203,7 +203,7 @@ func (s *HealthzHandler) longRun(w http.ResponseWriter, r *http.Request) {
 		span.RecordError(err)
 		span.SetAttributes(attribute.String("error", err.Error()))
 
-		dto.HandleError(biz.ErrInvalidResource, w)
+		dto.HandleError(biz.ErrResourceInvalid, w)
 
 		return
 	}

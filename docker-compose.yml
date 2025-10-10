@@ -2,3 +2,4 @@
 include:
   - infra/compose/monitoring/monitoring-compose.yaml
   - infra/compose/datasource/redis.yaml
+  - infra/compose/datasource/postgresql.yaml

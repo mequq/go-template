@@ -6,7 +6,9 @@ import (
 )
 
 type healthzOptions struct {
-	timeout time.Duration
+	timeout   time.Duration
+	liveness  bool
+	readiness bool
 }
 
 // HealthzOption is a function option for healthz registration.
@@ -19,51 +21,84 @@ func WithTimeout(d time.Duration) HealthzOption {
 	}
 }
 
+func WithLiveness(liveness bool) HealthzOption {
+	return func(o *healthzOptions) {
+		o.liveness = liveness
+	}
+}
+
+func WithReadiness(readiness bool) HealthzOption {
+	return func(o *healthzOptions) {
+		o.readiness = readiness
+	}
+}
+
 type Controller interface {
 	GetSutdowners() map[string]func(ctx context.Context) error
 	GetStarters() map[string]func(ctx context.Context) error
 	RegisterShutdown(name string, shutdown func(ctx context.Context) error)
 	RegisterStartup(name string, startup func(ctx context.Context) error)
 	RegisterHealthz(name string, healthz func(ctx context.Context) error, opts ...HealthzOption)
-	GetHealthz() map[string]func(ctx context.Context) error
+	GetHealthzLiveness() map[string]func(ctx context.Context) error
+	GetHealthzReadiness() map[string]func(ctx context.Context) error
 }
 
 var _ Controller = (*controller)(nil)
 
 type controller struct {
-	shutdowners map[string]func(ctx context.Context) error
-	starters    map[string]func(ctx context.Context) error
-	healthz     map[string]func(ctx context.Context) error
+	shutdowners      map[string]func(ctx context.Context) error
+	starters         map[string]func(ctx context.Context) error
+	healthzLiveness  map[string]func(ctx context.Context) error
+	healthzReadiness map[string]func(ctx context.Context) error
 }
 
 func NewController() *controller {
 	return &controller{
-		shutdowners: make(map[string]func(ctx context.Context) error),
-		starters:    make(map[string]func(ctx context.Context) error),
-		healthz:     make(map[string]func(ctx context.Context) error),
+		shutdowners:      make(map[string]func(ctx context.Context) error),
+		starters:         make(map[string]func(ctx context.Context) error),
+		healthzLiveness:  make(map[string]func(ctx context.Context) error),
+		healthzReadiness: make(map[string]func(ctx context.Context) error),
 	}
 }
 
 // RegisterHealthz registers a healthz check with a name.
 func (c *controller) RegisterHealthz(name string, healthz func(ctx context.Context) error, opts ...HealthzOption) {
+	defaultTimeout := 5 * time.Second //nolint:mnd
 	options := &healthzOptions{
-		timeout: 5 * time.Second,
+		timeout:   defaultTimeout,
+		liveness:  true,
+		readiness: true,
 	}
 
 	for _, o := range opts {
 		o(options)
 	}
 
-	c.healthz[name] = func(ctx context.Context) error {
-		ctx, cancel := context.WithTimeout(ctx, options.timeout)
-		defer cancel()
+	if options.liveness {
+		c.healthzLiveness[name] = func(ctx context.Context) error {
+			ctx, cancel := context.WithTimeout(ctx, options.timeout)
+			defer cancel()
 
-		return healthz(ctx)
+			return healthz(ctx)
+		}
+	}
+
+	if options.readiness {
+		c.healthzReadiness[name] = func(ctx context.Context) error {
+			ctx, cancel := context.WithTimeout(ctx, options.timeout)
+			defer cancel()
+
+			return healthz(ctx)
+		}
 	}
 }
 
-func (c *controller) GetHealthz() map[string]func(ctx context.Context) error {
-	return c.healthz
+func (c *controller) GetHealthzLiveness() map[string]func(ctx context.Context) error {
+	return c.healthzLiveness
+}
+
+func (c *controller) GetHealthzReadiness() map[string]func(ctx context.Context) error {
+	return c.healthzReadiness
 }
 
 // RegisterShutdown registers a shutdown function with a name.

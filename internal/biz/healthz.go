@@ -30,11 +30,11 @@ func NewHealthz(logger *slog.Logger, controller app.Controller) *healthz {
 }
 
 func (uc *healthz) Readiness(ctx context.Context) error {
-	return uc.checkers(ctx, uc.controller.GetHealthz())
+	return uc.checkers(ctx, uc.controller.GetHealthzReadiness())
 }
 
 func (uc *healthz) Liveness(ctx context.Context) error {
-	return uc.checkers(ctx, uc.controller.GetHealthz())
+	return uc.checkers(ctx, uc.controller.GetHealthzLiveness())
 }
 
 func (uc *healthz) checkers(ctx context.Context, checkFunc map[string]func(ctx context.Context) error) error {
@@ -97,5 +97,6 @@ func (uc *healthz) checkers(ctx context.Context, checkFunc map[string]func(ctx c
 
 		return err
 	}
+
 	return nil
 }

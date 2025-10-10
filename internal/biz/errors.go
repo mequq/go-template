@@ -3,8 +3,8 @@ package biz
 import "errors"
 
 var (
-	ErrNotAuthorized   = errors.New("not authorized")
-	ErrResouceNotFound = errors.New("placeholder resource not found")
-	ErrResouceExists   = errors.New("placeholder resource already exists")
-	ErrInvalidResource = errors.New("invalid placeholder resource")
+	ErrResourceAccessDenied = errors.New("not authorized")
+	ErrResourceNotFound     = errors.New("placeholder resource not found")
+	ErrResourceExists       = errors.New("placeholder resource already exists")
+	ErrResourceInvalid      = errors.New("invalid placeholder resource")
 )

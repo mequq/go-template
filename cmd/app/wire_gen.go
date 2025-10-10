@@ -54,9 +54,12 @@ func wireApp(ctx context.Context) (app.Application, error) {
 	serveMux := http.NewServeMux()
 	healthz := biz.NewHealthz(logger, controller)
 	healthzHandler := handler.NewMuxHealthzHandler(healthz, logger, serveMux)
-	inmemoryDB := datasource.NewInmemoryDB(logger, controller)
-	placeholder := repo.NewPlaceholder(logger, inmemoryDB)
-	bizPlaceholder := biz.NewPlaceholder(logger, placeholder)
+	postgresDB, err := datasource.NewPostgresDB(logger, controller)
+	if err != nil {
+		return nil, err
+	}
+	placeholder := repo.NewPlaceholder(logger, postgresDB)
+	bizPlaceholder := biz.NewPlaceholder(logger, placeholder, postgresDB)
 	handlerPlaceholder := handler.NewPlaceholder(logger, serveMux, bizPlaceholder)
 	v := handler.NewServiceList(healthzHandler, handlerPlaceholder)
 	httpHandler, err := service.NewHTTPHandler(ctx, logger, serveMux, v...)
