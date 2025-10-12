@@ -44,12 +44,14 @@ type httpServer struct {
 	logger  *slog.Logger
 }
 
-func NewHTTPServer(cfg *httpServerConfig, handler http.Handler, AppLogger AppLogger) *httpServer {
+var ErrorServerNotStarted = errors.New("server not started")
+
+func NewHTTPServer(cfg *httpServerConfig, handler http.Handler, appLogger AppLogger) *httpServer {
 	s := &httpServer{
 		config:  cfg,
 		handler: handler,
 		se:      nil,
-		logger:  AppLogger.GetLogger(),
+		logger:  appLogger.GetLogger(),
 	}
 
 	return s
@@ -62,7 +64,7 @@ func (s *httpServer) Start(ctx context.Context) error {
 	}
 
 	go func() {
-		if err := s.se.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := s.se.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
 	}()
@@ -72,7 +74,7 @@ func (s *httpServer) Start(ctx context.Context) error {
 
 func (s *httpServer) Shutdown(ctx context.Context) error {
 	if s.se == nil {
-		return errors.New("server not started")
+		return ErrorServerNotStarted
 	}
 
 	if err := s.se.Shutdown(ctx); err != nil {
@@ -127,7 +129,7 @@ func NewRecoveryMiddleware(next http.Handler, opts ...recoveryOption) http.Handl
 			if err := recover(); err != nil {
 				ctx, span := r.tracer.Start(ctx, "RecoverMiddleware")
 				defer span.End()
-				span.RecordError(fmt.Errorf("%v", err))
+				span.RecordError(fmt.Errorf("%v", err)) //nolint:err113
 				span.SetStatus(codes.Error, fmt.Sprintf("%v", err))
 				span.SetAttributes(attribute.String("panic", fmt.Sprintf("%v", err)))
 				span.SetAttributes(attribute.String("stack", string(debug.Stack())))

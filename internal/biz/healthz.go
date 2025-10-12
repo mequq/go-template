@@ -37,16 +37,16 @@ func (uc *healthz) Liveness(ctx context.Context) error {
 	return uc.checkers(ctx, uc.controller.GetHealthzLiveness())
 }
 
-func (uc *healthz) checkers(ctx context.Context, checkFunc map[string]func(ctx context.Context) error) error {
+func (uc *healthz) checkers(
+	ctx context.Context, checkFunc map[string]func(ctx context.Context) error,
+) error {
 	logger := uc.logger.With("method", "checkers")
 
 	if len(checkFunc) == 0 {
 		return nil
 	}
 
-	ctx, span := uc.tracer.Start(
-		ctx,
-		"checkers",
+	ctx, span := uc.tracer.Start(ctx, "checkers",
 		trace.WithAttributes(attribute.Bool("checkers", true)),
 	)
 	defer span.End()
@@ -64,8 +64,7 @@ func (uc *healthz) checkers(ctx context.Context, checkFunc map[string]func(ctx c
 		go func(name string, check func(ctx context.Context) error) {
 			defer wg.Done()
 
-			ctx, span := uc.tracer.Start(
-				ctx, fmt.Sprintf("Readiness-%s", name),
+			ctx, span := uc.tracer.Start(ctx, fmt.Sprintf("Readiness-%s", name),
 				trace.WithAttributes(attribute.String("name", name)),
 			)
 			defer span.End()

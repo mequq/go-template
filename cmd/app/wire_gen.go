@@ -54,7 +54,7 @@ func wireApp(ctx context.Context) (app.Application, error) {
 	serveMux := http.NewServeMux()
 	healthz := biz.NewHealthz(logger, controller)
 	healthzHandler := handler.NewMuxHealthzHandler(healthz, logger, serveMux)
-	postgresDB, err := datasource.NewPostgresDB(logger, controller)
+	postgresDB, err := datasource.NewPostgresDB(ctx, logger, controller)
 	if err != nil {
 		return nil, err
 	}

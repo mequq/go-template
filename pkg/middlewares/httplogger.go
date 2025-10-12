@@ -77,7 +77,7 @@ func SetRequestContextLogger(next http.Handler) http.Handler {
 			)
 		}
 
-		reqIP := req.Header.Get("x-forwarded-for")
+		reqIP := req.Header.Get("X-Forwarded-For")
 		if reqIP == "" {
 			reqIP = strings.Split(req.RemoteAddr, ":")[0]
 		}

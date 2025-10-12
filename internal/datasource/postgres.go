@@ -27,7 +27,7 @@ const (
 	ConnMaxIdleTime time.Duration = 1 * time.Minute
 )
 
-func NewPostgresDB(logger *slog.Logger, controller app.Controller) (*PostgresDB, error) {
+func NewPostgresDB(ctx context.Context, logger *slog.Logger, controller app.Controller) (*PostgresDB, error) {
 	dsn := "postgresql://user:password@localhost:5432/db?sslmode=disable"
 
 	db, err := otelsql.Open(
@@ -50,7 +50,7 @@ func NewPostgresDB(logger *slog.Logger, controller app.Controller) (*PostgresDB,
 	db.SetConnMaxLifetime(ConnMaxLifetime)
 	db.SetConnMaxIdleTime(ConnMaxIdleTime)
 
-	if err := db.Ping(); err != nil {
+	if err := db.PingContext(ctx); err != nil {
 		return nil, err
 	}
 

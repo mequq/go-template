@@ -3,6 +3,16 @@ version: "2"
 
 linters:
   default: fast
+  enable:
+    - canonicalheader
+    - bodyclose
+    - contextcheck
+    - noctx
+    - sqlclosecheck
+    - misspell
+    - errorlint
+    - gocritic
+
   disable:
     - depguard
   exclusions:

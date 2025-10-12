@@ -14,6 +14,8 @@ type KConfig struct {
 	*koanf.Koanf
 }
 
+var ErrFailedToLoadEnvVars = errors.New("failed to load env vars")
+
 func NewKoanfConfig(runtimeFlags *runTimeFlags) (*KConfig, error) {
 	k := koanf.New(".")
 
@@ -25,7 +27,7 @@ func NewKoanfConfig(runtimeFlags *runTimeFlags) (*KConfig, error) {
 		return strings.ReplaceAll(strings.ToLower(
 			strings.TrimPrefix(s, "APP_")), "_", ".")
 	}), nil); err != nil {
-		return nil, errors.Join(errors.New("failed to load env vars"), err)
+		return nil, errors.Join(ErrFailedToLoadEnvVars, err)
 	}
 
 	return &KConfig{k}, nil

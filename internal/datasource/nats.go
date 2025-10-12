@@ -1,7 +1,7 @@
 package datasource
 
 import (
-	"application/pkg/initializer/config"
+	"application/app"
 	"context"
 	"log/slog"
 	"strings"
@@ -25,7 +25,7 @@ type NatsConfig struct {
 	Subjects      string `json:"subject"`
 }
 
-func NewNats(ctx context.Context, logger *slog.Logger, config config.Config) (*Nats, error) {
+func NewNats(ctx context.Context, logger *slog.Logger, config app.KConfig) (*Nats, error) {
 	cfg := new(NatsConfig)
 	if err := config.Unmarshal("datasource.nats", cfg); err != nil {
 		logger.Error("Failed to unmarshal NATS config", "error", err)

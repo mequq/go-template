@@ -113,7 +113,6 @@ func (r *placeholder) Update(ctx context.Context, id uuid.UUID, name string) err
 		logger.WarnContext(ctx, "failed to execute query", "error", err)
 
 		return err
-
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -125,6 +124,7 @@ func (r *placeholder) Update(ctx context.Context, id uuid.UUID, name string) err
 
 	if rowsAffected == 0 {
 		logger.WarnContext(ctx, "no rows updated, placeholder not found", "id", id)
+
 		return biz.ErrResourceNotFound
 	}
 
