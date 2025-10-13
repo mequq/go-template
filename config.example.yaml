@@ -2,21 +2,39 @@ name: "go-template"
 version: "v1.0.0"
 description: "A simple go template"
 enviroment: "development"
+
+app:
+  title: "Go Template"
+  description: "A simple go template"
+  version: "v1.0.0"
+  enviroment: "development"
+
+
+logger:
+  slog:
+    level: "debug"
+    encoding: "text" # text or json
+
 server:
   http:
-    port: 8080
-    host: ""
+    addr: ":8080"
 
-observability:
-  otel-grpc:
-    enabled: true
-    address: "localhost:4317"
-  tracing:
+
+
+
+# TODO: I like to use open-telemetry collector config style
+# https://opentelemetry.io/docs/reference/specification/protocol/exporter/
+collector:
+  exporters:
+    otlp:
+      endpoint: "localhost:4317"
+      insecure: true
+  traces:
     enabled: true
   metrics:
     enabled: true
-  logging:
-    level: "info"
+  logs:
+    enabled: true
 
 service:
   scheduler:
