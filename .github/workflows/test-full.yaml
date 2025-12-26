@@ -2,10 +2,23 @@ name: full CI
 run-name: ${{ github.actor }} run Actions 🚀
 
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
+    inputs:
+      run-docker:
+        description: 'Run Docker Build and Push'
+        required: false
+        default: true
+        type: boolean
+      run-argocd:
+        description: 'Run ArgoCD Deployment'
+        required: false
+        default: true
+        type: boolean
+      debug:
+        description: 'Enable debug mode'
+        required: false
+        default: true
+        type: boolean
 jobs:
   docker:
     if: ${{ github.event.inputs.run-docker }}
