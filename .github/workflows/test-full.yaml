@@ -2,28 +2,14 @@ name: full CI
 run-name: ${{ github.actor }} run Actions 🚀
 
 on:
-  workflow_dispatch:
-    inputs:
-      run-docker:
-        description: 'Run Docker Build and Push'
-        required: false
-        default: true
-        type: boolean
-      run-argocd:
-        description: 'Run ArgoCD Deployment'
-        required: false
-        default: true
-        type: boolean
-      debug:
-        description: 'Enable debug mode'
-        required: false
-        default: true
-        type: boolean
+  push:
+    branches:
+      - main
 
 jobs:
   docker:
     if: ${{ github.event.inputs.run-docker }}
-    uses: mequq/.ci_template/.github/workflows/docker.yaml@v1.0
+    uses: mequq/.ci_template/.github/workflows/docker.yaml@refs/tags/v3.4.2
     with:
       debug: false
       registry: ${{ vars.REGISTERY_ADDRESS }}
@@ -32,7 +18,7 @@ jobs:
       REGISTERY_PASSWORD: ${{ secrets.REGISTERY_PASSWORD }}
   argocd:
     if: ${{ github.event.inputs.run-argocd }}
-    uses: mequq/.ci_template/.github/workflows/argocd.yaml@v1.0
+    uses: mequq/.ci_template/.github/workflows/argocd.yaml@refs/tags/v1.0
     needs: docker
     with:
       debug: false
