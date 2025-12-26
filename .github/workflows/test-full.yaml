@@ -23,19 +23,19 @@ on:
 jobs:
   docker:
     if: ${{ github.event.inputs.run-docker }}
-    uses: mequq/.ci_template/.github/workflows/docker.yaml
+    uses: mequq/.ci_template/.github/workflows/docker.yaml@v1.0
     with:
-      debug: true
+      debug: false
       registry: ${{ vars.REGISTERY_ADDRESS }}
     secrets:
       REGISTERY_USER: ${{ secrets.REGISTERY_USER }}
       REGISTERY_PASSWORD: ${{ secrets.REGISTERY_PASSWORD }}
   argocd:
     if: ${{ github.event.inputs.run-argocd }}
-    uses: mequq/.ci_template/.github/workflows/argocd.yaml
+    uses: mequq/.ci_template/.github/workflows/argocd.yaml@v1.0
     needs: docker
     with:
-      debug: true
+      debug: false
       registry: ${{ vars.REGISTERY_ADDRESS }}
     secrets:
       ARGOCD_GIT_TOKEN: ${{ secrets.ARGOCD_GIT_TOKEN }}
