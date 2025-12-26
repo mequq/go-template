@@ -9,7 +9,7 @@ on:
 jobs:
   docker:
     if: ${{ github.event.inputs.run-docker }}
-    uses: mequq/.ci_template/.github/workflows/docker.yaml@refs/tags/v3.4.2
+    uses: mequq/.ci_template/.github/workflows/docker.yaml@refs/tags/v1.0
     with:
       debug: false
       registry: ${{ vars.REGISTERY_ADDRESS }}
