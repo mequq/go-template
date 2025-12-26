@@ -9,7 +9,7 @@ on:
 jobs:
   docker:
     if: ${{ github.event.inputs.run-docker }}
-    uses: .ci_template/.github/workflows/docker.yaml@v1.0
+    uses: mequq/.ci_template/.github/workflows/docker.yaml@main
     with:
       debug: false
       registry: ${{ vars.REGISTERY_ADDRESS }}
@@ -18,7 +18,7 @@ jobs:
       REGISTERY_PASSWORD: ${{ secrets.REGISTERY_PASSWORD }}
   argocd:
     if: ${{ github.event.inputs.run-argocd }}
-    uses: .ci_template/.github/workflows/argocd.yaml@v1.0
+    uses: mequq/.ci_template/.github/workflows/argocd.yaml@main
     needs: docker
     with:
       debug: false
