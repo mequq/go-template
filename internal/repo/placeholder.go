@@ -23,7 +23,7 @@ var _ biz.RepositoryPlaceholder = (*placeholder)(nil)
 func NewPlaceholder(logger *slog.Logger, db *datasource.PostgresDB) *placeholder {
 	return &placeholder{
 		logger: logger.With("layer", "Placeholder"),
-		tracer: otel.Tracer("HealthzUseCase"),
+		tracer: otel.Tracer("PlaceholderRepo"),
 		db:     db,
 	}
 }

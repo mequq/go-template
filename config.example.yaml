@@ -1,13 +1,13 @@
 name: "go-template"
 version: "v1.0.0"
 description: "A simple go template"
-enviroment: "development"
+environment: "development"
 
 app:
   title: "Go Template"
   description: "A simple go template"
   version: "v1.0.0"
-  enviroment: "development"
+  environment: "development"
 
 
 logger:
