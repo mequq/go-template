@@ -1,121 +1,91 @@
-# Golang Boilerplate (template)
-This simple boilerplate, based on clean architecture principles, serves as an excellent foundation for your REST API microservices.
-.
-.
-.
+# Go Template
 
-1
-## Setup 
-```
-cp config.example.yaml config.yaml 
-```
-### Commands
+A clean-architecture template for a Go REST microservice. The Go module is named `application`.
 
-#### Generate
+## What's in the box
 
-Generates the necessary files for the project.
+- **HTTP server** — stdlib `net/http.ServeMux` with `otelhttp` + panic-recovery middleware (`app/httpserver.go`).
+- **Compile-time DI** — Google Wire; composition root in `cmd/app/wire.go`.
+- **Configuration** — koanf, YAML file plus `APP_`-prefixed env overlay (`app/config.go`).
+- **Observability** — OpenTelemetry traces, metrics, and logs over OTLP gRPC; slog bridged to OTel logs (`app/otel.go`, `app/logger.go`).
+- **Datasources** — PostgreSQL (pgx + otelsql), an in-memory ramsql DB for testing, and a NATS/JetStream client.
+- **Lifecycle** — components self-register `Start`, `Shutdown`, and `Healthz` hooks on a shared `app.Controller` (`app/controller.go`).
+- **Mocks** — mockery v2 generates from `internal/biz` into `internal/mocks` (`.mockery.yaml`).
+- **API docs** — swag generates Swagger; UI mounted at `/swagger/`.
 
-```sh
-make generate
-```
-
-This command performs the following steps:
-- Tidies the `go.mod` file.
-- Installs the latest version of `wire`.
-- Runs `go generate` on the project.
-- Tidies the `go.mod` file again.
-
-#### Generate All
-
-Runs the `generate` command.
+## Quickstart
 
 ```sh
-make all
+cp config.example.yaml config.yaml
+make devtools                      # one-time: golangci-lint, gofumpt, mockgen, swag, gci
+make generate                      # tidy go.mod, install wire, run go generate
+go run ./cmd/app --config ./config.yaml
 ```
 
-#### All Tests
+The server listens on `:8080` by default. Override any config key via env, e.g. `APP_SERVER_HTTP_ADDR=:9090`.
 
-Runs all tests with benchmarking, code coverage, and memory allocation statistics.
+## Endpoints exposed by default
+
+| Path | Notes |
+|---|---|
+| `GET /healthz/liveness` | Liveness check (fans out across registered checks) |
+| `GET /healthz/readiness` | Readiness check |
+| `GET /healthz/panic` | Triggers a panic for testing the recovery middleware |
+| `GET /healthz/sleep/{time}` | Sleeps for a `time.Duration` (e.g. `10s`) |
+| `GET /apis/mocks/placeholders` | Example CRUD resource (list/get/create/update/delete) |
+| `GET /metrics` | Prometheus exposition |
+| `GET /swagger/` | Swagger UI (spec at `/docs/swagger/swagger.json`) |
+
+## Common commands
 
 ```sh
-make all_tests
+make generate         # regenerate Wire DI graph + go.mod tidy
+make swagger          # regenerate ./docs/ from swag annotations
+make check            # golangci-lint
+make unit_tests       # tests under internal/service/handler and internal/biz
+make coverage_tests   # same, with coverage profile to coverage.out
+make all_tests        # tests + benchmarks + coverage (JSON output)
+make build            # docker build -t buildf .
 ```
 
-#### Benchmark Tests
-
-Runs benchmark tests with memory allocation statistics.
+Run a single test:
 
 ```sh
-make bench_tests
+go test ./internal/service/handler/... -run TestName -v
 ```
 
-#### Unit Tests
+## Architecture
 
-Runs unit tests.
+```
+cmd/app                 main + wire composition root
+app/                    runtime infra (Application, HTTPServer, Controller, KConfig, Logger, OTLP)
+internal/service        HTTP wiring (mux, /metrics, /swagger)
+internal/service/handler HTTP handlers — implement service.Handler
+internal/service/dto    request/response shapes + error mapping
+internal/biz            use cases (interfaces consumed by handlers)
+internal/repo           repository implementations (bound to biz Repository interfaces)
+internal/datasource     DB / queue clients
+internal/entity         domain types
+internal/mocks          mockery-generated mocks for internal/biz
+pkg/middlewares         per-route HTTP middlewares
+infra/                  docker-compose stacks (monitoring, postgres, redis) + k8s manifests
+migrations/             SQL migrations
+```
+
+Dependency direction: `cmd → app → service/handler → biz → repo → datasource → entity`.
+
+To add a handler: implement `service.Handler` (`RegisterHandler(ctx) error` registers routes on the injected `*http.ServeMux`), expose a `New…` provider, and append it to `NewServiceList` in `internal/service/handler/wire.go`. Then run `make generate`.
+
+## Configuration
+
+`config.yaml` is the source of truth at runtime; copy from `config.example.yaml`. Env vars prefixed `APP_` are merged on top, with `_` mapping to `.` (e.g. `APP_SERVER_HTTP_ADDR` → `server.http.addr`). The `--config` flag selects the file (default `./config.yaml`).
+
+## Local infrastructure
+
+`docker-compose.yml` aggregates includes from `infra/compose/` for monitoring, Postgres, and Redis:
 
 ```sh
-make unit_tests
+docker compose up -d
 ```
 
-#### Coverage Tests
-
-Runs tests with code coverage and outputs the coverage profile to `coverage.out`.
-
-```sh
-make coverage_tests
-```
-
-#### Format Code
-
-Formats the code using `gofumpt` and `gci`.
-
-```sh
-make fmt
-```
-
-#### Install Development Tools
-
-Installs the necessary development tools.
-
-```sh
-make devtools
-```
-
-This command installs the following tools:
-- `golangci-lint`
-- `gofumpt`
-- `mockgen`
-- `swag`
-
-#### Generate Swagger Documentation (v1)
-
-Generates Swagger documentation for version 1 of the API.
-
-```sh
-make swagger-v1
-```
-
-#### Lint Check
-
-Runs `golangci-lint` with various enabled linters.
-<br>
-[Go Cli Dcos](https://golangci-lint.run)
-
-```sh
-make check
-```
-
-#### Build Docker Image
-
-Builds the Docker image for the project.
-
-```sh
-make build
-```
-
-This will create a Docker image tagged as `buildf`.
-
-### Notes
-
-- Ensure that you have Docker installed and running for the `build` command.
-- The `devtools` command installs tools needed for development and should be run once initially or whenever you need to update these tools.
+The `Tiltfile` references a Helm chart at `./charts/...` that is not included in this repo — add your own chart to use Tilt.
