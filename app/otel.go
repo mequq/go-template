@@ -32,7 +32,7 @@ type ExporterType string
 const (
 	ExporterUnknown ExporterType = "unknown"
 	ExporterOTLP    ExporterType = "otlp"
-	ExporterDebug
+	ExporterDebug   ExporterType = "debug"
 )
 
 type collectorConfig struct {
@@ -334,27 +334,27 @@ func (o *otlp) startTraces(ctx context.Context) error {
 func (o *otlp) shutdown(ctx context.Context) error {
 	logger := o.logger.With("method", "shutdown", "version", o.appConfig.Version)
 
-	var err error
+	var errs error
 	if o.otlpTracer != nil {
-		if err := o.otlpTracer.Shutdown(ctx); err != nil {
-			err = errors.Join(err, err)
-			logger.Error("failed to shutdown OTLP tracer provider", "error", err)
+		if shutdownErr := o.otlpTracer.Shutdown(ctx); shutdownErr != nil {
+			errs = errors.Join(errs, shutdownErr)
+			logger.Error("failed to shutdown OTLP tracer provider", "error", shutdownErr)
 		}
 	}
 
 	if o.otlpMeter != nil {
-		if err := o.otlpMeter.Shutdown(ctx); err != nil {
-			err = errors.Join(err, err)
-			logger.Error("failed to shutdown OTLP meter provider", "error", err)
+		if shutdownErr := o.otlpMeter.Shutdown(ctx); shutdownErr != nil {
+			errs = errors.Join(errs, shutdownErr)
+			logger.Error("failed to shutdown OTLP meter provider", "error", shutdownErr)
 		}
 	}
 
 	if o.otlpLogger != nil {
-		if err := o.otlpLogger.Shutdown(ctx); err != nil {
-			err = errors.Join(err, err)
-			logger.Error("failed to shutdown OTLP logger provider", "error", err)
+		if shutdownErr := o.otlpLogger.Shutdown(ctx); shutdownErr != nil {
+			errs = errors.Join(errs, shutdownErr)
+			logger.Error("failed to shutdown OTLP logger provider", "error", shutdownErr)
 		}
 	}
 
-	return err
+	return errs
 }

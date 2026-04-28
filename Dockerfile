@@ -24,8 +24,6 @@ FROM gcr.aban.io/distroless/static-debian12:nonroot
 COPY --from=builder /tmp/.bin/ /app/bin/
 COPY ./config.example.yaml /app/config.yaml
 
-
-COPY config.example.yaml /app/config.yaml
 CMD ["/app/bin/app", "--config", "/app/config.yaml"]
 
 

@@ -15,21 +15,23 @@ type InmemoryDB struct {
 	logger *slog.Logger
 }
 
-func NewInmemoryDB(logger *slog.Logger, controller app.Controller) *InmemoryDB {
-	db, err := sql.Open("ramsql", "TestLoadUserAddresses")
+func NewInmemoryDB(logger *slog.Logger, controller app.Controller) (*InmemoryDB, error) {
+	db, err := sql.Open("ramsql", "inmemory")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	controller.RegisterHealthz(
-		"inmemorydb",
-		func(ctx context.Context) error {
-			return db.PingContext(ctx)
-		},
-	)
-
-	return &InmemoryDB{
+	mem := &InmemoryDB{
 		DB:     db,
 		logger: logger.With("layer", "InmemoryDB"),
 	}
+
+	controller.RegisterHealthz("inmemorydb", func(ctx context.Context) error {
+		return db.PingContext(ctx)
+	})
+	controller.RegisterShutdown("inmemorydb", func(_ context.Context) error {
+		return db.Close()
+	})
+
+	return mem, nil
 }
